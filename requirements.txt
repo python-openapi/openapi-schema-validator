@@ -1,2 +1,4 @@
+isodate
 jsonschema
 six
+strict_rfc3339
