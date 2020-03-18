@@ -4,7 +4,7 @@ from openapi_schema_validator.validators import OAS30Validator
 
 __author__ = 'Artur Maciag'
 __email__ = 'maciag.artur@gmail.com'
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 __url__ = 'https://github.com/p1c2u/openapi-schema-validator'
 __license__ = 'BSD 3-Clause License'
 

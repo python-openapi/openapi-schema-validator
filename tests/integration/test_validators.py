@@ -37,7 +37,7 @@ class TestOAS30ValidatorValidate(object):
     ])
     @mock.patch(
         'openapi_schema_validator._format.'
-        'DATETIME_HAS_STRICT_RFC3339', True
+        'DATETIME_HAS_RFC3339_VALIDATOR', True
     )
     @mock.patch(
         'openapi_schema_validator._format.'
@@ -58,7 +58,7 @@ class TestOAS30ValidatorValidate(object):
     ])
     @mock.patch(
         'openapi_schema_validator._format.'
-        'DATETIME_HAS_STRICT_RFC3339', False
+        'DATETIME_HAS_RFC3339_VALIDATOR', False
     )
     @mock.patch(
         'openapi_schema_validator._format.'
