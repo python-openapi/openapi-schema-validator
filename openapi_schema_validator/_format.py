@@ -90,7 +90,7 @@ def is_uuid(instance):
     if isinstance(instance, binary_type):
         instance = instance.decode()
 
-    return text_type(UUID(instance)) == instance
+    return text_type(UUID(instance)).lower() == instance.lower()
 
 
 def is_password(instance):
