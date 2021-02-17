@@ -78,8 +78,7 @@ Simple usage
        ...
    ValidationError: Additional properties are not allowed ('city' was unexpected)
 
-
-   You can also check format for primitive types
+You can also check format for primitive types
 
 .. code-block:: python
 
