@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from openapi_schema_validator._format import oas30_format_checker
+from openapi_schema_validator.shortcuts import validate
 from openapi_schema_validator.validators import OAS30Validator
 
 __author__ = 'Artur Maciag'
@@ -8,4 +9,4 @@ __version__ = '0.1.1'
 __url__ = 'https://github.com/p1c2u/openapi-schema-validator'
 __license__ = 'BSD 3-Clause License'
 
-__all__ = ['OAS30Validator', 'oas30_format_checker']
+__all__ = ['validate', 'OAS30Validator', 'oas30_format_checker']
