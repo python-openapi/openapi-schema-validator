@@ -72,3 +72,15 @@ class TestOAS30ValidatorValidate(object):
         result = validator.validate(value)
 
         assert result is None
+
+    @pytest.mark.parametrize('value', [
+        'f50ec0b7-f960-400d-91f0-c42a6d44e3d0',
+        'F50EC0B7-F960-400D-91F0-C42A6D44E3D0',
+    ])
+    def test_string_uuid(self, value):
+        schema = {"type": 'string', "format": 'uuid'}
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
+
+        result = validator.validate(value)
+
+        assert result is None

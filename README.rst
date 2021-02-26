@@ -43,7 +43,7 @@ Simple usage
 
 .. code-block:: python
 
-   from openapi_schema_validator import OAS30Validator, oas30_format_checker
+   from openapi_schema_validator import validate
 
    # A sample schema
    schema = {
@@ -61,19 +61,35 @@ Simple usage
                "minimum": 0,
                "nullable": True,
            },
+           "birth-date": {
+               "type": "string",
+               "format": "date",
+           }
        },
        "additionalProperties": False,
    }
 
-   validator = OAS30Validator(schema)
    # If no exception is raised by validate(), the instance is valid.
-   validator.validate({"name": "John", "age": 23})
+   validate({"name": "John", "age": 23}, schema)
 
-   validator.validate({"name": "John", "city": "London"})
+   validate({"name": "John", "city": "London"}, schema)
 
    Traceback (most recent call last):
        ...
    ValidationError: Additional properties are not allowed ('city' was unexpected)
+
+You can also check format for primitive types
+
+.. code-block:: python
+
+   from openapi_schema_validator import oas30_format_checker
+
+   validate({"name": "John", "birth-date": "-12"}, schema, format_checker=oas30_format_checker)
+
+   Traceback (most recent call last):
+       ...
+   ValidationError: '-12' is not a 'date'
+
 
 Related projects
 ################

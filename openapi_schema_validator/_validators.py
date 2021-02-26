@@ -72,7 +72,7 @@ def readOnly(validator, ro, instance, schema):
         return
 
     yield ValidationError(
-        "Tried to write read-only proparty with %s" % (instance))
+        "Tried to write read-only property with %s" % (instance))
 
 
 def writeOnly(validator, wo, instance, schema):
@@ -80,7 +80,7 @@ def writeOnly(validator, wo, instance, schema):
         return
 
     yield ValidationError(
-        "Tried to read write-only proparty with %s" % (instance))
+        "Tried to read write-only property with %s" % (instance))
 
 
 def not_implemented(validator, value, instance, schema):
