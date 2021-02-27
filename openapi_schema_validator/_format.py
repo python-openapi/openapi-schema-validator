@@ -8,6 +8,7 @@ from jsonschema.exceptions import FormatError
 from six import binary_type, text_type, integer_types
 
 DATETIME_HAS_RFC3339_VALIDATOR = False
+DATETIME_HAS_STRICT_RFC3339 = False
 DATETIME_HAS_ISODATE = False
 DATETIME_RAISES = ()
 
@@ -25,6 +26,14 @@ except ImportError:
     pass
 else:
     DATETIME_HAS_RFC3339_VALIDATOR = True
+    DATETIME_RAISES += (ValueError, TypeError)
+
+try:
+    import strict_rfc3339
+except ImportError:
+    pass
+else:
+    DATETIME_HAS_STRICT_RFC3339 = True
     DATETIME_RAISES += (ValueError, TypeError)
 
 
@@ -66,6 +75,9 @@ def is_datetime(instance):
 
     if DATETIME_HAS_RFC3339_VALIDATOR:
         return validate_rfc3339(instance)
+
+    if DATETIME_HAS_STRICT_RFC3339:
+        return strict_rfc3339.validate_rfc3339(instance)
 
     if DATETIME_HAS_ISODATE:
         return isodate.parse_datetime(instance)
