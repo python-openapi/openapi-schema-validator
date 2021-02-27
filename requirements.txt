@@ -1,4 +1,5 @@
 isodate
 jsonschema
 six
-strict_rfc3339
+strict-rfc3339
+rfc3339-validator

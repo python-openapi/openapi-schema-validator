@@ -37,6 +37,60 @@ class TestOAS30ValidatorValidate(object):
     ])
     @mock.patch(
         'openapi_schema_validator._format.'
+        'DATETIME_HAS_RFC3339_VALIDATOR', False
+    )
+    @mock.patch(
+        'openapi_schema_validator._format.'
+        'DATETIME_HAS_STRICT_RFC3339', False
+    )
+    @mock.patch(
+        'openapi_schema_validator._format.'
+        'DATETIME_HAS_ISODATE', False
+    )
+    def test_string_format_no_datetime_validator(self, value):
+        schema = {"type": 'string', "format": 'date-time'}
+        validator = OAS30Validator(
+            schema, format_checker=oas30_format_checker)
+
+        result = validator.validate(value)
+
+        assert result is None
+
+    @pytest.mark.parametrize('value', [
+        u('1989-01-02T00:00:00Z'),
+        u('2018-01-02T23:59:59Z'),
+    ])
+    @mock.patch(
+        'openapi_schema_validator._format.'
+        'DATETIME_HAS_RFC3339_VALIDATOR', True
+    )
+    @mock.patch(
+        'openapi_schema_validator._format.'
+        'DATETIME_HAS_STRICT_RFC3339', False
+    )
+    @mock.patch(
+        'openapi_schema_validator._format.'
+        'DATETIME_HAS_ISODATE', False
+    )
+    def test_string_format_datetime_rfc3339_validator(self, value):
+        schema = {"type": 'string', "format": 'date-time'}
+        validator = OAS30Validator(
+            schema, format_checker=oas30_format_checker)
+
+        result = validator.validate(value)
+
+        assert result is None
+
+    @pytest.mark.parametrize('value', [
+        u('1989-01-02T00:00:00Z'),
+        u('2018-01-02T23:59:59Z'),
+    ])
+    @mock.patch(
+        'openapi_schema_validator._format.'
+        'DATETIME_HAS_RFC3339_VALIDATOR', False
+    )
+    @mock.patch(
+        'openapi_schema_validator._format.'
         'DATETIME_HAS_STRICT_RFC3339', True
     )
     @mock.patch(
@@ -56,6 +110,10 @@ class TestOAS30ValidatorValidate(object):
         u('1989-01-02T00:00:00Z'),
         u('2018-01-02T23:59:59Z'),
     ])
+    @mock.patch(
+        'openapi_schema_validator._format.'
+        'DATETIME_HAS_RFC3339_VALIDATOR', False
+    )
     @mock.patch(
         'openapi_schema_validator._format.'
         'DATETIME_HAS_STRICT_RFC3339', False
