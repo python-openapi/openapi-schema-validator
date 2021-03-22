@@ -1,9 +1,13 @@
 from jsonschema import ValidationError
-import mock
 import pytest
 from six import u
 
 from openapi_schema_validator import OAS30Validator, oas30_format_checker
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 
 class TestOAS30ValidatorValidate(object):
