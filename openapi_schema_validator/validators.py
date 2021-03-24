@@ -47,7 +47,6 @@ BaseOAS30Validator = create(
         u"deprecated": oas_validators.not_implemented,
     },
     type_checker=oas_types.oas30_type_checker,
-    version="oas30",
     id_of=lambda schema: schema.get(u"id", ""),
 )
 
