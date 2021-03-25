@@ -47,6 +47,9 @@ BaseOAS30Validator = create(
         u"deprecated": oas_validators.not_implemented,
     },
     type_checker=oas_types.oas30_type_checker,
+    # NOTE: version causes conflict with global jsonschema validator
+    # See https://github.com/p1c2u/openapi-schema-validator/pull/12
+    # version="oas30",
     id_of=lambda schema: schema.get(u"id", ""),
 )
 
