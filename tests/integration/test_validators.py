@@ -161,6 +161,65 @@ class TestOAS30ValidatorValidate(object):
                            match="'some_prop' is a required property"):
             validator.validate({"another_prop": "bla"})
 
+    def test_required(self):
+        schema = {
+            "type": "object",
+            "properties": {
+                "some_prop": {
+                    "type": "string"
+                }
+            },
+            "required": ["some_prop"]
+        }
+
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
+        with pytest.raises(ValidationError,
+                           match="'some_prop' is a required property"):
+            validator.validate({"another_prop": "bla"})
+        assert validator.validate({"some_prop": "hello"}) is None
+
+    def test_required_read_only(self):
+        schema = {
+            "type": "object",
+            "properties": {
+                "some_prop": {
+                    "type": "string",
+                    "readOnly": True
+                }
+            },
+            "required": ["some_prop"]
+        }
+
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker,
+                                   read=True)
+        with pytest.raises(ValidationError,
+                           match="'some_prop' is a required property"):
+            validator.validate({"another_prop": "hello"})
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker,
+                                   write=True)
+        assert validator.validate({"another_prop": "hello"}) is None
+
+    def test_required_write_only(self):
+        schema = {
+            "type": "object",
+            "properties": {
+                "some_prop": {
+                    "type": "string",
+                    "writeOnly": True
+                }
+            },
+            "required": ["some_prop"]
+        }
+
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker,
+                                   write=True)
+        with pytest.raises(ValidationError,
+                           match="'some_prop' is a required property"):
+            validator.validate({"another_prop": "hello"})
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker,
+                                   read=True)
+        assert validator.validate({"another_prop": "hello"}) is None
+
     def test_oneof_required(self):
         instance = {
             'n3IwfId': 'string',
