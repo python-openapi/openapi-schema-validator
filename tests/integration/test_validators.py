@@ -146,3 +146,36 @@ class TestOAS30ValidatorValidate(object):
         result = validator.validate(value)
 
         assert result is None
+
+    def test_allof_required(self):
+        schema = {
+            "allOf": [
+                {"type": "object",
+                 "properties": {
+                     "some_prop": {"type": "string"}}},
+                {"type": "object", "required": ["some_prop"]},
+            ]
+        }
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
+        with pytest.raises(ValidationError,
+                           match="'some_prop' is a required property"):
+            validator.validate({"another_prop": "bla"})
+
+    def test_oneof_required(self):
+        instance = {
+            'n3IwfId': 'string',
+        }
+        schema = {
+            "type": "object",
+            "properties": {
+                "n3IwfId": {"type": "string"},
+                "wagfId": {"type": "string"},
+            },
+            "oneOf": [
+                {"required": ["n3IwfId"]},
+                {"required": ["wagfId"]},
+            ],
+        }
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
+        result = validator.validate(instance)
+        assert result is None

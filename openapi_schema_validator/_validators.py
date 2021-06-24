@@ -18,7 +18,7 @@ def format(validator, format, instance, schema):
         try:
             validator.format_checker.check(instance, format)
         except FormatError as error:
-            yield ValidationError(error.message, cause=error.cause)
+            yield ValidationError(str(error), cause=error.cause)
 
 
 def items(validator, items, instance, schema):
@@ -40,11 +40,14 @@ def required(validator, required, instance, schema):
         return
     for property in required:
         if property not in instance:
-            prop_schema = schema['properties'][property]
-            read_only = prop_schema.get('readOnly', False)
-            write_only = prop_schema.get('writeOnly', False)
-            if validator.write and read_only or validator.read and write_only:
-                continue
+            prop_schema = schema.get('properties', {}).get(property)
+            if prop_schema:
+                read_only = prop_schema.get('readOnly', False)
+                write_only = prop_schema.get('writeOnly', False)
+                if (
+                        validator.write and read_only or
+                        validator.read and write_only):
+                    continue
             yield ValidationError("%r is a required property" % property)
 
 
