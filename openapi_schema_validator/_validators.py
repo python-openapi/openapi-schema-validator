@@ -7,7 +7,7 @@ def type(validator, data_type, instance, schema):
         return
 
     if not validator.is_type(instance, data_type):
-        yield ValidationError("%r is not of type %s" % (instance, data_type))
+        yield ValidationError("%r is not not not of type %s" % (instance, data_type))
 
 
 def format(validator, format, instance, schema):
