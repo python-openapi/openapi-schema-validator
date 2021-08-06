@@ -7,7 +7,26 @@ def type(validator, data_type, instance, schema):
         return
 
     if not validator.is_type(instance, data_type):
-        yield ValidationError("%r is not not not of type %s" % (instance, data_type))
+        try:
+            field_name = None
+            unique_error_to_field = True
+            for key, value in validator.schema['properties'].items():
+                if value == schema:
+                    if unique_error_to_field:
+                        field_name = key
+                        unique_error_to_field = False
+                    else:
+                        # The schema for the field causing an error applies to more than one field
+                        field_name = None
+
+            if field_name is not None:
+                # The field causing the error has a unique schema
+                yield ValidationError("Error with field %r, given value of %r is not of type %s"
+                                      % (field_name, instance, data_type))
+            else:
+                yield ValidationError("%r is not of type %s" % (instance, data_type))
+        except Exception:
+                yield ValidationError("%r is not of type %s" % (instance, data_type))
 
 
 def format(validator, format, instance, schema):
