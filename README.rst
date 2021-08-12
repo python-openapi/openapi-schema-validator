@@ -18,7 +18,10 @@ openapi-schema-validator
 About
 #####
 
-Openapi-schema-validator is a Python library that validates schema against the `OpenAPI Schema Specification v3.0 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#schemaObject>`__ which is an extended subset of the `JSON Schema Specification Wright Draft 00 <http://json-schema.org/>`__.
+Openapi-schema-validator is a Python library that validates schema against:
+
+* `OpenAPI Schema Specification v3.0 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#schemaObject>`__ which is an extended subset of the `JSON Schema Specification Wright Draft 00 <http://json-schema.org/>`__.
+* `OpenAPI Schema Specification v3.1 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.1.0.md#schemaObject>`__ which is an extended superset of the `JSON Schema Specification Draft 2020-12 <http://json-schema.org/>`__.
 
 Installation
 ############
@@ -47,7 +50,7 @@ Simple usage
 
    # A sample schema
    schema = {
-       "type" : "object",
+       "type": "object",
        "required": [
           "name"
        ],
@@ -82,9 +85,9 @@ You can also check format for primitive types
 
 .. code-block:: python
 
-   from openapi_schema_validator import oas30_format_checker
+   from openapi_schema_validator import oas31_format_checker
 
-   validate({"name": "John", "birth-date": "-12"}, schema, format_checker=oas30_format_checker)
+   validate({"name": "John", "birth-date": "-12"}, schema, format_checker=oas31_format_checker)
 
    Traceback (most recent call last):
        ...

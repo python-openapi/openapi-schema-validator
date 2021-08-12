@@ -1,6 +1,6 @@
 from jsonschema._types import (
     TypeChecker, is_array, is_bool, is_integer,
-    is_object, is_number,
+    is_object, is_number, draft202012_type_checker,
 )
 
 
@@ -18,3 +18,4 @@ oas30_type_checker = TypeChecker(
         u"object": is_object,
     },
 )
+oas31_type_checker = draft202012_type_checker

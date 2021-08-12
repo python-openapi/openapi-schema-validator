@@ -144,3 +144,4 @@ class OASFormatChecker(FormatChecker):
 
 
 oas30_format_checker = OASFormatChecker()
+oas31_format_checker = oas30_format_checker
