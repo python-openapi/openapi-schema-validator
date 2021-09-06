@@ -7,6 +7,6 @@ __author__ = 'Artur Maciag'
 __email__ = 'maciag.artur@gmail.com'
 __version__ = '0.1.5'
 __url__ = 'https://github.com/p1c2u/openapi-schema-validator'
-__license__ = 'BSD 3-Clause License'
+__license__ = '3-clause BSD License'
 
 __all__ = ['validate', 'OAS30Validator', 'oas30_format_checker']
