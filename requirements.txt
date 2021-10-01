@@ -1,4 +1,4 @@
 isodate
-jsonschema
+jsonschema==3.2.0
 six
 strict_rfc3339
