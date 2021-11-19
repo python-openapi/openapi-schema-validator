@@ -71,4 +71,4 @@ class OAS30Validator(BaseOAS30Validator):
                 'nullable': False,
             })
 
-        return super(OAS30Validator, self.evolve(_schema)).iter_errors(instance)
+        return super(OAS30Validator, self.evolve(schema=_schema)).iter_errors(instance)
