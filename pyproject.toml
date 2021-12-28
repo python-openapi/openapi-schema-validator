@@ -1,0 +1,75 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+branch = true
+source =["openapi_schema_validator"]
+
+[tool.coverage.xml]
+output = "reports/coverage.xml"
+
+[tool.poetry]
+name = "openapi-schema-validator"
+version = "0.1.6"
+description = "OpenAPI schema validation for Python"
+authors = ["Artur Maciag <maciag.artur@gmail.com>"]
+license = "BSD-3-Clause"
+readme = "README.rst"
+repository = "https://github.com/p1c2u/openapi-schema-validator"
+keywords = ["openapi", "swagger", "schema"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Software Development :: Libraries"
+]
+
+[tool.poetry.dependencies]
+python = "^3.6.2"
+six = "*"
+jsonschema = "*"
+rfc3339-validator = {version = "*", optional = true}
+strict-rfc3339 = {version = "*", optional = true}
+isodate = {version = "*", optional = true}
+
+[tool.poetry.extras]
+rfc3339-validator = ["rfc3339-validator"]
+strict-rfc3339 = ["strict-rfc3339"]
+isodate = ["isodate"]
+
+[tool.poetry.dev-dependencies]
+black = {version = "^21.6b0", allow-prereleases = true}
+isort = "^5.9.1"
+pre-commit = "*"
+pytest = "^6"
+pytest-flake8 = "*"
+pytest-cov = "*"
+mypy = "^0.910"
+
+[tool.pytest.ini_options]
+addopts = """
+--capture=no
+--verbose
+--showlocals
+--junitxml=reports/junit.xml
+--cov=openapi_schema_validator
+--cov-report=term-missing
+--cov-report=xml
+"""
+
+[tool.black]
+line-length = 79
+
+[tool.isort]
+profile = "black"
+line_length = 79
+force_single_line = true
