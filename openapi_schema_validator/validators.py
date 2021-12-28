@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from jsonschema import _legacy_validators, _utils, _validators
 from jsonschema.validators import create
 
@@ -63,7 +65,8 @@ class OAS30Validator(BaseOAS30Validator):
 
     def iter_errors(self, instance, _schema=None):
         if _schema is None:
-            _schema = self.schema
+            # creates a copy by value from schema to prevent mutation
+            _schema = deepcopy(self.schema)
 
         # append defaults to trigger validator (i.e. nullable)
         if 'nullable' not in _schema:
