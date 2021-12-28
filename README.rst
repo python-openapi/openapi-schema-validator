@@ -94,4 +94,6 @@ You can also check format for primitive types
 Related projects
 ################
 * `openapi-core <https://github.com/p1c2u/openapi-core>`__
+   Python library that adds client-side and server-side support for the OpenAPI.
 * `openapi-spec-validator <https://github.com/p1c2u/openapi-spec-validator>`__
+   Python library that validates OpenAPI Specs against the OpenAPI 2.0 (aka Swagger) and OpenAPI 3.0 specification
