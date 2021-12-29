@@ -1,6 +1,5 @@
 from jsonschema import ValidationError
 import pytest
-from six import u
 
 from openapi_schema_validator import OAS30Validator, oas30_format_checker
 
@@ -36,8 +35,8 @@ class TestOAS30ValidatorValidate(object):
         assert result is None
 
     @pytest.mark.parametrize('value', [
-        u('1989-01-02T00:00:00Z'),
-        u('2018-01-02T23:59:59Z'),
+        u'1989-01-02T00:00:00Z',
+        u'2018-01-02T23:59:59Z',
     ])
     @mock.patch(
         'openapi_schema_validator._format.'
@@ -61,8 +60,8 @@ class TestOAS30ValidatorValidate(object):
         assert result is None
 
     @pytest.mark.parametrize('value', [
-        u('1989-01-02T00:00:00Z'),
-        u('2018-01-02T23:59:59Z'),
+        u'1989-01-02T00:00:00Z',
+        u'2018-01-02T23:59:59Z',
     ])
     @mock.patch(
         'openapi_schema_validator._format.'
@@ -86,8 +85,8 @@ class TestOAS30ValidatorValidate(object):
         assert result is None
 
     @pytest.mark.parametrize('value', [
-        u('1989-01-02T00:00:00Z'),
-        u('2018-01-02T23:59:59Z'),
+        u'1989-01-02T00:00:00Z',
+        u'2018-01-02T23:59:59Z',
     ])
     @mock.patch(
         'openapi_schema_validator._format.'
@@ -111,8 +110,8 @@ class TestOAS30ValidatorValidate(object):
         assert result is None
 
     @pytest.mark.parametrize('value', [
-        u('1989-01-02T00:00:00Z'),
-        u('2018-01-02T23:59:59Z'),
+        u'1989-01-02T00:00:00Z',
+        u'2018-01-02T23:59:59Z',
     ])
     @mock.patch(
         'openapi_schema_validator._format.'
