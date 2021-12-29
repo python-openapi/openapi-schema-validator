@@ -1,5 +1,0 @@
-isodate
-jsonschema
-six
-strict-rfc3339
-rfc3339-validator
