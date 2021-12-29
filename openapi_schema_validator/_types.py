@@ -2,11 +2,10 @@ from jsonschema._types import (
     TypeChecker, is_array, is_bool, is_integer,
     is_object, is_number,
 )
-from six import text_type, binary_type
 
 
 def is_string(checker, instance):
-    return isinstance(instance, (text_type, binary_type))
+    return isinstance(instance, (str, bytes))
 
 
 oas30_type_checker = TypeChecker(

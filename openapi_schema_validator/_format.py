@@ -5,7 +5,6 @@ from uuid import UUID
 
 from jsonschema._format import FormatChecker
 from jsonschema.exceptions import FormatError
-from six import binary_type, text_type, integer_types
 
 DATETIME_HAS_RFC3339_VALIDATOR = False
 DATETIME_HAS_STRICT_RFC3339 = False
@@ -38,11 +37,11 @@ else:
 
 
 def is_int32(instance):
-    return isinstance(instance, integer_types)
+    return isinstance(instance, int)
 
 
 def is_int64(instance):
-    return isinstance(instance, integer_types)
+    return isinstance(instance, int)
 
 
 def is_float(instance):
@@ -56,11 +55,11 @@ def is_double(instance):
 
 
 def is_binary(instance):
-    return isinstance(instance, binary_type)
+    return isinstance(instance, bytes)
 
 
 def is_byte(instance):
-    if isinstance(instance, text_type):
+    if isinstance(instance, str):
         instance = instance.encode()
 
     try:
@@ -70,7 +69,7 @@ def is_byte(instance):
 
 
 def is_datetime(instance):
-    if not isinstance(instance, (binary_type, text_type)):
+    if not isinstance(instance, (bytes, str)):
         return False
 
     if DATETIME_HAS_RFC3339_VALIDATOR:
@@ -86,23 +85,23 @@ def is_datetime(instance):
 
 
 def is_date(instance):
-    if not isinstance(instance, (binary_type, text_type)):
+    if not isinstance(instance, (bytes, str)):
         return False
 
-    if isinstance(instance, binary_type):
+    if isinstance(instance, bytes):
         instance = instance.decode()
 
     return datetime.strptime(instance, "%Y-%m-%d")
 
 
 def is_uuid(instance):
-    if not isinstance(instance, (binary_type, text_type)):
+    if not isinstance(instance, (bytes, str)):
         return False
 
-    if isinstance(instance, binary_type):
+    if isinstance(instance, bytes):
         instance = instance.decode()
 
-    return text_type(UUID(instance)).lower() == instance.lower()
+    return str(UUID(instance)).lower() == instance.lower()
 
 
 def is_password(instance):
