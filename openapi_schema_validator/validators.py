@@ -1,3 +1,4 @@
+from attr import attrib, attrs
 from copy import deepcopy
 
 from jsonschema import _legacy_validators, _utils, _validators
@@ -56,12 +57,11 @@ BaseOAS30Validator = create(
 )
 
 
+@attrs
 class OAS30Validator(BaseOAS30Validator):
 
-    def __init__(self, *args, **kwargs):
-        self.read = kwargs.pop('read', None)
-        self.write = kwargs.pop('write', None)
-        super(OAS30Validator, self).__init__(*args, **kwargs)
+    read: bool = attrib(default=None)
+    write: bool = attrib(default=None)
 
     def iter_errors(self, instance, _schema=None):
         if _schema is None:
@@ -74,4 +74,5 @@ class OAS30Validator(BaseOAS30Validator):
                 'nullable': False,
             })
 
-        return super(OAS30Validator, self).iter_errors(instance, _schema)
+        validator = self.evolve(schema=_schema)
+        return super(OAS30Validator, validator).iter_errors(instance)
