@@ -11,7 +11,7 @@ output = "reports/coverage.xml"
 
 [tool.poetry]
 name = "openapi-schema-validator"
-version = "0.1.6"
+version = "0.2.0"
 description = "OpenAPI schema validation for Python"
 authors = ["Artur Maciag <maciag.artur@gmail.com>"]
 license = "BSD-3-Clause"
