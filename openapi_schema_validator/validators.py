@@ -2,11 +2,11 @@ from attr import attrib, attrs
 from copy import deepcopy
 
 from jsonschema import _legacy_validators, _utils, _validators
-from jsonschema.validators import create
+from jsonschema.validators import create, Draft202012Validator, extend
 
 from openapi_schema_validator import _types as oas_types
 from openapi_schema_validator import _validators as oas_validators
-
+from openapi_schema_validator._types import oas31_type_checker
 
 BaseOAS30Validator = create(
     meta_schema=_utils.load_schema("draft4"),
@@ -56,6 +56,21 @@ BaseOAS30Validator = create(
     id_of=lambda schema: schema.get(u"id", ""),
 )
 
+BaseOAS31Validator = extend(
+    Draft202012Validator,
+    {
+        #  adjusted to OAS
+        u"description": oas_validators.not_implemented,
+        u"format": oas_validators.format,
+        # fixed OAS fields
+        u"discriminator": oas_validators.not_implemented,
+        u"xml": oas_validators.not_implemented,
+        u"externalDocs": oas_validators.not_implemented,
+        u"example": oas_validators.not_implemented,
+    },
+    type_checker=oas31_type_checker,
+)
+
 
 @attrs
 class OAS30Validator(BaseOAS30Validator):
@@ -76,3 +91,7 @@ class OAS30Validator(BaseOAS30Validator):
 
         validator = self.evolve(schema=_schema)
         return super(OAS30Validator, validator).iter_errors(instance)
+
+
+class OAS31Validator(BaseOAS31Validator):
+    pass
