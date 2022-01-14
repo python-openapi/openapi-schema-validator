@@ -240,6 +240,87 @@ class TestOAS30ValidatorValidate(object):
         assert result is None
 
 
+    def test_oneof_discriminator(self):
+        schema = {
+            "$ref": "#/$defs/Route",
+            "$defs": {
+                "MountainHiking": {
+                    "type": "object",
+                    "properties": {
+                        "discipline": {
+                            "type": "string",
+                            "enum": ["mountain_hiking"]
+                        },
+                        "length": {
+                            "type": "integer",
+                        }
+                    },
+                    "required": ["discipline", "length"]
+                },
+                "AlpineClimbing": {
+                    "type": "object",
+                    "properties": {
+                        "discipline": {
+                            "type": "string",
+                            "enum": ["alpine_climbing"]
+                        },
+                        "height": {
+                            "type": "integer",
+                        },
+                    },
+                    "required": ["discipline", "height"]
+                },
+                "Route": {
+                    "oneOf": [
+                        {"$ref": "#/$defs/MountainHiking"},
+                        {"$ref": "#/$defs/AlpineClimbing"},
+                    ]
+                }
+            }
+        }
+
+        # use jsonschema validator when no discriminator is defined
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
+        with pytest.raises(ValidationError, match="is not valid under any of the given schemas"):
+            validator.validate({
+                "something": "matching_none_of_the_schemas"
+            })
+            assert False
+
+        discriminator = {
+            "propertyName": "discipline",
+            "mapping": {
+                "mountain_hiking": "#/$defs/MountainHiking",
+                "alpine_climbing": "#/$defs/AlpineClimbing",
+            }
+        }
+        schema['$defs']['Route']['discriminator'] = discriminator
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
+        with pytest.raises(ValidationError, match="does not contain discriminating property"):
+            validator.validate({
+                "something": "missing"
+            })
+            assert False
+
+        with pytest.raises(ValidationError, match="is not a valid discriminator value, expected one of"):
+            result = validator.validate({
+                "discipline": "other"
+            })
+            assert False
+
+        with pytest.raises(ValidationError, match="'bad_string' is not of type integer"):
+            validator.validate({
+                "discipline": "mountain_hiking",
+                "length": "bad_string"
+            })
+            assert False
+
+        validator.validate({
+                "discipline": "mountain_hiking",
+                "length": 10
+            })
+
+
 class TestOAS31ValidatorValidate(object):
     @pytest.mark.parametrize('schema_type', [
         'boolean', 'array', 'integer', 'number', 'string',

@@ -1,5 +1,50 @@
 from jsonschema._utils import find_additional_properties, extras_msg
+from jsonschema._validators import oneOf as _oneOf
+
 from jsonschema.exceptions import ValidationError, FormatError
+
+
+def handle_discriminator(validator, _, instance, schema):
+    discriminator = schema['discriminator']
+    prop_name = discriminator['propertyName']
+    prop_value = instance.get(prop_name)
+    if not prop_value:
+        # instance is missing discriminator value, this is a schema error
+        yield ValidationError(
+            "%r does not contain discriminating property" % (instance,),
+            context=[],
+        )
+        return
+
+    # FIXME: handle implicit refs and missing mapping field
+    subschema = discriminator['mapping'].get(prop_value)
+    if not subschema:
+        yield ValidationError(
+            "%r is not a valid discriminator value, expected one of %r" % (
+                instance, discriminator['mapping'].keys()),
+            context=[],
+        )
+        return
+
+    if not isinstance(subschema, str):
+        # this is a schema error
+        yield ValidationError(
+            "%r mapped value for %r should be a string, was %r" % (
+                instance, prop_value, subschema),
+            context=[],
+        )
+        return
+
+    yield from validator.descend(instance, {
+        "$ref": subschema
+    })
+
+
+def oneOf(validator, oneOf, instance, schema):
+    if 'discriminator' not in schema:
+        yield from _oneOf(validator, oneOf, instance, schema)
+    else:
+        yield from handle_discriminator(validator, oneOf, instance, schema)
 
 
 def type(validator, data_type, instance, schema):

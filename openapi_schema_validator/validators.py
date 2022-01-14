@@ -28,7 +28,7 @@ BaseOAS30Validator = create(
         # adjusted to OAS
         u"type": oas_validators.type,
         u"allOf": _validators.allOf,
-        u"oneOf": _validators.oneOf,
+        u"oneOf": oas_validators.oneOf,
         u"anyOf": _validators.anyOf,
         u"not": _validators.not_,
         u"items": oas_validators.items,
