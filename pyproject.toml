@@ -33,11 +33,10 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.6.2"
-jsonschema = "^4.0.0"
+jsonschema = "*"
 rfc3339-validator = {version = "*", optional = true}
 strict-rfc3339 = {version = "*", optional = true}
 isodate = {version = "*", optional = true}
-attrs = ">=19.2.0"
 
 [tool.poetry.extras]
 rfc3339-validator = ["rfc3339-validator"]
