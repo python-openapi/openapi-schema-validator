@@ -240,7 +240,10 @@ class TestOAS30ValidatorValidate(object):
         assert result is None
 
 
-    def test_oneof_discriminator(self):
+    @pytest.mark.parametrize('schema_type', [
+        'oneOf', 'anyOf', 'allOf',
+    ])
+    def test_oneof_discriminator(self, schema_type):
         # We define a few components schemas
         components = {
             "MountainHiking": {
@@ -248,7 +251,9 @@ class TestOAS30ValidatorValidate(object):
                 "properties": {
                     "discipline": {
                         "type": "string",
-                        "enum": ["mountain_hiking"]
+                        # we allow both the explicitely matched mountain_hiking discipline
+                        # and the implicitely matched MoutainHiking discipline
+                        "enum": ["mountain_hiking", "MountainHiking"]
                     },
                     "length": {
                         "type": "integer",
@@ -270,12 +275,13 @@ class TestOAS30ValidatorValidate(object):
                 "required": ["discipline", "height"]
             },
             "Route": {
-                "oneOf": [
-                    {"$ref": "#/components/schemas/MountainHiking"},
-                    {"$ref": "#/components/schemas/AlpineClimbing"},
-                ]
+                # defined later
             }
         }
+        components['Route'][schema_type] = [
+            {"$ref": "#/components/schemas/MountainHiking"},
+            {"$ref": "#/components/schemas/AlpineClimbing"},
+        ]
 
         # Add the compoments in a minimalis schema
         schema = {
@@ -285,13 +291,23 @@ class TestOAS30ValidatorValidate(object):
             }
         }
 
-        # use jsonschema validator when no discriminator is defined
-        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
-        with pytest.raises(ValidationError, match="is not valid under any of the given schemas"):
-            validator.validate({
-                "something": "matching_none_of_the_schemas"
-            })
-            assert False
+        if schema_type != 'allOf':
+            # use jsonschema validator when no discriminator is defined
+            validator = OAS30Validator(schema, format_checker=oas30_format_checker)
+            with pytest.raises(ValidationError, match="is not valid under any of the given schemas"):
+                validator.validate({
+                    "something": "matching_none_of_the_schemas"
+                })
+                assert False
+
+        if schema_type == 'anyOf':
+            # use jsonschema validator when no discriminator is defined
+            validator = OAS30Validator(schema, format_checker=oas30_format_checker)
+            with pytest.raises(ValidationError, match="is not valid under any of the given schemas"):
+                validator.validate({
+                    "something": "matching_none_of_the_schemas"
+                })
+                assert False
 
         discriminator = {
             "propertyName": "discipline",
@@ -301,6 +317,8 @@ class TestOAS30ValidatorValidate(object):
             }
         }
         schema['components']['schemas']['Route']['discriminator'] = discriminator
+
+        # Optional: check we return useful result when the schema is wrong
         validator = OAS30Validator(schema, format_checker=oas30_format_checker)
         with pytest.raises(ValidationError, match="does not contain discriminating property"):
             validator.validate({
@@ -308,12 +326,7 @@ class TestOAS30ValidatorValidate(object):
             })
             assert False
 
-        with pytest.raises(ValidationError, match="is not a valid discriminator value, expected one of"):
-            result = validator.validate({
-                "discipline": "other"
-            })
-            assert False
-
+        # Check we get a non-generic, somehow usable, error message when a discriminated schema is failing
         with pytest.raises(ValidationError, match="'bad_string' is not of type integer"):
             validator.validate({
                 "discipline": "mountain_hiking",
@@ -321,10 +334,25 @@ class TestOAS30ValidatorValidate(object):
             })
             assert False
 
+        # Check explicit MountainHiking resolution
         validator.validate({
                 "discipline": "mountain_hiking",
                 "length": 10
             })
+
+        # Check implicit MountainHiking resolution
+        validator.validate({
+            "discipline": "MountainHiking",
+                "length": 10
+            })
+
+        # Check non resolvable implicit schema
+        with pytest.raises(ValidationError, match="reference '#/components/schemas/other' could not be resolved"):
+            result = validator.validate({
+                "discipline": "other"
+            })
+            assert False
+
 
 
 class TestOAS31ValidatorValidate(object):

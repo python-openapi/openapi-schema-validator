@@ -1,10 +1,14 @@
 from jsonschema._utils import find_additional_properties, extras_msg
-from jsonschema._validators import oneOf as _oneOf
+from jsonschema._validators import oneOf as _oneOf, anyOf as _anyOf, allOf as _allOf
 
 from jsonschema.exceptions import ValidationError, FormatError
 
 
 def handle_discriminator(validator, _, instance, schema):
+    """
+    Handle presence of discriminator in anyOf, oneOf and allOf.
+    The behaviour is the same in all 3 cases because at most 1 schema will match.
+    """
     discriminator = schema['discriminator']
     prop_name = discriminator['propertyName']
     prop_value = instance.get(prop_name)
@@ -16,28 +20,38 @@ def handle_discriminator(validator, _, instance, schema):
         )
         return
 
-    # FIXME: handle implicit refs and missing mapping field
-    explicitRef = discriminator['mapping'].get(prop_value)
-    if not explicitRef:
+    # Use explicit mapping if available, otherwise try implicit value
+    ref = discriminator.get('mapping', {}).get(prop_value) or f'#/components/schemas/{prop_value}'
+
+    if not isinstance(ref, str):
+        # this is a schema error
         yield ValidationError(
-            "%r is not a valid discriminator value, expected one of %r" % (
-                instance, discriminator['mapping'].keys()),
+            "%r mapped value for %r should be a string, was %r" % (
+                instance, prop_value, ref),
             context=[],
         )
         return
 
-    if not isinstance(explicitRef, str):
-        # this is a schema error
+    try:
+        validator.resolver.resolve(ref)
+    except:
         yield ValidationError(
-            "%r mapped value for %r should be a string, was %r" % (
-                instance, prop_value, explicitRef),
+            "%r reference %r could not be resolved" % (
+                instance, ref),
             context=[],
         )
         return
 
     yield from validator.descend(instance, {
-        "$ref": explicitRef
+        "$ref": ref
     })
+
+
+def anyOf(validator, anyOf, instance, schema):
+    if 'discriminator' not in schema:
+        yield from _anyOf(validator, anyOf, instance, schema)
+    else:
+        yield from handle_discriminator(validator, anyOf, instance, schema)
 
 
 def oneOf(validator, oneOf, instance, schema):
@@ -45,6 +59,13 @@ def oneOf(validator, oneOf, instance, schema):
         yield from _oneOf(validator, oneOf, instance, schema)
     else:
         yield from handle_discriminator(validator, oneOf, instance, schema)
+
+
+def allOf(validator, allOf, instance, schema):
+    if 'discriminator' not in schema:
+        yield from _allOf(validator, allOf, instance, schema)
+    else:
+        yield from handle_discriminator(validator, allOf, instance, schema)
 
 
 def type(validator, data_type, instance, schema):
