@@ -520,7 +520,7 @@ strict-rfc3339 = ["strict-rfc3339"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "ee8b18c9b61d21105c15e5d1d9bb2ede85e0b7796775ab7a422aad0c9083d468"
+content-hash = "d50a986b1e301ab7ac8b7f3116680023c4082a5c576be743c0074d593b5269be"
 
 [metadata.files]
 atomicwrites = [
