@@ -9,16 +9,16 @@ def handle_discriminator(validator, _, instance, schema):
     prop_name = discriminator['propertyName']
     prop_value = instance.get(prop_name)
     if not prop_value:
-        # instance is missing discriminator value, this is a schema error
+        # instance is missing $propertyName
         yield ValidationError(
-            "%r does not contain discriminating property" % (instance,),
+            "%r does not contain discriminating property %r" % (instance, prop_name),
             context=[],
         )
         return
 
     # FIXME: handle implicit refs and missing mapping field
-    subschema = discriminator['mapping'].get(prop_value)
-    if not subschema:
+    explicitRef = discriminator['mapping'].get(prop_value)
+    if not explicitRef:
         yield ValidationError(
             "%r is not a valid discriminator value, expected one of %r" % (
                 instance, discriminator['mapping'].keys()),
@@ -26,17 +26,17 @@ def handle_discriminator(validator, _, instance, schema):
         )
         return
 
-    if not isinstance(subschema, str):
+    if not isinstance(explicitRef, str):
         # this is a schema error
         yield ValidationError(
             "%r mapped value for %r should be a string, was %r" % (
-                instance, prop_value, subschema),
+                instance, prop_value, explicitRef),
             context=[],
         )
         return
 
     yield from validator.descend(instance, {
-        "$ref": subschema
+        "$ref": explicitRef
     })
 
 

@@ -241,41 +241,47 @@ class TestOAS30ValidatorValidate(object):
 
 
     def test_oneof_discriminator(self):
+        # We define a few components schemas
+        components = {
+            "MountainHiking": {
+                "type": "object",
+                "properties": {
+                    "discipline": {
+                        "type": "string",
+                        "enum": ["mountain_hiking"]
+                    },
+                    "length": {
+                        "type": "integer",
+                    }
+                },
+                "required": ["discipline", "length"]
+            },
+            "AlpineClimbing": {
+                "type": "object",
+                "properties": {
+                    "discipline": {
+                        "type": "string",
+                        "enum": ["alpine_climbing"]
+                    },
+                    "height": {
+                        "type": "integer",
+                    },
+                },
+                "required": ["discipline", "height"]
+            },
+            "Route": {
+                "oneOf": [
+                    {"$ref": "#/components/schemas/MountainHiking"},
+                    {"$ref": "#/components/schemas/AlpineClimbing"},
+                ]
+            }
+        }
+
+        # Add the compoments in a minimalis schema
         schema = {
-            "$ref": "#/$defs/Route",
-            "$defs": {
-                "MountainHiking": {
-                    "type": "object",
-                    "properties": {
-                        "discipline": {
-                            "type": "string",
-                            "enum": ["mountain_hiking"]
-                        },
-                        "length": {
-                            "type": "integer",
-                        }
-                    },
-                    "required": ["discipline", "length"]
-                },
-                "AlpineClimbing": {
-                    "type": "object",
-                    "properties": {
-                        "discipline": {
-                            "type": "string",
-                            "enum": ["alpine_climbing"]
-                        },
-                        "height": {
-                            "type": "integer",
-                        },
-                    },
-                    "required": ["discipline", "height"]
-                },
-                "Route": {
-                    "oneOf": [
-                        {"$ref": "#/$defs/MountainHiking"},
-                        {"$ref": "#/$defs/AlpineClimbing"},
-                    ]
-                }
+            "$ref": "#/components/schemas/Route",
+            "components": {
+                "schemas": components
             }
         }
 
@@ -290,11 +296,11 @@ class TestOAS30ValidatorValidate(object):
         discriminator = {
             "propertyName": "discipline",
             "mapping": {
-                "mountain_hiking": "#/$defs/MountainHiking",
-                "alpine_climbing": "#/$defs/AlpineClimbing",
+                "mountain_hiking": "#/components/schemas/MountainHiking",
+                "alpine_climbing": "#/components/schemas/AlpineClimbing",
             }
         }
-        schema['$defs']['Route']['discriminator'] = discriminator
+        schema['components']['schemas']['Route']['discriminator'] = discriminator
         validator = OAS30Validator(schema, format_checker=oas30_format_checker)
         with pytest.raises(ValidationError, match="does not contain discriminating property"):
             validator.validate({
