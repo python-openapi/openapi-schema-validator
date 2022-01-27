@@ -59,7 +59,10 @@ BaseOAS30Validator = create(
 BaseOAS31Validator = extend(
     Draft202012Validator,
     {
-        #  adjusted to OAS
+        # adjusted to OAS
+        u"allOf": oas_validators.allOf,
+        u"oneOf": oas_validators.oneOf,
+        u"anyOf": oas_validators.anyOf,
         u"description": oas_validators.not_implemented,
         u"format": oas_validators.format,
         # fixed OAS fields
