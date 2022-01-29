@@ -196,6 +196,9 @@ class TestOAS30ValidatorValidate(object):
             validator.validate({"another_prop": "hello"})
         validator = OAS30Validator(schema, format_checker=oas30_format_checker,
                                    write=True)
+        with pytest.raises(ValidationError,
+                           match="Tried to write read-only property with hello"):
+            validator.validate({"some_prop": "hello"})
         assert validator.validate({"another_prop": "hello"}) is None
 
     def test_required_write_only(self):
@@ -217,6 +220,9 @@ class TestOAS30ValidatorValidate(object):
             validator.validate({"another_prop": "hello"})
         validator = OAS30Validator(schema, format_checker=oas30_format_checker,
                                    read=True)
+        with pytest.raises(ValidationError,
+                           match="Tried to read write-only property with hello"):
+            validator.validate({"some_prop": "hello"})
         assert validator.validate({"another_prop": "hello"}) is None
 
     def test_oneof_required(self):
