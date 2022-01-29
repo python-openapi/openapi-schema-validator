@@ -63,6 +63,13 @@ class OAS30Validator(BaseOAS30Validator):
         self.write = kwargs.pop('write', None)
         super(OAS30Validator, self).__init__(*args, **kwargs)
 
+    def evolve(self, **kwargs):
+        # jsonschema4 interface compatibility workaround
+        validator = super(OAS30Validator, self).evolve(**kwargs)
+        validator.read = self.read
+        validator.write = self.write
+        return validator
+
     def iter_errors(self, instance, _schema=None):
         if _schema is None:
             # creates a copy by value from schema to prevent mutation
