@@ -582,3 +582,52 @@ class TestOAS31ValidatorValidate(object):
 
         error = "'id' is a required property"
         assert error in str(excinfo.value)
+
+    @pytest.mark.parametrize('value', [
+        [1600, "Pennsylvania", "Avenue", "NW"],
+        [1600, "Pennsylvania", "Avenue"],
+    ])
+    def test_array_prefixitems(self, value):
+        schema = {
+            "type": 'array',
+            "prefixItems": [
+                { "type": "number" },
+                { "type": "string" },
+                { "enum": ["Street", "Avenue", "Boulevard"] },
+                { "enum": ["NW", "NE", "SW", "SE"] }
+            ],
+            "items": False,
+        }
+        validator = OAS31Validator(
+            schema,
+            format_checker=oas31_format_checker,
+        )
+
+        result = validator.validate(value)
+
+        assert result is None
+
+    @pytest.mark.parametrize('value', [
+        [1600, "Pennsylvania", "Avenue", "NW", "Washington"],
+    ])
+    def test_array_prefixitems_invalid(self, value):
+        schema = {
+            "type": 'array',
+            "prefixItems": [
+                { "type": "number" },
+                { "type": "string" },
+                { "enum": ["Street", "Avenue", "Boulevard"] },
+                { "enum": ["NW", "NE", "SW", "SE"] }
+            ],
+            "items": False,
+        }
+        validator = OAS31Validator(
+            schema,
+            format_checker=oas31_format_checker,
+        )
+
+        with pytest.raises(ValidationError) as excinfo:
+            validator.validate(value)
+
+        error = "Expected at most 4 items, but found 5"
+        assert error in str(excinfo.value)
