@@ -530,11 +530,11 @@ class TestOAS31ValidatorValidate(object):
             format_checker=oas31_format_checker,
         )
 
-        result = validator.validate({"name": "John", "age": 23}, schema)
+        result = validator.validate({"name": "John", "age": 23})
         assert result is None
 
         with pytest.raises(ValidationError) as excinfo:
-            validator.validate({"name": "John", "city": "London"}, schema)
+            validator.validate({"name": "John", "city": "London"})
 
         error = "Additional properties are not allowed ('city' was unexpected)"
         assert error in str(excinfo.value)
@@ -574,11 +574,11 @@ class TestOAS31ValidatorValidate(object):
             format_checker=oas31_format_checker,
         )
 
-        result = validator.validate({"id": 1, "name": "John"}, schema)
+        result = validator.validate({"id": 1, "name": "John"})
         assert result is None
 
         with pytest.raises(ValidationError) as excinfo:
-            validator.validate({"name": "John"}, schema)
+            validator.validate({"name": "John"})
 
         error = "'id' is a required property"
         assert error in str(excinfo.value)
