@@ -1,7 +1,25 @@
+from copy import deepcopy
+
 from jsonschema._utils import find_additional_properties, extras_msg
 from jsonschema._validators import oneOf as _oneOf, anyOf as _anyOf, allOf as _allOf
 
 from jsonschema.exceptions import ValidationError, FormatError
+
+
+def include_nullable_validator(schema):
+    """
+    Include ``nullable`` validator always.
+    Suitable for use with `create`'s ``applicable_validators`` argument.
+    """
+    _schema = deepcopy(schema)
+
+    # append defaults to trigger nullable validator
+    if 'nullable' not in _schema:
+        _schema.update({
+            'nullable': False,
+        })
+
+    return _schema.items()
 
 
 def handle_discriminator(validator, _, instance, schema):

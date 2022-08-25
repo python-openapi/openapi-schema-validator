@@ -54,9 +54,10 @@ BaseOAS30Validator = create(
     # See https://github.com/p1c2u/openapi-schema-validator/pull/12
     # version="oas30",
     id_of=lambda schema: schema.get(u"id", ""),
+    applicable_validators=oas_validators.include_nullable_validator,
 )
 
-BaseOAS31Validator = extend(
+OAS31Validator = extend(
     Draft202012Validator,
     {
         # adjusted to OAS
@@ -81,20 +82,11 @@ class OAS30Validator(BaseOAS30Validator):
     read: bool = attrib(default=None)
     write: bool = attrib(default=None)
 
-    def iter_errors(self, instance, _schema=None):
-        if _schema is None:
-            # creates a copy by value from schema to prevent mutation
-            _schema = deepcopy(self.schema)
-
-        # append defaults to trigger validator (i.e. nullable)
-        if 'nullable' not in _schema:
-            _schema.update({
-                'nullable': False,
-            })
-
-        validator = self.evolve(schema=_schema)
-        return super(OAS30Validator, validator).iter_errors(instance)
-
-
-class OAS31Validator(BaseOAS31Validator):
-    pass
+    @classmethod
+    def __init_subclass__(cls):
+        # Subclassing validator classes is not intended to
+        # be part of their public API
+        # but it's the only way to pass extra context
+        # to the validator
+        # See https://github.com/p1c2u/openapi-schema-validator/issues/48
+        pass
