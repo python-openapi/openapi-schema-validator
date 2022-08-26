@@ -8,7 +8,7 @@ from openapi_schema_validator import _types as oas_types
 from openapi_schema_validator import _validators as oas_validators
 from openapi_schema_validator._types import oas31_type_checker
 
-BaseOAS30Validator = create(
+OAS30Validator = create(
     meta_schema=_utils.load_schema("draft4"),
     validators={
         u"multipleOf": _validators.multipleOf,
@@ -76,17 +76,19 @@ OAS31Validator = extend(
 )
 
 
-@attrs
-class OAS30Validator(BaseOAS30Validator):
+def _patch_validator_with_read_write_context(cls):
+    """Adds read/write context to jsonschema validator class"""
+    # subclassing validator classes is not intended to
+    # be part of their public API and will raise error
+    # See https://github.com/p1c2u/openapi-schema-validator/issues/48
+    original_init = cls.__init__
 
-    read: bool = attrib(default=None)
-    write: bool = attrib(default=None)
+    def __init__(self, *args, **kwargs):
+        self.read = kwargs.pop("read", None)
+        self.write = kwargs.pop("write", None)
+        original_init(self, *args, **kwargs)
 
-    @classmethod
-    def __init_subclass__(cls):
-        # Subclassing validator classes is not intended to
-        # be part of their public API
-        # but it's the only way to pass extra context
-        # to the validator
-        # See https://github.com/p1c2u/openapi-schema-validator/issues/48
-        pass
+    cls.__init__ = __init__
+
+
+_patch_validator_with_read_write_context(OAS30Validator)
