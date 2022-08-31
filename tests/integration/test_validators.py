@@ -327,7 +327,7 @@ class TestOAS30ValidatorValidate(object):
             assert False
 
         # Check we get a non-generic, somehow usable, error message when a discriminated schema is failing
-        with pytest.raises(ValidationError, match="'bad_string' is not of type integer"):
+        with pytest.raises(ValidationError, match="'bad_string' is not of type 'integer'"):
             validator.validate({
                 "discipline": "mountain_hiking",
                 "length": "bad_string"
