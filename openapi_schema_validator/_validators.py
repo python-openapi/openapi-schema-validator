@@ -91,7 +91,8 @@ def type(validator, data_type, instance, schema):
         return
 
     if not validator.is_type(instance, data_type):
-        yield ValidationError("%r is not of type %s" % (instance, data_type))
+        data_repr = repr(data_type)
+        yield ValidationError("%r is not of type %s" % (instance, data_repr))
 
 
 def format(validator, format, instance, schema):
