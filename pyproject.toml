@@ -9,6 +9,26 @@ source =["openapi_schema_validator"]
 [tool.coverage.xml]
 output = "reports/coverage.xml"
 
+[tool.mypy]
+files = "openapi_schema_validator"
+strict = true
+
+[[tool.mypy.overrides]]
+module = "jsonschema.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "isodate"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "rfc3339_validator"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "strict_rfc3339"
+ignore_missing_imports = true
+
 [tool.poetry]
 name = "openapi-schema-validator"
 version = "0.3.2"
@@ -44,13 +64,14 @@ strict-rfc3339 = ["strict-rfc3339"]
 isodate = ["isodate"]
 
 [tool.poetry.dev-dependencies]
-black = {version = "^21.6b0", allow-prereleases = true}
+black = "^22.0.0"
 isort = "^5.9.1"
 pre-commit = "*"
 pytest = "^6"
 pytest-flake8 = "*"
 pytest-cov = "*"
 mypy = "^0.910"
+flynt = "^0.76"
 
 [tool.pytest.ini_options]
 addopts = """

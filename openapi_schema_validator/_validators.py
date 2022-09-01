@@ -1,12 +1,26 @@
 from copy import deepcopy
+from typing import Any
+from typing import Dict
+from typing import Hashable
+from typing import ItemsView
+from typing import Iterator
+from typing import List
+from typing import Mapping
+from typing import Union
 
-from jsonschema._utils import find_additional_properties, extras_msg
-from jsonschema._validators import oneOf as _oneOf, anyOf as _anyOf, allOf as _allOf
+from jsonschema._utils import extras_msg
+from jsonschema._utils import find_additional_properties
+from jsonschema._validators import allOf as _allOf
+from jsonschema._validators import anyOf as _anyOf
+from jsonschema._validators import oneOf as _oneOf
+from jsonschema.exceptions import FormatError
+from jsonschema.exceptions import ValidationError
+from jsonschema.protocols import Validator
 
-from jsonschema.exceptions import ValidationError, FormatError
 
-
-def include_nullable_validator(schema):
+def include_nullable_validator(
+    schema: Dict[Hashable, Any]
+) -> ItemsView[Hashable, Any]:
     """
     Include ``nullable`` validator always.
     Suitable for use with `create`'s ``applicable_validators`` argument.
@@ -14,38 +28,46 @@ def include_nullable_validator(schema):
     _schema = deepcopy(schema)
 
     # append defaults to trigger nullable validator
-    if 'nullable' not in _schema:
-        _schema.update({
-            'nullable': False,
-        })
+    if "nullable" not in _schema:
+        _schema.update(
+            {
+                "nullable": False,
+            }
+        )
 
     return _schema.items()
 
 
-def handle_discriminator(validator, _, instance, schema):
+def handle_discriminator(
+    validator: Validator, _: Any, instance: Any, schema: Mapping[Hashable, Any]
+) -> Iterator[ValidationError]:
     """
     Handle presence of discriminator in anyOf, oneOf and allOf.
     The behaviour is the same in all 3 cases because at most 1 schema will match.
     """
-    discriminator = schema['discriminator']
-    prop_name = discriminator['propertyName']
+    discriminator = schema["discriminator"]
+    prop_name = discriminator["propertyName"]
     prop_value = instance.get(prop_name)
     if not prop_value:
         # instance is missing $propertyName
         yield ValidationError(
-            "%r does not contain discriminating property %r" % (instance, prop_name),
+            f"{instance!r} does not contain discriminating property {prop_name!r}",
             context=[],
         )
         return
 
     # Use explicit mapping if available, otherwise try implicit value
-    ref = discriminator.get('mapping', {}).get(prop_value) or f'#/components/schemas/{prop_value}'
+    ref = (
+        discriminator.get("mapping", {}).get(prop_value)
+        or f"#/components/schemas/{prop_value}"
+    )
 
     if not isinstance(ref, str):
         # this is a schema error
         yield ValidationError(
-            "%r mapped value for %r should be a string, was %r" % (
-                instance, prop_value, ref),
+            "{!r} mapped value for {!r} should be a string, was {!r}".format(
+                instance, prop_value, ref
+            ),
             context=[],
         )
         return
@@ -54,48 +76,70 @@ def handle_discriminator(validator, _, instance, schema):
         validator.resolver.resolve(ref)
     except:
         yield ValidationError(
-            "%r reference %r could not be resolved" % (
-                instance, ref),
+            f"{instance!r} reference {ref!r} could not be resolved",
             context=[],
         )
         return
 
-    yield from validator.descend(instance, {
-        "$ref": ref
-    })
+    yield from validator.descend(instance, {"$ref": ref})
 
 
-def anyOf(validator, anyOf, instance, schema):
-    if 'discriminator' not in schema:
+def anyOf(
+    validator: Validator,
+    anyOf: List[Mapping[Hashable, Any]],
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
+    if "discriminator" not in schema:
         yield from _anyOf(validator, anyOf, instance, schema)
     else:
         yield from handle_discriminator(validator, anyOf, instance, schema)
 
 
-def oneOf(validator, oneOf, instance, schema):
-    if 'discriminator' not in schema:
+def oneOf(
+    validator: Validator,
+    oneOf: List[Mapping[Hashable, Any]],
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
+    if "discriminator" not in schema:
         yield from _oneOf(validator, oneOf, instance, schema)
     else:
         yield from handle_discriminator(validator, oneOf, instance, schema)
 
 
-def allOf(validator, allOf, instance, schema):
-    if 'discriminator' not in schema:
+def allOf(
+    validator: Validator,
+    allOf: List[Mapping[Hashable, Any]],
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
+    if "discriminator" not in schema:
         yield from _allOf(validator, allOf, instance, schema)
     else:
         yield from handle_discriminator(validator, allOf, instance, schema)
 
 
-def type(validator, data_type, instance, schema):
+def type(
+    validator: Validator,
+    data_type: str,
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
     if instance is None:
         return
 
     if not validator.is_type(instance, data_type):
         data_repr = repr(data_type)
-        yield ValidationError("%r is not of type %s" % (instance, data_repr))
+        yield ValidationError(f"{instance!r} is not of type {data_repr}")
 
 
-def format(validator, format, instance, schema):
+def format(
+    validator: Validator,
+    format: str,
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
     if instance is None:
         return
 
@@ -106,37 +150,59 @@ def format(validator, format, instance, schema):
             yield ValidationError(str(error), cause=error.cause)
 
 
-def items(validator, items, instance, schema):
+def items(
+    validator: Validator,
+    items: Mapping[Hashable, Any],
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
     if not validator.is_type(instance, "array"):
         return
 
     for index, item in enumerate(instance):
-        for error in validator.descend(item, items, path=index):
-            yield error
+        yield from validator.descend(item, items, path=index)
 
 
-def nullable(validator, is_nullable, instance, schema):
+def nullable(
+    validator: Validator,
+    is_nullable: bool,
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
     if instance is None and not is_nullable:
         yield ValidationError("None for not nullable")
 
 
-def required(validator, required, instance, schema):
+def required(
+    validator: Validator,
+    required: List[str],
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
     if not validator.is_type(instance, "object"):
         return
     for property in required:
         if property not in instance:
-            prop_schema = schema.get('properties', {}).get(property)
+            prop_schema = schema.get("properties", {}).get(property)
             if prop_schema:
-                read_only = prop_schema.get('readOnly', False)
-                write_only = prop_schema.get('writeOnly', False)
+                read_only = prop_schema.get("readOnly", False)
+                write_only = prop_schema.get("writeOnly", False)
                 if (
-                        validator.write and read_only or
-                        validator.read and write_only):
+                    validator.write
+                    and read_only
+                    or validator.read
+                    and write_only
+                ):
                     continue
-            yield ValidationError("%r is a required property" % property)
+            yield ValidationError(f"{property!r} is a required property")
 
 
-def additionalProperties(validator, aP, instance, schema):
+def additionalProperties(
+    validator: Validator,
+    aP: Union[Mapping[Hashable, Any], bool],
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
     if not validator.is_type(instance, "object"):
         return
 
@@ -155,21 +221,34 @@ def additionalProperties(validator, aP, instance, schema):
             yield ValidationError(error % extras_msg(extras))
 
 
-def readOnly(validator, ro, instance, schema):
+def readOnly(
+    validator: Validator,
+    ro: bool,
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
     if not validator.write or not ro:
         return
 
-    yield ValidationError(
-        "Tried to write read-only property with %s" % (instance))
+    yield ValidationError(f"Tried to write read-only property with {instance}")
 
 
-def writeOnly(validator, wo, instance, schema):
+def writeOnly(
+    validator: Validator,
+    wo: bool,
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
     if not validator.read or not wo:
         return
 
-    yield ValidationError(
-        "Tried to read write-only property with %s" % (instance))
+    yield ValidationError(f"Tried to read write-only property with {instance}")
 
 
-def not_implemented(validator, value, instance, schema):
+def not_implemented(
+    validator: Validator,
+    value: Any,
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
     pass

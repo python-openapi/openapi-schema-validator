@@ -1,20 +1,19 @@
-from openapi_schema_validator import validate
 from unittest import TestCase
+
+from openapi_schema_validator import validate
 
 
 class ValidateTest(TestCase):
     def test_validate_does_not_mutate_schema_adding_nullable_key(self):
         schema = {
             "type": "object",
-            'properties': {
-                'email': {
-                    'type': 'string'
+            "properties": {
+                "email": {"type": "string"},
+                "enabled": {
+                    "type": "boolean",
                 },
-                'enabled': {
-                    'type': 'boolean',
-                }
             },
-            'example': {'enabled': False, 'email': "foo@bar.com"}
+            "example": {"enabled": False, "email": "foo@bar.com"},
         }
 
         validate({"email": "foo@bar.com"}, schema)
