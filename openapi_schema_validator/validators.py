@@ -87,13 +87,21 @@ def _patch_validator_with_read_write_context(cls: Type[Validator]) -> None:
     # be part of their public API and will raise error
     # See https://github.com/p1c2u/openapi-schema-validator/issues/48
     original_init = cls.__init__
+    original_evolve = cls.evolve
 
     def __init__(self: Validator, *args: Any, **kwargs: Any) -> None:
         self.read = kwargs.pop("read", None)
         self.write = kwargs.pop("write", None)
         original_init(self, *args, **kwargs)
 
+    def evolve(self: Validator, **changes: Any) -> Validator:
+        validator = original_evolve(self, **changes)
+        validator.read = self.read
+        validator.write = self.write
+        return validator
+
     cls.__init__ = __init__
+    cls.evolve = evolve
 
 
 _patch_validator_with_read_write_context(OAS30Validator)
