@@ -31,7 +31,7 @@ ignore_missing_imports = true
 
 [tool.poetry]
 name = "openapi-schema-validator"
-version = "0.3.3"
+version = "0.3.4"
 description = "OpenAPI schema validation for Python"
 authors = ["Artur Maciag <maciag.artur@gmail.com>"]
 license = "BSD-3-Clause"
