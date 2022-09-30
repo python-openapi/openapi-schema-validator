@@ -56,7 +56,6 @@ jsonschema = "^4.0.0"
 rfc3339-validator = {version = "*", optional = true}
 strict-rfc3339 = {version = "*", optional = true}
 isodate = {version = "*", optional = true}
-attrs = ">=19.2.0"
 
 [tool.poetry.extras]
 rfc3339-validator = ["rfc3339-validator"]
