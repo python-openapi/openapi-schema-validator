@@ -201,6 +201,54 @@ class TestOAS30ValidatorValidate:
 
         assert result is None
 
+    def test_ref(self):
+        schema = {
+            "$ref": "#/$defs/Pet",
+            "$defs": {
+                "Pet": {
+                    "required": ["id", "name"],
+                    "properties": {
+                        "id": {"type": "integer", "format": "int64"},
+                        "name": {"type": "string"},
+                        "tag": {"type": "string"},
+                    },
+                }
+            },
+        }
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
+
+        result = validator.validate({"id": 1, "name": "John"})
+        assert result is None
+
+        with pytest.raises(ValidationError) as excinfo:
+            validator.validate({"name": "John"})
+
+        error = "'id' is a required property"
+        assert error in str(excinfo.value)
+
+    @pytest.mark.xfail(reason="Issue #20")
+    def test_ref_nullable(self):
+        schema = {
+            "nullable": True,
+            "allOf": [
+                {
+                    "$ref": "#/$defs/Pet",
+                },
+            ],
+            "$defs": {
+                "Pet": {
+                    "required": ["id", "name"],
+                    "properties": {
+                        "id": {"type": "integer", "format": "int64"},
+                        "name": {"type": "string"},
+                        "tag": {"type": "string"},
+                    },
+                }
+            },
+        }
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
+        validator.validate(None)
+
     def test_allof_required(self):
         schema = {
             "allOf": [
@@ -216,6 +264,20 @@ class TestOAS30ValidatorValidate:
             ValidationError, match="'some_prop' is a required property"
         ):
             validator.validate({"another_prop": "bla"})
+
+    @pytest.mark.xfail(reason="Issue #20")
+    def test_allof_nullable(self):
+        schema = {
+            "allOf": [
+                {
+                    "type": "object",
+                    "properties": {"some_prop": {"type": "string"}},
+                },
+                {"type": "object", "nullable": True},
+            ]
+        }
+        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
+        validator.validate(None)
 
     def test_required(self):
         schema = {
@@ -665,7 +727,7 @@ class TestOAS31ValidatorValidate:
         error = "'-12' is not a 'date'"
         assert error in str(excinfo.value)
 
-    def test_schema_ref(self):
+    def test_ref(self):
         schema = {
             "$ref": "#/$defs/Pet",
             "$defs": {
@@ -692,6 +754,28 @@ class TestOAS31ValidatorValidate:
 
         error = "'id' is a required property"
         assert error in str(excinfo.value)
+
+    def test_ref_nullable(self):
+        # specifying an array for type only works with primitive types
+        schema = {
+            "oneOf": [
+                {"type": "null"},
+                {"$ref": "#/$defs/Pet"},
+            ],
+            "$defs": {
+                "Pet": {
+                    "type": "object",
+                    "required": ["id", "name"],
+                    "properties": {
+                        "id": {"type": "integer", "format": "int64"},
+                        "name": {"type": "string"},
+                        "tag": {"type": "string"},
+                    },
+                }
+            },
+        }
+        validator = OAS31Validator(schema, format_checker=oas30_format_checker)
+        validator.validate(None)
 
     @pytest.mark.parametrize(
         "value",
