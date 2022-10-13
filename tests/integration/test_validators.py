@@ -21,10 +21,13 @@ class TestOAS30ValidatorValidate:
             "integer",
             "number",
             "string",
+            "object",
         ],
     )
     def test_null(self, schema_type):
         schema = {"type": schema_type}
+        if schema_type == "object":
+            schema["properties"] = {"some_prop": {"type": "string"}}
         validator = OAS30Validator(schema)
         value = None
 
@@ -39,10 +42,13 @@ class TestOAS30ValidatorValidate:
             "integer",
             "number",
             "string",
+            "object",
         ],
     )
     def test_nullable(self, schema_type):
         schema = {"type": schema_type, "nullable": True}
+        if schema_type == "object":
+            schema["properties"] = {"some_prop": {"type": "string"}}
         validator = OAS30Validator(schema)
         value = None
 
@@ -439,7 +445,7 @@ class TestOAS30ValidatorValidate:
             ValidationError,
             match="reference '#/components/schemas/other' could not be resolved",
         ):
-            result = validator.validate({"discipline": "other"})
+            validator.validate({"discipline": "other"})
             assert False
 
 
@@ -452,10 +458,13 @@ class TestOAS31ValidatorValidate:
             "integer",
             "number",
             "string",
+            "object",
         ],
     )
     def test_null(self, schema_type):
         schema = {"type": schema_type}
+        if schema_type == "object":
+            schema["properties"] = {"some_prop": {"type": "string"}}
         validator = OAS31Validator(schema)
         value = None
 
@@ -470,10 +479,13 @@ class TestOAS31ValidatorValidate:
             "integer",
             "number",
             "string",
+            "object",
         ],
     )
     def test_nullable(self, schema_type):
         schema = {"type": [schema_type, "null"]}
+        if schema_type == "object":
+            schema["properties"] = {"some_prop": {"type": "string"}}
         validator = OAS31Validator(schema)
         value = None
 
