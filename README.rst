@@ -18,7 +18,7 @@ openapi-schema-validator
 About
 #####
 
-Openapi-schema-validator is a Python library that validates schema against:
+*openapi-schema-validator* is a Python library that validates schema against:
 
 * `OpenAPI Schema Specification v3.0 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#schemaObject>`__ which is an extended subset of the `JSON Schema Specification Wright Draft 00 <http://json-schema.org/>`__.
 * `OpenAPI Schema Specification v3.1 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.1.0.md#schemaObject>`__ which is an extended superset of the `JSON Schema Specification Draft 2020-12 <http://json-schema.org/>`__.
@@ -37,7 +37,6 @@ Alternatively you can download the code and install from the repository:
 .. code-block:: bash
 
    $ pip install -e git+https://github.com/p1c2u/openapi-schema-validator.git#egg=openapi_schema_validator
-
 
 Usage
 #####
@@ -92,7 +91,7 @@ To validate an OpenAPI v3.1 schema:
        ...
    ValidationError: Additional properties are not allowed ('city' was unexpected)
 
-if you want to disambiguate the expected schema version, import and use ``OAS31Validator``:
+If you want to disambiguate the expected schema version, import and use ``OAS31Validator``:
 
 .. code-block:: python
 
@@ -150,7 +149,7 @@ You can also check format for primitive types
 References
 **********
 
-You can resolve JOSN references by passing custon reference resolver
+You can resolve JSON references by passing custom reference resolver
 
 .. code-block:: python
 
@@ -204,6 +203,7 @@ For more information about reference resolver see `Resolving JSON References <ht
 
 Related projects
 ################
+
 * `openapi-core <https://github.com/p1c2u/openapi-core>`__
    Python library that adds client-side and server-side support for the OpenAPI.
 * `openapi-spec-validator <https://github.com/p1c2u/openapi-spec-validator>`__
