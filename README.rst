@@ -150,7 +150,7 @@ You can also check format for primitive types
 References
 **********
 
-You can resolve JOSN references by passing custon reference resolver
+You can resolve JSON references by passing custon reference resolver
 
 .. code-block:: python
 
