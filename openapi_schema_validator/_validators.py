@@ -27,8 +27,12 @@ def include_nullable_validator(
     """
     _schema = deepcopy(schema)
 
-    # append defaults to trigger nullable validator
-    if "nullable" not in _schema:
+    # append defaults to trigger nullable validator, except where $ref in the schema checks null
+    if "nullable" not in _schema \
+            and "$ref" not in _schema \
+            and "oneOf" not in _schema \
+            and "anyOf" not in _schema \
+            and "allOf" not in _schema:
         _schema.update(
             {
                 "nullable": False,
