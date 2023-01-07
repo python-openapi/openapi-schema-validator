@@ -45,7 +45,6 @@ OAS30Validator = create(
         # TODO: adjust default
         "$ref": _validators.ref,
         # fixed OAS fields
-        "nullable": oas_validators.nullable,
         "discriminator": oas_validators.not_implemented,
         "readOnly": oas_validators.readOnly,
         "writeOnly": oas_validators.writeOnly,
@@ -59,7 +58,6 @@ OAS30Validator = create(
     # See https://github.com/p1c2u/openapi-schema-validator/pull/12
     # version="oas30",
     id_of=lambda schema: schema.get("id", ""),
-    applicable_validators=oas_validators.include_nullable_validator,
 )
 
 OAS31Validator = extend(

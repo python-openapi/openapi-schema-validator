@@ -31,6 +31,16 @@ class TestOAS30ValidatorValidate:
         with pytest.raises(ValidationError):
             validator.validate(value)
 
+    @pytest.mark.parametrize("is_nullable", [True, False])
+    def test_nullable_untyped(self, is_nullable):
+        schema = {"nullable": is_nullable}
+        validator = OAS30Validator(schema)
+        value = None
+
+        result = validator.validate(value)
+
+        assert result is None
+
     @pytest.mark.parametrize(
         "schema_type",
         [
@@ -43,6 +53,23 @@ class TestOAS30ValidatorValidate:
     )
     def test_nullable(self, schema_type):
         schema = {"type": schema_type, "nullable": True}
+        validator = OAS30Validator(schema)
+        value = None
+
+        result = validator.validate(value)
+
+        assert result is None
+
+    def test_nullable_enum_without_none(self):
+        schema = {"type": "integer", "nullable": True, "enum": [1, 2, 3]}
+        validator = OAS30Validator(schema)
+        value = None
+
+        with pytest.raises(ValidationError):
+            validator.validate(value)
+
+    def test_nullable_enum_with_none(self):
+        schema = {"type": "integer", "nullable": True, "enum": [1, 2, 3, None]}
         validator = OAS30Validator(schema)
         value = None
 
@@ -442,6 +469,103 @@ class TestOAS30ValidatorValidate:
             result = validator.validate({"discipline": "other"})
             assert False
 
+    @pytest.mark.parametrize("is_nullable", [True, False])
+    def test_nullable_ref(self, is_nullable):
+        """
+        Tests that a field that points to a schema reference is null checked based on the $ref schema rather than
+        on this schema
+        :param is_nullable:  if the schema is marked as nullable. If not, validate an exception is raised on None
+        """
+        schema = {
+            "$ref": "#/$defs/Pet",
+            "$defs": {
+                "NullableText": {
+                    "type": "string",
+                    "nullable": is_nullable
+                },
+                "Pet": {
+                    "properties": {
+                        "testfield": {"$ref": "#/$defs/NullableText"},
+                    },
+                }
+            },
+        }
+        validator = OAS30Validator(
+            schema,
+            format_checker=oas30_format_checker,
+        )
+
+        result = validator.validate({"testfield": "John"})
+        assert result is None
+
+        if is_nullable:
+            result = validator.validate({"testfield": None})
+            assert result is None
+        else:
+            with pytest.raises(
+                    ValidationError,
+                    match="None for not nullable",
+            ):
+                validator.validate({"testfield": None})
+                assert False
+
+
+    @pytest.mark.parametrize(
+        "schema_type, not_nullable_regex",
+        [
+            ("oneOf", "None is not valid under any of the given schemas"),
+            ("anyOf", "None is not valid under any of the given schemas"),
+            ("allOf", "None for not nullable")
+        ],
+    )
+    @pytest.mark.parametrize("is_nullable", [True, False])
+    def test_nullable_schema_combos(self, is_nullable, schema_type, not_nullable_regex):
+        """
+        This test ensures that nullablilty semantics are correct for oneOf, anyOf and allOf
+        Specifically, nullable should checked on the children schemas
+        :param is_nullable:  if the schema is marked as nullable. If not, validate an exception is raised on None
+        :param schema_type: the schema type to validate
+        :param not_nullable_regex: the expected raised exception if fields are marked as not nullable
+        """
+        schema = {
+            "$ref": "#/$defs/Pet",
+            "$defs": {
+                "NullableText": {
+                    "type": "string",
+                    "nullable": False if schema_type == "oneOf" else is_nullable
+                },
+                "NullableEnum": {
+                    "type": "string",
+                    "nullable": is_nullable,
+                    "enum": ["John", "Alice", None]
+                },
+                "Pet": {
+                    "properties": {
+                        "testfield": {
+                            schema_type: [
+                                {"$ref": "#/$defs/NullableText"},
+                                {"$ref": "#/$defs/NullableEnum"},
+                            ]
+                        }
+                    },
+                }
+            },
+        }
+        validator = OAS30Validator(
+            schema,
+            format_checker=oas30_format_checker,
+        )
+
+        if is_nullable:
+            result = validator.validate({"testfield": None})
+            assert result is None
+        else:
+            with pytest.raises(
+                    ValidationError,
+                    match=not_nullable_regex
+            ):
+                validator.validate({"testfield": None})
+                assert False
 
 class TestOAS31ValidatorValidate:
     @pytest.mark.parametrize(

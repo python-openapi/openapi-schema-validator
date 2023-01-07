@@ -18,26 +18,6 @@ from jsonschema.exceptions import ValidationError
 from jsonschema.protocols import Validator
 
 
-def include_nullable_validator(
-    schema: Dict[Hashable, Any]
-) -> ItemsView[Hashable, Any]:
-    """
-    Include ``nullable`` validator always.
-    Suitable for use with `create`'s ``applicable_validators`` argument.
-    """
-    _schema = deepcopy(schema)
-
-    # append defaults to trigger nullable validator
-    if "nullable" not in _schema:
-        _schema.update(
-            {
-                "nullable": False,
-            }
-        )
-
-    return _schema.items()
-
-
 def handle_discriminator(
     validator: Validator, _: Any, instance: Any, schema: Mapping[Hashable, Any]
 ) -> Iterator[ValidationError]:
@@ -127,7 +107,14 @@ def type(
     schema: Mapping[Hashable, Any],
 ) -> Iterator[ValidationError]:
     if instance is None:
-        return
+        # nullable implementation based on OAS 3.0.3
+        # * nullable is only meaningful if its value is true
+        # * nullable: true is only meaningful in combination with a type
+        #   assertion specified in the same Schema Object.
+        # * nullable: true operates within a single Schema Object
+        if "nullable" in schema and schema["nullable"] == True:
+            return
+        yield ValidationError("None for not nullable")
 
     if not validator.is_type(instance, data_type):
         data_repr = repr(data_type)
@@ -161,16 +148,6 @@ def items(
 
     for index, item in enumerate(instance):
         yield from validator.descend(item, items, path=index)
-
-
-def nullable(
-    validator: Validator,
-    is_nullable: bool,
-    instance: Any,
-    schema: Mapping[Hashable, Any],
-) -> Iterator[ValidationError]:
-    if instance is None and not is_nullable:
-        yield ValidationError("None for not nullable")
 
 
 def required(
