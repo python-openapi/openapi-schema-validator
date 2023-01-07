@@ -31,6 +31,16 @@ class TestOAS30ValidatorValidate:
         with pytest.raises(ValidationError):
             validator.validate(value)
 
+    @pytest.mark.parametrize("is_nullable", [True, False])
+    def test_nullable_untyped(self, is_nullable):
+        schema = {"nullable": is_nullable}
+        validator = OAS30Validator(schema)
+        value = None
+
+        result = validator.validate(value)
+
+        assert result is None
+
     @pytest.mark.parametrize(
         "schema_type",
         [
@@ -43,6 +53,23 @@ class TestOAS30ValidatorValidate:
     )
     def test_nullable(self, schema_type):
         schema = {"type": schema_type, "nullable": True}
+        validator = OAS30Validator(schema)
+        value = None
+
+        result = validator.validate(value)
+
+        assert result is None
+
+    def test_nullable_enum_without_none(self):
+        schema = {"type": "integer", "nullable": True, "enum": [1, 2, 3]}
+        validator = OAS30Validator(schema)
+        value = None
+
+        with pytest.raises(ValidationError):
+            validator.validate(value)
+
+    def test_nullable_enum_with_none(self):
+        schema = {"type": "integer", "nullable": True, "enum": [1, 2, 3, None]}
         validator = OAS30Validator(schema)
         value = None
 
