@@ -130,7 +130,43 @@ In order to validate OpenAPI 3.0 schema, import and use ``OAS30Validator`` inste
        "additionalProperties": False,
    }
 
-   validate({"name": "John", "age": 23}, schema, cls=OAS30Validator)
+   validate({"name": "John", "age": None}, schema, cls=OAS30Validator)
+
+In order to validate read/write context in OpenAPI 3.0 schema, import and use ``OAS30ReadValidator`` or ``OAS30WriteValidator``.
+
+.. code-block:: python
+
+   from openapi_schema_validator import OAS30WriteValidator
+
+   # A sample schema
+   schema = {
+       "type": "object",
+       "required": [
+          "name"
+       ],
+       "properties": {
+           "name": {
+               "type": "string"
+           },
+           "age": {
+               "type": "integer",
+               "format": "int32",
+               "minimum": 0,
+               "readOnly": True,
+           },
+           "birth-date": {
+               "type": "string",
+               "format": "date",
+           }
+       },
+       "additionalProperties": False,
+   }
+
+   validate({"name": "John", "age": 23}, schema, cls=OAS30WriteValidator)
+
+   Traceback (most recent call last):
+       ...
+   ValidationError: Tried to write read-only property with 23
 
 Format check
 ************
