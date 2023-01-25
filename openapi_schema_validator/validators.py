@@ -1,5 +1,6 @@
 from typing import Any
 from typing import Type
+import warnings
 
 from jsonschema import _legacy_validators
 from jsonschema import _utils
@@ -60,6 +61,23 @@ OAS30Validator = create(
     id_of=lambda schema: schema.get("id", ""),
 )
 
+OAS30ReadValidator = extend(
+    OAS30Validator,
+    validators={
+        "required": oas_validators.read_required,
+        "readOnly": oas_validators.not_implemented,
+        "writeOnly": oas_validators.writeOnly,
+    },
+)
+OAS30WriteValidator = extend(
+    OAS30Validator,
+    validators={
+        "required": oas_validators.write_required,
+        "readOnly": oas_validators.readOnly,
+        "writeOnly": oas_validators.not_implemented,
+    },
+)
+
 OAS31Validator = extend(
     Draft202012Validator,
     {
@@ -89,7 +107,19 @@ def _patch_validator_with_read_write_context(cls: Type[Validator]) -> None:
 
     def __init__(self: Validator, *args: Any, **kwargs: Any) -> None:
         self.read = kwargs.pop("read", None)
+        if self.read is not None:
+            warnings.warn(
+                "read property is deprecated. "
+                "Use OAS30ReadValidator instead.",
+                DeprecationWarning,
+            )
         self.write = kwargs.pop("write", None)
+        if self.write is not None:
+            warnings.warn(
+                "write property is deprecated. "
+                "Use OAS30WriteValidator instead.",
+                DeprecationWarning,
+            )
         original_init(self, *args, **kwargs)
 
     def evolve(self: Validator, **changes: Any) -> Validator:

@@ -165,11 +165,50 @@ def required(
                 read_only = prop_schema.get("readOnly", False)
                 write_only = prop_schema.get("writeOnly", False)
                 if (
-                    validator.write
+                    getattr(validator, "write", True)
                     and read_only
-                    or validator.read
+                    or getattr(validator, "read", True)
                     and write_only
                 ):
+                    continue
+            yield ValidationError(f"{property!r} is a required property")
+
+
+def read_required(
+    validator: Validator,
+    required: List[str],
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
+    if not validator.is_type(instance, "object"):
+        return
+    for property in required:
+        if property not in instance:
+            prop_schema = schema.get("properties", {}).get(property)
+            if prop_schema:
+                write_only = prop_schema.get("writeOnly", False)
+                if (
+                    getattr(validator, "read", True)
+                    and write_only
+                ):
+                    continue
+            yield ValidationError(f"{property!r} is a required property")
+
+
+def write_required(
+    validator: Validator,
+    required: List[str],
+    instance: Any,
+    schema: Mapping[Hashable, Any],
+) -> Iterator[ValidationError]:
+    if not validator.is_type(instance, "object"):
+        return
+    for property in required:
+        if property not in instance:
+            prop_schema = schema.get("properties", {}).get(property)
+            if prop_schema:
+                read_only = prop_schema.get("readOnly", False)
+                if read_only:
                     continue
             yield ValidationError(f"{property!r} is a required property")
 
@@ -204,7 +243,7 @@ def readOnly(
     instance: Any,
     schema: Mapping[Hashable, Any],
 ) -> Iterator[ValidationError]:
-    if not validator.write or not ro:
+    if not getattr(validator, "write", True) or not ro:
         return
 
     yield ValidationError(f"Tried to write read-only property with {instance}")
@@ -216,7 +255,7 @@ def writeOnly(
     instance: Any,
     schema: Mapping[Hashable, Any],
 ) -> Iterator[ValidationError]:
-    if not validator.read or not wo:
+    if not getattr(validator, "read", True) or not wo:
         return
 
     yield ValidationError(f"Tried to read write-only property with {instance}")

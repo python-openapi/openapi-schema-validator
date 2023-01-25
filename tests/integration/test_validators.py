@@ -1,6 +1,8 @@
 import pytest
 from jsonschema import ValidationError
 
+from openapi_schema_validator import OAS30ReadValidator
+from openapi_schema_validator import OAS30WriteValidator
 from openapi_schema_validator import OAS30Validator
 from openapi_schema_validator import OAS31Validator
 from openapi_schema_validator import oas30_format_checker
@@ -258,16 +260,18 @@ class TestOAS30ValidatorValidate:
             "properties": {"some_prop": {"type": "string", "readOnly": True}},
         }
 
-        validator = OAS30Validator(
-            schema, format_checker=oas30_format_checker, write=True
-        )
+        with pytest.warns(DeprecationWarning):
+            validator = OAS30Validator(
+                schema, format_checker=oas30_format_checker, write=True
+            )
         with pytest.raises(
             ValidationError, match="Tried to write read-only property with hello"
         ):
             validator.validate({"some_prop": "hello"})
-        validator = OAS30Validator(
-            schema, format_checker=oas30_format_checker, read=True
-        )
+        with pytest.warns(DeprecationWarning):
+            validator = OAS30Validator(
+                schema, format_checker=oas30_format_checker, read=True
+            )
         assert validator.validate({"some_prop": "hello"}) is None
 
     def test_write_only(self):
@@ -276,16 +280,18 @@ class TestOAS30ValidatorValidate:
             "properties": {"some_prop": {"type": "string", "writeOnly": True}},
         }
 
-        validator = OAS30Validator(
-            schema, format_checker=oas30_format_checker, read=True
-        )
+        with pytest.warns(DeprecationWarning):
+            validator = OAS30Validator(
+                schema, format_checker=oas30_format_checker, read=True
+            )
         with pytest.raises(
             ValidationError, match="Tried to read write-only property with hello"
         ):
             validator.validate({"some_prop": "hello"})
-        validator = OAS30Validator(
-            schema, format_checker=oas30_format_checker, write=True
-        )
+        with pytest.warns(DeprecationWarning):
+            validator = OAS30Validator(
+                schema, format_checker=oas30_format_checker, write=True
+            )
         assert validator.validate({"some_prop": "hello"}) is None
 
     def test_required_read_only(self):
@@ -295,16 +301,18 @@ class TestOAS30ValidatorValidate:
             "required": ["some_prop"],
         }
 
-        validator = OAS30Validator(
-            schema, format_checker=oas30_format_checker, read=True
-        )
+        with pytest.warns(DeprecationWarning):
+            validator = OAS30Validator(
+                schema, format_checker=oas30_format_checker, read=True
+            )
         with pytest.raises(
             ValidationError, match="'some_prop' is a required property"
         ):
             validator.validate({"another_prop": "hello"})
-        validator = OAS30Validator(
-            schema, format_checker=oas30_format_checker, write=True
-        )
+        with pytest.warns(DeprecationWarning):
+            validator = OAS30Validator(
+                schema, format_checker=oas30_format_checker, write=True
+            )
         assert validator.validate({"another_prop": "hello"}) is None
 
     def test_required_write_only(self):
@@ -314,16 +322,18 @@ class TestOAS30ValidatorValidate:
             "required": ["some_prop"],
         }
 
-        validator = OAS30Validator(
-            schema, format_checker=oas30_format_checker, write=True
-        )
+        with pytest.warns(DeprecationWarning):
+            validator = OAS30Validator(
+                schema, format_checker=oas30_format_checker, write=True
+            )
         with pytest.raises(
             ValidationError, match="'some_prop' is a required property"
         ):
             validator.validate({"another_prop": "hello"})
-        validator = OAS30Validator(
-            schema, format_checker=oas30_format_checker, read=True
-        )
+        with pytest.warns(DeprecationWarning):
+            validator = OAS30Validator(
+                schema, format_checker=oas30_format_checker, read=True
+            )
         assert validator.validate({"another_prop": "hello"}) is None
 
     def test_oneof_required(self):
@@ -566,6 +576,84 @@ class TestOAS30ValidatorValidate:
             ):
                 validator.validate({"testfield": None})
                 assert False
+
+
+class TestOAS30ReadWriteValidatorValidate:
+
+    def test_read_only(self):
+        schema = {
+            "type": "object",
+            "properties": {"some_prop": {"type": "string", "readOnly": True}},
+        }
+
+        validator = OAS30WriteValidator(
+            schema, format_checker=oas30_format_checker,
+        )
+        with pytest.raises(
+            ValidationError, match="Tried to write read-only property with hello"
+        ):
+            validator.validate({"some_prop": "hello"})
+        validator = OAS30ReadValidator(
+            schema, format_checker=oas30_format_checker,
+        )
+        assert validator.validate({"some_prop": "hello"}) is None
+
+    def test_write_only(self):
+        schema = {
+            "type": "object",
+            "properties": {"some_prop": {"type": "string", "writeOnly": True}},
+        }
+
+        validator = OAS30ReadValidator(
+            schema, format_checker=oas30_format_checker,
+        )
+        with pytest.raises(
+            ValidationError, match="Tried to read write-only property with hello"
+        ):
+            validator.validate({"some_prop": "hello"})
+        validator = OAS30WriteValidator(
+            schema, format_checker=oas30_format_checker,
+        )
+        assert validator.validate({"some_prop": "hello"}) is None
+
+    def test_required_read_only(self):
+        schema = {
+            "type": "object",
+            "properties": {"some_prop": {"type": "string", "readOnly": True}},
+            "required": ["some_prop"],
+        }
+
+        validator = OAS30ReadValidator(
+            schema, format_checker=oas30_format_checker,
+        )
+        with pytest.raises(
+            ValidationError, match="'some_prop' is a required property"
+        ):
+            validator.validate({"another_prop": "hello"})
+        validator = OAS30WriteValidator(
+            schema, format_checker=oas30_format_checker,
+        )
+        assert validator.validate({"another_prop": "hello"}) is None
+
+    def test_required_write_only(self):
+        schema = {
+            "type": "object",
+            "properties": {"some_prop": {"type": "string", "writeOnly": True}},
+            "required": ["some_prop"],
+        }
+
+        validator = OAS30WriteValidator(
+            schema, format_checker=oas30_format_checker,
+        )
+        with pytest.raises(
+            ValidationError, match="'some_prop' is a required property"
+        ):
+            validator.validate({"another_prop": "hello"})
+        validator = OAS30ReadValidator(
+            schema, format_checker=oas30_format_checker,
+        )
+        assert validator.validate({"another_prop": "hello"}) is None
+
 
 class TestOAS31ValidatorValidate:
     @pytest.mark.parametrize(
