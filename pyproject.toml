@@ -18,15 +18,7 @@ module = "jsonschema.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "isodate"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
 module = "rfc3339_validator"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "strict_rfc3339"
 ignore_missing_imports = true
 
 [tool.poetry]
@@ -54,13 +46,9 @@ classifiers = [
 python = "^3.7.0"
 jsonschema = "^4.0.0"
 rfc3339-validator = {version = "*", optional = true}
-strict-rfc3339 = {version = "*", optional = true}
-isodate = {version = "*", optional = true}
 
 [tool.poetry.extras]
 rfc3339-validator = ["rfc3339-validator"]
-strict-rfc3339 = ["strict-rfc3339"]
-isodate = ["isodate"]
 
 [tool.poetry.dev-dependencies]
 black = "^22.0.0"
