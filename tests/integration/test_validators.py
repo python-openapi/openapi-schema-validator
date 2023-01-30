@@ -1,3 +1,5 @@
+from base64 import b64encode
+
 import pytest
 from jsonschema import ValidationError
 
@@ -8,10 +10,18 @@ from openapi_schema_validator import OAS31Validator
 from openapi_schema_validator import oas30_format_checker
 from openapi_schema_validator import oas31_format_checker
 
-try:
-    from unittest import mock
-except ImportError:
-    from unittest import mock
+
+class TestOAS30Validator:
+
+    def test_format_checkers(self):
+        assert set(OAS30Validator.FORMAT_CHECKER.checkers.keys()) == set([
+            # standard formats
+            "int32", "int64", "float", "double", "byte", "binary",
+            "date", "date-time", "password",
+            # extra formats
+            "uuid", "regex",
+            "ipv4", "ipv6", "email", "idn-email", "time"
+        ])
 
 
 class TestOAS30ValidatorValidate:
@@ -82,147 +92,27 @@ class TestOAS30ValidatorValidate:
     @pytest.mark.parametrize(
         "value",
         [
-            "1989-01-02T00:00:00Z",
-            "2018-01-02T23:59:59Z",
-        ],
+            b64encode(b"string"),
+            b64encode(b"string").decode(),
+        ]
     )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_RFC3339_VALIDATOR",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_STRICT_RFC3339",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_ISODATE", False
-    )
-    def test_string_format_no_datetime_validator(self, value):
-        schema = {"type": "string", "format": "date-time"}
+    def test_string_format_byte_valid(self, value):
+        schema = {"type": "string", "format": "byte"}
         validator = OAS30Validator(schema, format_checker=oas30_format_checker)
 
         result = validator.validate(value)
 
         assert result is None
 
-    @pytest.mark.parametrize(
-        "value",
-        [
-            "1989-01-02T00:00:00Z",
-            "2018-01-02T23:59:59Z",
-        ],
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_RFC3339_VALIDATOR",
-        True,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_STRICT_RFC3339",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_ISODATE", False
-    )
-    def test_string_format_datetime_rfc3339_validator(self, value):
-        schema = {"type": "string", "format": "date-time"}
-        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
-
-        result = validator.validate(value)
-
-        assert result is None
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            "1989-01-02T00:00:00Z",
-            "2018-01-02T23:59:59Z",
-        ],
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_RFC3339_VALIDATOR",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_STRICT_RFC3339", True
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_ISODATE", False
-    )
-    def test_string_format_datetime_strict_rfc3339(self, value):
-        schema = {"type": "string", "format": "date-time"}
-        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
-
-        result = validator.validate(value)
-
-        assert result is None
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            "1989-01-02T00:00:00Z",
-            "2018-01-02T23:59:59Z",
-        ],
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_RFC3339_VALIDATOR",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_STRICT_RFC3339",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_ISODATE", True
-    )
-    def test_string_format_datetime_isodate(self, value):
-        schema = {"type": "string", "format": "date-time"}
-        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
-
-        result = validator.validate(value)
-
-        assert result is None
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            "1989-01-00Z",
-            "2018",
-        ],
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_RFC3339_VALIDATOR",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_STRICT_RFC3339",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_ISODATE", True
-    )
-    def test_string_format_datetime_invalid_isodate(self, value):
-        schema = {"type": "string", "format": "date-time"}
+    @pytest.mark.parametrize("value", ["string", b"string"])
+    def test_string_format_byte_invalid(self, value):
+        schema = {"type": "string", "format": "byte"}
         validator = OAS30Validator(schema, format_checker=oas30_format_checker)
 
         with pytest.raises(
-            ValidationError, match=f"'{value}' is not a 'date-time'"
+            ValidationError, match="is not a 'byte'"
         ):
             validator.validate(value)
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            "f50ec0b7-f960-400d-91f0-c42a6d44e3d0",
-            "F50EC0B7-F960-400D-91F0-C42A6D44E3D0",
-        ],
-    )
-    def test_string_uuid(self, value):
-        schema = {"type": "string", "format": "uuid"}
-        validator = OAS30Validator(schema, format_checker=oas30_format_checker)
-
-        result = validator.validate(value)
-
-        assert result is None
 
     def test_allof_required(self):
         schema = {
@@ -578,6 +468,18 @@ class TestOAS30ValidatorValidate:
                 assert False
 
 
+class TestOAS31Validator:
+
+    def test_format_checkers(self):
+        assert set(OAS31Validator.FORMAT_CHECKER.checkers.keys()) == set([
+            # standard formats
+            "int32", "int64", "float", "double", "password",
+            # extra formats
+            "date", "date-time", "uuid", "regex",
+            "ipv4", "ipv6", "email", "idn-email", "time"
+        ])
+
+
 class TestOAS30ReadWriteValidatorValidate:
 
     def test_read_only(self):
@@ -688,139 +590,6 @@ class TestOAS31ValidatorValidate:
         schema = {"type": [schema_type, "null"]}
         validator = OAS31Validator(schema)
         value = None
-
-        result = validator.validate(value)
-
-        assert result is None
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            "1989-01-02T00:00:00Z",
-            "2018-01-02T23:59:59Z",
-        ],
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_RFC3339_VALIDATOR",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_STRICT_RFC3339",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_ISODATE", False
-    )
-    def test_string_format_no_datetime_validator(self, value):
-        schema = {"type": "string", "format": "date-time"}
-        validator = OAS31Validator(
-            schema,
-            format_checker=oas31_format_checker,
-        )
-
-        result = validator.validate(value)
-
-        assert result is None
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            "1989-01-02T00:00:00Z",
-            "2018-01-02T23:59:59Z",
-        ],
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_RFC3339_VALIDATOR",
-        True,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_STRICT_RFC3339",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_ISODATE", False
-    )
-    def test_string_format_datetime_rfc3339_validator(self, value):
-        schema = {"type": "string", "format": "date-time"}
-        validator = OAS31Validator(
-            schema,
-            format_checker=oas31_format_checker,
-        )
-
-        result = validator.validate(value)
-
-        assert result is None
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            "1989-01-02T00:00:00Z",
-            "2018-01-02T23:59:59Z",
-        ],
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_RFC3339_VALIDATOR",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_STRICT_RFC3339", True
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_ISODATE", False
-    )
-    def test_string_format_datetime_strict_rfc3339(self, value):
-        schema = {"type": "string", "format": "date-time"}
-        validator = OAS31Validator(
-            schema,
-            format_checker=oas31_format_checker,
-        )
-
-        result = validator.validate(value)
-
-        assert result is None
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            "1989-01-02T00:00:00Z",
-            "2018-01-02T23:59:59Z",
-        ],
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_RFC3339_VALIDATOR",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_STRICT_RFC3339",
-        False,
-    )
-    @mock.patch(
-        "openapi_schema_validator._format." "DATETIME_HAS_ISODATE", True
-    )
-    def test_string_format_datetime_isodate(self, value):
-        schema = {"type": "string", "format": "date-time"}
-        validator = OAS31Validator(
-            schema,
-            format_checker=oas31_format_checker,
-        )
-
-        result = validator.validate(value)
-
-        assert result is None
-
-    @pytest.mark.parametrize(
-        "value",
-        [
-            "f50ec0b7-f960-400d-91f0-c42a6d44e3d0",
-            "F50EC0B7-F960-400D-91F0-C42A6D44E3D0",
-        ],
-    )
-    def test_string_uuid(self, value):
-        schema = {"type": "string", "format": "uuid"}
-        validator = OAS31Validator(
-            schema,
-            format_checker=oas31_format_checker,
-        )
 
         result = validator.validate(value)
 
