@@ -88,7 +88,6 @@ OAS31Validator = extend(
         "oneOf": oas_validators.oneOf,
         "anyOf": oas_validators.anyOf,
         "description": oas_validators.not_implemented,
-        "format": oas_validators.format,
         # fixed OAS fields
         "discriminator": oas_validators.not_implemented,
         "xml": oas_validators.not_implemented,
