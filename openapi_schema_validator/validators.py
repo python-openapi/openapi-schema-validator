@@ -1,6 +1,6 @@
+import warnings
 from typing import Any
 from typing import Type
-import warnings
 
 from jsonschema import _legacy_validators
 from jsonschema import _utils

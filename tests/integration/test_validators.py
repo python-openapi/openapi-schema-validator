@@ -4,31 +4,36 @@ import pytest
 from jsonschema import ValidationError
 
 from openapi_schema_validator import OAS30ReadValidator
-from openapi_schema_validator import OAS30WriteValidator
 from openapi_schema_validator import OAS30Validator
+from openapi_schema_validator import OAS30WriteValidator
 from openapi_schema_validator import OAS31Validator
 from openapi_schema_validator import oas30_format_checker
 from openapi_schema_validator import oas31_format_checker
 
 
 class TestOAS30ValidatorFormatChecker:
-
     @pytest.fixture
     def format_checker(self):
         return OAS30Validator.FORMAT_CHECKER
 
     def test_required_checkers(self, format_checker):
-        required_formats_set = set([
-            "int32", "int64", "float", "double", "byte", "binary",
-            "date", "date-time", "password",
-        ])
+        required_formats_set = {
+            "int32",
+            "int64",
+            "float",
+            "double",
+            "byte",
+            "binary",
+            "date",
+            "date-time",
+            "password",
+        }
         assert required_formats_set.issubset(
             set(format_checker.checkers.keys())
         )
 
 
 class BaseTestOASValidatorValidate:
-
     @pytest.mark.parametrize("value", ["test"])
     def test_string(self, validator_class, value):
         schema = {"type": "string"}
@@ -48,7 +53,6 @@ class BaseTestOASValidatorValidate:
 
 
 class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
-
     @pytest.fixture
     def validator_class(self):
         return OAS30Validator
@@ -76,7 +80,9 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
         assert result is None
 
     @pytest.mark.parametrize("value", ["test", True, 3, 3.12, None])
-    def test_string_binary_invalid(self, validator_class, format_checker, value):
+    def test_string_binary_invalid(
+        self, validator_class, format_checker, value
+    ):
         schema = {"type": "string", "format": "binary"}
         validator = validator_class(schema, format_checker=format_checker)
 
@@ -152,11 +158,13 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
         [
             b64encode(b"string"),
             b64encode(b"string").decode(),
-        ]
+        ],
     )
     def test_string_format_byte_valid(self, validator_class, value):
         schema = {"type": "string", "format": "byte"}
-        validator = validator_class(schema, format_checker=oas30_format_checker)
+        validator = validator_class(
+            schema, format_checker=oas30_format_checker
+        )
 
         result = validator.validate(value)
 
@@ -165,11 +173,11 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
     @pytest.mark.parametrize("value", ["string", b"string"])
     def test_string_format_byte_invalid(self, validator_class, value):
         schema = {"type": "string", "format": "byte"}
-        validator = validator_class(schema, format_checker=oas30_format_checker)
+        validator = validator_class(
+            schema, format_checker=oas30_format_checker
+        )
 
-        with pytest.raises(
-            ValidationError, match="is not a 'byte'"
-        ):
+        with pytest.raises(ValidationError, match="is not a 'byte'"):
             validator.validate(value)
 
     def test_allof_required(self, validator_class):
@@ -182,7 +190,9 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
                 {"type": "object", "required": ["some_prop"]},
             ]
         }
-        validator = validator_class(schema, format_checker=oas30_format_checker)
+        validator = validator_class(
+            schema, format_checker=oas30_format_checker
+        )
         with pytest.raises(
             ValidationError, match="'some_prop' is a required property"
         ):
@@ -195,7 +205,9 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
             "required": ["some_prop"],
         }
 
-        validator = validator_class(schema, format_checker=oas30_format_checker)
+        validator = validator_class(
+            schema, format_checker=oas30_format_checker
+        )
         with pytest.raises(
             ValidationError, match="'some_prop' is a required property"
         ):
@@ -213,7 +225,8 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
                 schema, format_checker=oas30_format_checker, write=True
             )
         with pytest.raises(
-            ValidationError, match="Tried to write read-only property with hello"
+            ValidationError,
+            match="Tried to write read-only property with hello",
         ):
             validator.validate({"some_prop": "hello"})
         with pytest.warns(DeprecationWarning):
@@ -233,7 +246,8 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
                 schema, format_checker=oas30_format_checker, read=True
             )
         with pytest.raises(
-            ValidationError, match="Tried to read write-only property with hello"
+            ValidationError,
+            match="Tried to read write-only property with hello",
         ):
             validator.validate({"some_prop": "hello"})
         with pytest.warns(DeprecationWarning):
@@ -299,7 +313,9 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
                 {"required": ["wagfId"]},
             ],
         }
-        validator = validator_class(schema, format_checker=oas30_format_checker)
+        validator = validator_class(
+            schema, format_checker=oas30_format_checker
+        )
         result = validator.validate(instance)
         assert result is None
 
@@ -397,7 +413,9 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
         ] = discriminator
 
         # Optional: check we return useful result when the schema is wrong
-        validator = validator_class(schema, format_checker=oas30_format_checker)
+        validator = validator_class(
+            schema, format_checker=oas30_format_checker
+        )
         with pytest.raises(
             ValidationError, match="does not contain discriminating property"
         ):
@@ -437,15 +455,12 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
         schema = {
             "$ref": "#/$defs/Pet",
             "$defs": {
-                "NullableText": {
-                    "type": "string",
-                    "nullable": is_nullable
-                },
+                "NullableText": {"type": "string", "nullable": is_nullable},
                 "Pet": {
                     "properties": {
                         "testfield": {"$ref": "#/$defs/NullableText"},
                     },
-                }
+                },
             },
         }
         validator = validator_class(
@@ -461,23 +476,24 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
             assert result is None
         else:
             with pytest.raises(
-                    ValidationError,
-                    match="None for not nullable",
+                ValidationError,
+                match="None for not nullable",
             ):
                 validator.validate({"testfield": None})
                 assert False
-
 
     @pytest.mark.parametrize(
         "schema_type, not_nullable_regex",
         [
             ("oneOf", "None is not valid under any of the given schemas"),
             ("anyOf", "None is not valid under any of the given schemas"),
-            ("allOf", "None for not nullable")
+            ("allOf", "None for not nullable"),
         ],
     )
     @pytest.mark.parametrize("is_nullable", [True, False])
-    def test_nullable_schema_combos(self, validator_class, is_nullable, schema_type, not_nullable_regex):
+    def test_nullable_schema_combos(
+        self, validator_class, is_nullable, schema_type, not_nullable_regex
+    ):
         """
         This test ensures that nullablilty semantics are correct for oneOf, anyOf and allOf
         Specifically, nullable should checked on the children schemas
@@ -490,12 +506,14 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
             "$defs": {
                 "NullableText": {
                     "type": "string",
-                    "nullable": False if schema_type == "oneOf" else is_nullable
+                    "nullable": False
+                    if schema_type == "oneOf"
+                    else is_nullable,
                 },
                 "NullableEnum": {
                     "type": "string",
                     "nullable": is_nullable,
-                    "enum": ["John", "Alice", None]
+                    "enum": ["John", "Alice", None],
                 },
                 "Pet": {
                     "properties": {
@@ -506,7 +524,7 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
                             ]
                         }
                     },
-                }
+                },
             },
         }
         validator = validator_class(
@@ -518,16 +536,12 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
             result = validator.validate({"testfield": None})
             assert result is None
         else:
-            with pytest.raises(
-                    ValidationError,
-                    match=not_nullable_regex
-            ):
+            with pytest.raises(ValidationError, match=not_nullable_regex):
                 validator.validate({"testfield": None})
                 assert False
 
 
 class TestOAS30ReadWriteValidatorValidate:
-
     def test_read_only(self):
         schema = {
             "type": "object",
@@ -535,14 +549,17 @@ class TestOAS30ReadWriteValidatorValidate:
         }
 
         validator = OAS30WriteValidator(
-            schema, format_checker=oas30_format_checker,
+            schema,
+            format_checker=oas30_format_checker,
         )
         with pytest.raises(
-            ValidationError, match="Tried to write read-only property with hello"
+            ValidationError,
+            match="Tried to write read-only property with hello",
         ):
             validator.validate({"some_prop": "hello"})
         validator = OAS30ReadValidator(
-            schema, format_checker=oas30_format_checker,
+            schema,
+            format_checker=oas30_format_checker,
         )
         assert validator.validate({"some_prop": "hello"}) is None
 
@@ -553,14 +570,17 @@ class TestOAS30ReadWriteValidatorValidate:
         }
 
         validator = OAS30ReadValidator(
-            schema, format_checker=oas30_format_checker,
+            schema,
+            format_checker=oas30_format_checker,
         )
         with pytest.raises(
-            ValidationError, match="Tried to read write-only property with hello"
+            ValidationError,
+            match="Tried to read write-only property with hello",
         ):
             validator.validate({"some_prop": "hello"})
         validator = OAS30WriteValidator(
-            schema, format_checker=oas30_format_checker,
+            schema,
+            format_checker=oas30_format_checker,
         )
         assert validator.validate({"some_prop": "hello"}) is None
 
@@ -572,14 +592,16 @@ class TestOAS30ReadWriteValidatorValidate:
         }
 
         validator = OAS30ReadValidator(
-            schema, format_checker=oas30_format_checker,
+            schema,
+            format_checker=oas30_format_checker,
         )
         with pytest.raises(
             ValidationError, match="'some_prop' is a required property"
         ):
             validator.validate({"another_prop": "hello"})
         validator = OAS30WriteValidator(
-            schema, format_checker=oas30_format_checker,
+            schema,
+            format_checker=oas30_format_checker,
         )
         assert validator.validate({"another_prop": "hello"}) is None
 
@@ -591,36 +613,40 @@ class TestOAS30ReadWriteValidatorValidate:
         }
 
         validator = OAS30WriteValidator(
-            schema, format_checker=oas30_format_checker,
+            schema,
+            format_checker=oas30_format_checker,
         )
         with pytest.raises(
             ValidationError, match="'some_prop' is a required property"
         ):
             validator.validate({"another_prop": "hello"})
         validator = OAS30ReadValidator(
-            schema, format_checker=oas30_format_checker,
+            schema,
+            format_checker=oas30_format_checker,
         )
         assert validator.validate({"another_prop": "hello"}) is None
 
 
 class TestOAS31ValidatorFormatChecker:
-
     @pytest.fixture
     def format_checker(self):
         return OAS31Validator.FORMAT_CHECKER
 
     def test_required_checkers(self, format_checker):
-        required_formats_set = set([
+        required_formats_set = {
             # standard formats
-            "int32", "int64", "float", "double", "password"
-        ])
+            "int32",
+            "int64",
+            "float",
+            "double",
+            "password",
+        }
         assert required_formats_set.issubset(
             set(format_checker.checkers.keys())
         )
 
 
 class TestOAS31ValidatorValidate(BaseTestOASValidatorValidate):
-
     @pytest.fixture
     def validator_class(self):
         return OAS31Validator

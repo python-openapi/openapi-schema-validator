@@ -187,10 +187,7 @@ def read_required(
             prop_schema = schema.get("properties", {}).get(property)
             if prop_schema:
                 write_only = prop_schema.get("writeOnly", False)
-                if (
-                    getattr(validator, "read", True)
-                    and write_only
-                ):
+                if getattr(validator, "read", True) and write_only:
                     continue
             yield ValidationError(f"{property!r} is a required property")
 
