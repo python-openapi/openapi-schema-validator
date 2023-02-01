@@ -45,10 +45,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.7.0"
 jsonschema = "^4.0.0"
-rfc3339-validator = {version = "*", optional = true}
-
-[tool.poetry.extras]
-rfc3339-validator = ["rfc3339-validator"]
+rfc3339-validator = "*"
 
 [tool.poetry.dev-dependencies]
 black = "^22.0.0"
