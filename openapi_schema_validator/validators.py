@@ -58,7 +58,7 @@ OAS30Validator = create(
     type_checker=oas_types.oas30_type_checker,
     format_checker=oas_format.oas30_format_checker,
     # NOTE: version causes conflict with global jsonschema validator
-    # See https://github.com/p1c2u/openapi-schema-validator/pull/12
+    # See https://github.com/python-openapi/openapi-schema-validator/pull/12
     # version="oas30",
     id_of=lambda schema: schema.get("id", ""),
 )
@@ -103,7 +103,7 @@ def _patch_validator_with_read_write_context(cls: Type[Validator]) -> None:
     """Adds read/write context to jsonschema validator class"""
     # subclassing validator classes is not intended to
     # be part of their public API and will raise error
-    # See https://github.com/p1c2u/openapi-schema-validator/issues/48
+    # See https://github.com/python-openapi/openapi-schema-validator/issues/48
     original_init = cls.__init__
     original_evolve = cls.evolve
 

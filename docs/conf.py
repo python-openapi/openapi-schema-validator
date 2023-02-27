@@ -30,7 +30,7 @@ html_theme_options = {
         "provider": "google",
         "property": "G-11RDPBZ7EJ",
     },
-    "repo_url": "https://github.com/p1c2u/openapi-schema-validator/",
+    "repo_url": "https://github.com/python-openapi/openapi-schema-validator/",
     "repo_name": "openapi-schema-validator",
     "repo_type": "github",
     "icon": {

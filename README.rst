@@ -4,10 +4,10 @@ openapi-schema-validator
 
 .. image:: https://img.shields.io/pypi/v/openapi-schema-validator.svg
      :target: https://pypi.python.org/pypi/openapi-schema-validator
-.. image:: https://travis-ci.org/p1c2u/openapi-schema-validator.svg?branch=master
-     :target: https://travis-ci.org/p1c2u/openapi-schema-validator
-.. image:: https://img.shields.io/codecov/c/github/p1c2u/openapi-schema-validator/master.svg?style=flat
-     :target: https://codecov.io/github/p1c2u/openapi-schema-validator?branch=master
+.. image:: https://travis-ci.org/python-openapi/openapi-schema-validator.svg?branch=master
+     :target: https://travis-ci.org/python-openapi/openapi-schema-validator
+.. image:: https://img.shields.io/codecov/c/github/python-openapi/openapi-schema-validator/master.svg?style=flat
+     :target: https://codecov.io/github/python-openapi/openapi-schema-validator?branch=master
 .. image:: https://img.shields.io/pypi/pyversions/openapi-schema-validator.svg
      :target: https://pypi.python.org/pypi/openapi-schema-validator
 .. image:: https://img.shields.io/pypi/format/openapi-schema-validator.svg
@@ -43,7 +43,7 @@ Alternatively you can download the code and install from the repository:
 
 .. code-block:: console
 
-   pip install -e git+https://github.com/p1c2u/openapi-schema-validator.git#egg=openapi_schema_validator
+   pip install -e git+https://github.com/python-openapi/openapi-schema-validator.git#egg=openapi_schema_validator
 
 
 Usage
@@ -103,7 +103,7 @@ For more details read about `Validation <https://openapi-schema-validator.readth
 
 Related projects
 ################
-* `openapi-core <https://github.com/p1c2u/openapi-core>`__
+* `openapi-core <https://github.com/python-openapi/openapi-core>`__
    Python library that adds client-side and server-side support for the OpenAPI.
-* `openapi-spec-validator <https://github.com/p1c2u/openapi-spec-validator>`__
+* `openapi-spec-validator <https://github.com/python-openapi/openapi-spec-validator>`__
    Python library that validates OpenAPI Specs against the OpenAPI 2.0 (aka Swagger) and OpenAPI 3.0 specification
