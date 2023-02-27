@@ -46,6 +46,11 @@ classifiers = [
 python = "^3.7.0"
 jsonschema = "^4.0.0"
 rfc3339-validator = "*"
+sphinx = {version = "^5.3.0", optional = true}
+sphinx-immaterial = {version = "^0.11.0", optional = true}
+
+[tool.poetry.extras]
+docs = ["sphinx", "sphinx-immaterial"]
 
 [tool.poetry.dev-dependencies]
 black = "^22.0.0"
@@ -56,6 +61,10 @@ pytest-flake8 = "*"
 pytest-cov = "*"
 mypy = "^0.910"
 flynt = "^0.76"
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^5.3.0"
+sphinx-immaterial = "^0.11.0"
 
 [tool.pytest.ini_options]
 addopts = """

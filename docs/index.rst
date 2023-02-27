@@ -1,55 +1,39 @@
-************************
 openapi-schema-validator
-************************
+========================
 
-.. image:: https://img.shields.io/pypi/v/openapi-schema-validator.svg
-     :target: https://pypi.python.org/pypi/openapi-schema-validator
-.. image:: https://travis-ci.org/p1c2u/openapi-schema-validator.svg?branch=master
-     :target: https://travis-ci.org/p1c2u/openapi-schema-validator
-.. image:: https://img.shields.io/codecov/c/github/p1c2u/openapi-schema-validator/master.svg?style=flat
-     :target: https://codecov.io/github/p1c2u/openapi-schema-validator?branch=master
-.. image:: https://img.shields.io/pypi/pyversions/openapi-schema-validator.svg
-     :target: https://pypi.python.org/pypi/openapi-schema-validator
-.. image:: https://img.shields.io/pypi/format/openapi-schema-validator.svg
-     :target: https://pypi.python.org/pypi/openapi-schema-validator
-.. image:: https://img.shields.io/pypi/status/openapi-schema-validator.svg
-     :target: https://pypi.python.org/pypi/openapi-schema-validator
+.. toctree::
+   :hidden:
+   :maxdepth: 2
 
-About
-#####
+   validation
+   format
+   references
+   contributing
 
 Openapi-schema-validator is a Python library that validates schema against:
 
 * `OpenAPI Schema Specification v3.0 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#schemaObject>`__ which is an extended subset of the `JSON Schema Specification Wright Draft 00 <http://json-schema.org/>`__.
 * `OpenAPI Schema Specification v3.1 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.1.0.md#schemaObject>`__ which is an extended superset of the `JSON Schema Specification Draft 2020-12 <http://json-schema.org/>`__.
 
-
-Documentation
-#############
-
-Check documentation to see more details about the features. All documentation is in the "docs" directory and online at `openapi-schema-validator.readthedocs.io <https://openapi-schema-validator.readthedocs.io>`__
-
-
 Installation
-############
+------------
 
-Recommended way (via pip):
+.. md-tab-set::
 
-.. code-block:: console
+   .. md-tab-item:: Pip + PyPI (recommented)
 
-   pip install openapi-schema-validator
+      .. code-block:: console
 
-Alternatively you can download the code and install from the repository:
+         pip install openapi-schema-validator
 
-.. code-block:: console
+   .. md-tab-item:: Pip + the source
 
-   pip install -e git+https://github.com/p1c2u/openapi-schema-validator.git#egg=openapi_schema_validator
+      .. code-block:: console
 
+         pip install -e git+https://github.com/p1c2u/openapi-schema-validator.git#egg=openapi_schema_validator
 
 Usage
-#####
-
-To validate an OpenAPI v3.1 schema:
+-----
 
 .. code-block:: python
 
@@ -97,13 +81,17 @@ To validate an OpenAPI v3.1 schema:
        ...
    ValidationError: Additional properties are not allowed ('city' was unexpected)
 
-By default, the latest OpenAPI schema syntax is expected.
-
-For more details read about `Validation <https://openapi-schema-validator.readthedocs.io/en/latest/validation.html>`__.
+Read more about the :doc:`validation`.
 
 Related projects
-################
+----------------
+
 * `openapi-core <https://github.com/p1c2u/openapi-core>`__
-   Python library that adds client-side and server-side support for the OpenAPI.
+   Python library that adds client-side and server-side support for the OpenAPI v3.0 and OpenAPI v3.1 specification.
 * `openapi-spec-validator <https://github.com/p1c2u/openapi-spec-validator>`__
-   Python library that validates OpenAPI Specs against the OpenAPI 2.0 (aka Swagger) and OpenAPI 3.0 specification
+   Python library that validates OpenAPI Specs against the OpenAPI 2.0 (aka Swagger), OpenAPI 3.0 and OpenAPI 3.1 specification. The validator aims to check for full compliance with the Specification.
+
+License
+-------
+
+The project is under the terms of BSD 3-Clause License.
