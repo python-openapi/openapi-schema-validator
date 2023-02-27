@@ -28,7 +28,7 @@ description = "OpenAPI schema validation for Python"
 authors = ["Artur Maciag <maciag.artur@gmail.com>"]
 license = "BSD-3-Clause"
 readme = "README.rst"
-repository = "https://github.com/p1c2u/openapi-schema-validator"
+repository = "https://github.com/python-openapi/openapi-schema-validator"
 keywords = ["openapi", "swagger", "schema"]
 classifiers = [
     "Development Status :: 4 - Beta",
