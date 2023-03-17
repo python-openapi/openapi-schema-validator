@@ -8,7 +8,7 @@ from openapi_schema_validator.validators import OAS31Validator
 
 __author__ = "Artur Maciag"
 __email__ = "maciag.artur@gmail.com"
-__version__ = "0.4.3"
+__version__ = "0.4.4"
 __url__ = "https://github.com/python-openapi/openapi-schema-validator"
 __license__ = "3-clause BSD License"
 
