@@ -817,7 +817,7 @@ docs = ["sphinx", "sphinx-immaterial"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "aaa51e67ce9969efceac372e0452cfc2536ff3437785a4c8641ac2300a2bc342"
+content-hash = "020b5019072241eeeafbc1093d69d1bf3bcc51e226ac6b05ed86b5651991412c"
 
 [metadata.files]
 alabaster = [
