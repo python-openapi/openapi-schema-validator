@@ -58,7 +58,7 @@ sphinx-immaterial = {version = "^0.11.0", optional = true}
 docs = ["sphinx", "sphinx-immaterial"]
 
 [tool.poetry.dev-dependencies]
-black = "^22.0.0"
+black = "^23.3.0"
 isort = "^5.9.1"
 pre-commit = "*"
 pytest = "^7"
