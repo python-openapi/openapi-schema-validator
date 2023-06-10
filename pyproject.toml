@@ -65,7 +65,7 @@ pytest = "^7"
 pytest-flake8 = "*"
 pytest-cov = "*"
 mypy = "^0.910"
-flynt = "^0.76"
+flynt = "^0.78"
 
 [tool.poetry.group.docs.dependencies]
 sphinx = "^5.3.0"
