@@ -34,6 +34,53 @@ class TestOAS30ValidatorFormatChecker:
 
 
 class BaseTestOASValidatorValidate:
+    @pytest.mark.parametrize(
+        "format,value",
+        [
+            ("int32", "test"),
+            ("int32", True),
+            ("int32", 3.12),
+            ("int32", ["test"]),
+            ("int64", "test"),
+            ("int64", True),
+            ("int64", 3.12),
+            ("int64", ["test"]),
+            ("float", "test"),
+            ("float", 3),
+            ("float", True),
+            ("float", ["test"]),
+            ("double", "test"),
+            ("double", 3),
+            ("double", True),
+            ("double", ["test"]),
+            ("password", 3.12),
+            ("password", True),
+            ("password", 3),
+            ("password", ["test"]),
+        ],
+    )
+    def test_formats_ignored(
+        self, format, value, validator_class, format_checker
+    ):
+        schema = {"format": format}
+        validator = validator_class(schema, format_checker=format_checker)
+
+        result = validator.validate(value)
+
+        assert result is None
+
+    @pytest.mark.parametrize("format", ["float", "double"])
+    @pytest.mark.parametrize("value", [3, 3.14, 1.0])
+    def test_number_float_and_double_valid(
+        self, format, value, validator_class, format_checker
+    ):
+        schema = {"type": "number", "format": format}
+        validator = validator_class(schema, format_checker=format_checker)
+
+        result = validator.validate(value)
+
+        assert result is None
+
     @pytest.mark.parametrize("value", ["test"])
     def test_string(self, validator_class, value):
         schema = {"type": "string"}
@@ -60,6 +107,29 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
     @pytest.fixture
     def format_checker(self):
         return oas30_format_checker
+
+    @pytest.mark.parametrize(
+        "format,value",
+        [
+            ("binary", True),
+            ("binary", 3),
+            ("binary", 3.12),
+            ("binary", ["test"]),
+            ("byte", True),
+            ("byte", 3),
+            ("byte", 3.12),
+            ("byte", ["test"]),
+        ],
+    )
+    def test_oas30_formats_ignored(
+        self, format, value, validator_class, format_checker
+    ):
+        schema = {"format": format}
+        validator = validator_class(schema, format_checker=format_checker)
+
+        result = validator.validate(value)
+
+        assert result is None
 
     @pytest.mark.xfail(reason="OAS 3.0 string type checker allows byte")
     @pytest.mark.parametrize("value", [b"test"])
