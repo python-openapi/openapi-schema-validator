@@ -1,11 +1,13 @@
 References
 ==========
 
-You can resolve JSON references by passing custon reference resolver
+You can resolve JSON Schema references by passing registry
 
 .. code-block:: python
 
-   from jsonschema.validators import RefResolver
+   from openapi_schema_validator import validate
+   from referencing import Registry, Resource
+   from referencing.jsonschema import DRAFT202012
 
    # A schema with reference
    schema = {
@@ -27,28 +29,31 @@ You can resolve JSON references by passing custon reference resolver
        "additionalProperties": False,
    }
    # Referenced schemas
-   schemas = {
-       "components": {
-           "schemas": {
-               "Name": {
-                   "type": "string"
-               },
-               "Age": {
-                   "type": "integer",
-                   "format": "int32",
-                   "minimum": 0,
-                   "nullable": True,
-               },
-               "BirthDate": {
-                   "type": "string",
-                   "format": "date",
-               }
-           },
-       },
-   }
+   # In-schema identifier
+   name_schema = Resource.from_contents({
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "type": "string",
+   })
+   # Explicit identifier
+   age_schema = DRAFT202012.create_resource({
+       "type": "integer",
+       "format": "int32",
+       "minimum": 0,
+       "maximum": 120,
+   })
+   # Default identifier
+   birth_date_schema = Resource.from_contents({
+       "type": "string",
+       "format": "date",
+   }, default_specification=DRAFT202012)
+   registry = Registry().with_resources(
+       [
+           ("urn:name-schema", name_schema),
+           ("urn:age-schema", age_schema),
+           ("urn:birth-date-schema", birth_date_schema),
+       ],
+   )
 
-   ref_resolver = RefResolver.from_schema(schemas)
+   validate({"name": "John", "age": 23}, schema, registry=registry)
 
-   validate({"name": "John", "age": 23}, schema, resolver=ref_resolver)
-
-For more information about reference resolver see `Resolving JSON References <https://python-jsonschema.readthedocs.io/en/stable/references/>`__
+For more information about resolving references see `JSON (Schema) Referencing <https://python-jsonschema.readthedocs.io/en/latest/referencing/>`__
