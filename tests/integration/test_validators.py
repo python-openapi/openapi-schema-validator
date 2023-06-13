@@ -2,6 +2,9 @@ from base64 import b64encode
 
 import pytest
 from jsonschema import ValidationError
+from referencing import Registry
+from referencing import Resource
+from referencing.jsonschema import DRAFT202012
 
 from openapi_schema_validator import OAS30ReadValidator
 from openapi_schema_validator import OAS30Validator
@@ -97,6 +100,51 @@ class BaseTestOASValidatorValidate:
 
         with pytest.raises(ValidationError):
             validator.validate(value)
+
+    def test_referencing(self, validator_class):
+        name_schema = Resource.from_contents(
+            {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "string",
+            }
+        )
+        age_schema = DRAFT202012.create_resource(
+            {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0,
+                "maximum": 120,
+            }
+        )
+        birth_date_schema = Resource.from_contents(
+            {
+                "type": "string",
+                "format": "date",
+            },
+            default_specification=DRAFT202012,
+        )
+        registry = Registry().with_resources(
+            [
+                ("urn:name-schema", name_schema),
+                ("urn:age-schema", age_schema),
+                ("urn:birth-date-schema", birth_date_schema),
+            ],
+        )
+        schema = {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+                "name": {"$ref": "urn:name-schema"},
+                "age": {"$ref": "urn:age-schema"},
+                "birth-date": {"$ref": "urn:birth-date-schema"},
+            },
+            "additionalProperties": False,
+        }
+
+        validator = validator_class(schema, registry=registry)
+        result = validator.validate({"name": "John", "age": 23}, schema)
+
+        assert result is None
 
 
 class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
