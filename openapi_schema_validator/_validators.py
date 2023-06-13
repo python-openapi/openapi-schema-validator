@@ -264,4 +264,5 @@ def not_implemented(
     instance: Any,
     schema: Mapping[Hashable, Any],
 ) -> Iterator[ValidationError]:
-    pass
+    return
+    yield
