@@ -32,7 +32,6 @@ html_theme_options = {
     },
     "repo_url": "https://github.com/python-openapi/openapi-schema-validator/",
     "repo_name": "openapi-schema-validator",
-    "repo_type": "github",
     "icon": {
         "repo": "fontawesome/brands/github-alt",
         "edit": "material/file-edit-outline",
