@@ -55,7 +55,7 @@ include = [
 
 [tool.poetry.dependencies]
 python = "^3.8.0"
-jsonschema = {version = "^4.18.0a1", allow-prereleases = true}
+jsonschema = "^4.18.0"
 rfc3339-validator = "*" # requred by jsonschema for date-time checker
 jsonschema-specifications = "^2023.5.2"
 
