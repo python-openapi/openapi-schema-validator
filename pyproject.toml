@@ -63,7 +63,7 @@ jsonschema-specifications = "^2023.5.2"
 docs = ["sphinx", "sphinx-immaterial"]
 
 [tool.poetry.dev-dependencies]
-black = "^23.3.0"
+black = "^23.7.0"
 isort = "^5.9.1"
 pre-commit = "*"
 pytest = "^7"
