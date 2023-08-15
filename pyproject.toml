@@ -69,7 +69,7 @@ pre-commit = "*"
 pytest = "^7"
 pytest-flake8 = "*"
 pytest-cov = "*"
-mypy = "^1.4"
+mypy = "^1.5"
 flynt = "^1.0"
 deptry = "^0.12.0"
 
