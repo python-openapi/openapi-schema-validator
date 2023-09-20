@@ -2,16 +2,16 @@ import warnings
 from typing import Any
 from typing import Type
 
-from jsonschema import _legacy_validators
-from jsonschema import _validators
+from jsonschema import _keywords
+from jsonschema import _legacy_keywords
 from jsonschema.validators import Draft202012Validator
 from jsonschema.validators import create
 from jsonschema.validators import extend
 from jsonschema_specifications import REGISTRY as SPECIFICATIONS
 
 from openapi_schema_validator import _format as oas_format
+from openapi_schema_validator import _keywords as oas_keywords
 from openapi_schema_validator import _types as oas_types
-from openapi_schema_validator import _validators as oas_validators
 from openapi_schema_validator._types import oas31_type_checker
 
 OAS30Validator = create(
@@ -19,42 +19,42 @@ OAS30Validator = create(
         "http://json-schema.org/draft-04/schema#",
     ),
     validators={
-        "multipleOf": _validators.multipleOf,
+        "multipleOf": _keywords.multipleOf,
         # exclusiveMaximum supported inside maximum_draft3_draft4
-        "maximum": _legacy_validators.maximum_draft3_draft4,
+        "maximum": _legacy_keywords.maximum_draft3_draft4,
         # exclusiveMinimum supported inside minimum_draft3_draft4
-        "minimum": _legacy_validators.minimum_draft3_draft4,
-        "maxLength": _validators.maxLength,
-        "minLength": _validators.minLength,
-        "pattern": _validators.pattern,
-        "maxItems": _validators.maxItems,
-        "minItems": _validators.minItems,
-        "uniqueItems": _validators.uniqueItems,
-        "maxProperties": _validators.maxProperties,
-        "minProperties": _validators.minProperties,
-        "enum": _validators.enum,
+        "minimum": _legacy_keywords.minimum_draft3_draft4,
+        "maxLength": _keywords.maxLength,
+        "minLength": _keywords.minLength,
+        "pattern": _keywords.pattern,
+        "maxItems": _keywords.maxItems,
+        "minItems": _keywords.minItems,
+        "uniqueItems": _keywords.uniqueItems,
+        "maxProperties": _keywords.maxProperties,
+        "minProperties": _keywords.minProperties,
+        "enum": _keywords.enum,
         # adjusted to OAS
-        "type": oas_validators.type,
-        "allOf": oas_validators.allOf,
-        "oneOf": oas_validators.oneOf,
-        "anyOf": oas_validators.anyOf,
-        "not": _validators.not_,
-        "items": oas_validators.items,
-        "properties": _validators.properties,
-        "required": oas_validators.required,
-        "additionalProperties": oas_validators.additionalProperties,
+        "type": oas_keywords.type,
+        "allOf": oas_keywords.allOf,
+        "oneOf": oas_keywords.oneOf,
+        "anyOf": oas_keywords.anyOf,
+        "not": _keywords.not_,
+        "items": oas_keywords.items,
+        "properties": _keywords.properties,
+        "required": oas_keywords.required,
+        "additionalProperties": oas_keywords.additionalProperties,
         # TODO: adjust description
-        "format": oas_validators.format,
+        "format": oas_keywords.format,
         # TODO: adjust default
-        "$ref": _validators.ref,
+        "$ref": _keywords.ref,
         # fixed OAS fields
-        "discriminator": oas_validators.not_implemented,
-        "readOnly": oas_validators.readOnly,
-        "writeOnly": oas_validators.writeOnly,
-        "xml": oas_validators.not_implemented,
-        "externalDocs": oas_validators.not_implemented,
-        "example": oas_validators.not_implemented,
-        "deprecated": oas_validators.not_implemented,
+        "discriminator": oas_keywords.not_implemented,
+        "readOnly": oas_keywords.readOnly,
+        "writeOnly": oas_keywords.writeOnly,
+        "xml": oas_keywords.not_implemented,
+        "externalDocs": oas_keywords.not_implemented,
+        "example": oas_keywords.not_implemented,
+        "deprecated": oas_keywords.not_implemented,
     },
     type_checker=oas_types.oas30_type_checker,
     format_checker=oas_format.oas30_format_checker,
@@ -67,17 +67,17 @@ OAS30Validator = create(
 OAS30ReadValidator = extend(
     OAS30Validator,
     validators={
-        "required": oas_validators.read_required,
-        "readOnly": oas_validators.not_implemented,
-        "writeOnly": oas_validators.writeOnly,
+        "required": oas_keywords.read_required,
+        "readOnly": oas_keywords.not_implemented,
+        "writeOnly": oas_keywords.writeOnly,
     },
 )
 OAS30WriteValidator = extend(
     OAS30Validator,
     validators={
-        "required": oas_validators.write_required,
-        "readOnly": oas_validators.readOnly,
-        "writeOnly": oas_validators.not_implemented,
+        "required": oas_keywords.write_required,
+        "readOnly": oas_keywords.readOnly,
+        "writeOnly": oas_keywords.not_implemented,
     },
 )
 
@@ -85,15 +85,15 @@ OAS31Validator = extend(
     Draft202012Validator,
     {
         # adjusted to OAS
-        "allOf": oas_validators.allOf,
-        "oneOf": oas_validators.oneOf,
-        "anyOf": oas_validators.anyOf,
-        "description": oas_validators.not_implemented,
+        "allOf": oas_keywords.allOf,
+        "oneOf": oas_keywords.oneOf,
+        "anyOf": oas_keywords.anyOf,
+        "description": oas_keywords.not_implemented,
         # fixed OAS fields
-        "discriminator": oas_validators.not_implemented,
-        "xml": oas_validators.not_implemented,
-        "externalDocs": oas_validators.not_implemented,
-        "example": oas_validators.not_implemented,
+        "discriminator": oas_keywords.not_implemented,
+        "xml": oas_keywords.not_implemented,
+        "externalDocs": oas_keywords.not_implemented,
+        "example": oas_keywords.not_implemented,
     },
     type_checker=oas31_type_checker,
     format_checker=oas_format.oas31_format_checker,

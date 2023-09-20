@@ -8,11 +8,11 @@ from typing import List
 from typing import Mapping
 from typing import Union
 
+from jsonschema._keywords import allOf as _allOf
+from jsonschema._keywords import anyOf as _anyOf
+from jsonschema._keywords import oneOf as _oneOf
 from jsonschema._utils import extras_msg
 from jsonschema._utils import find_additional_properties
-from jsonschema._validators import allOf as _allOf
-from jsonschema._validators import anyOf as _anyOf
-from jsonschema._validators import oneOf as _oneOf
 from jsonschema.exceptions import FormatError
 from jsonschema.exceptions import ValidationError
 from jsonschema.protocols import Validator
