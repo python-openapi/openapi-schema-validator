@@ -121,6 +121,10 @@ venv.bak/
 # mkdocs documentation
 /site
 
+# asdf versions
+.tool-versions
+.default-python-packages
+
 # mypy
 .mypy_cache/
 .dmypy.json
