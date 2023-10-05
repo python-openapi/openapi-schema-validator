@@ -596,6 +596,11 @@ class TestOAS30ReadWriteValidatorValidate:
             format_checker=oas30_format_checker,
         )
         assert validator.validate({"some_prop": "hello"}) is None
+        validator = OAS30Validator(
+            schema,
+            format_checker=oas30_format_checker,
+        )
+        assert validator.validate({"some_prop": "hello"}) is None
 
     def test_write_only(self):
         schema = {
@@ -613,6 +618,11 @@ class TestOAS30ReadWriteValidatorValidate:
         ):
             validator.validate({"some_prop": "hello"})
         validator = OAS30WriteValidator(
+            schema,
+            format_checker=oas30_format_checker,
+        )
+        assert validator.validate({"some_prop": "hello"}) is None
+        validator = OAS30Validator(
             schema,
             format_checker=oas30_format_checker,
         )

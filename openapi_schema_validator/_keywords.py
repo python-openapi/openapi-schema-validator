@@ -234,27 +234,21 @@ def additionalProperties(
             yield ValidationError(error % extras_msg(extras))
 
 
-def readOnly(
+def write_readOnly(
     validator: Validator,
     ro: bool,
     instance: Any,
     schema: Mapping[Hashable, Any],
 ) -> Iterator[ValidationError]:
-    if not getattr(validator, "write", True) or not ro:
-        return
-
     yield ValidationError(f"Tried to write read-only property with {instance}")
 
 
-def writeOnly(
+def read_writeOnly(
     validator: Validator,
     wo: bool,
     instance: Any,
     schema: Mapping[Hashable, Any],
 ) -> Iterator[ValidationError]:
-    if not getattr(validator, "read", True) or not wo:
-        return
-
     yield ValidationError(f"Tried to read write-only property with {instance}")
 
 
