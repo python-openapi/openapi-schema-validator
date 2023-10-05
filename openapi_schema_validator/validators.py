@@ -49,8 +49,8 @@ OAS30Validator = create(
         "$ref": _keywords.ref,
         # fixed OAS fields
         "discriminator": oas_keywords.not_implemented,
-        "readOnly": oas_keywords.readOnly,
-        "writeOnly": oas_keywords.writeOnly,
+        "readOnly": oas_keywords.not_implemented,
+        "writeOnly": oas_keywords.not_implemented,
         "xml": oas_keywords.not_implemented,
         "externalDocs": oas_keywords.not_implemented,
         "example": oas_keywords.not_implemented,
@@ -68,16 +68,14 @@ OAS30ReadValidator = extend(
     OAS30Validator,
     validators={
         "required": oas_keywords.read_required,
-        "readOnly": oas_keywords.not_implemented,
-        "writeOnly": oas_keywords.writeOnly,
+        "writeOnly": oas_keywords.read_writeOnly,
     },
 )
 OAS30WriteValidator = extend(
     OAS30Validator,
     validators={
         "required": oas_keywords.write_required,
-        "readOnly": oas_keywords.readOnly,
-        "writeOnly": oas_keywords.not_implemented,
+        "readOnly": oas_keywords.write_readOnly,
     },
 )
 
