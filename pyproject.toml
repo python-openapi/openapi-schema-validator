@@ -57,7 +57,7 @@ include = [
 python = "^3.8.0"
 jsonschema = "^4.19.1"
 rfc3339-validator = "*" # requred by jsonschema for date-time checker
-jsonschema-specifications = "^2023.5.2"
+jsonschema-specifications = ">=2023.5.2"
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-immaterial"]
