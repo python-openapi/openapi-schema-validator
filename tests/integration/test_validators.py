@@ -540,9 +540,9 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
             "$defs": {
                 "NullableText": {
                     "type": "string",
-                    "nullable": False
-                    if schema_type == "oneOf"
-                    else is_nullable,
+                    "nullable": (
+                        False if schema_type == "oneOf" else is_nullable
+                    ),
                 },
                 "NullableEnum": {
                     "type": "string",
