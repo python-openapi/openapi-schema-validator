@@ -17,13 +17,13 @@ You can resolve JSON Schema references by passing registry
        ],
        "properties": {
            "name": {
-               "$ref": "#/components/schemas/Name"
+               "$ref": "urn:name-schema"
            },
            "age": {
-               "$ref": "#/components/schemas/Age"
+               "$ref": "urn:age-schema"
            },
            "birth-date": {
-               "$ref": "#/components/schemas/BirthDate"
+               "$ref": "urn:birth-date-schema"
            }
        },
        "additionalProperties": False,
@@ -54,6 +54,14 @@ You can resolve JSON Schema references by passing registry
        ],
    )
 
+   # If no exception is raised by validate(), the instance is valid.
    validate({"name": "John", "age": 23}, schema, registry=registry)
+
+   # raises error
+   validate({"birth-date": "yesterday", "age": -1}, schema, registry=registry)
+
+   Traceback (most recent call last):
+       ...
+   ValidationError: 'name' is a required property
 
 For more information about resolving references see `JSON (Schema) Referencing <https://python-jsonschema.readthedocs.io/en/latest/referencing/>`__
