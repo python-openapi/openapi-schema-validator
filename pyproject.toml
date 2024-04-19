@@ -64,7 +64,7 @@ jsonschema-specifications = ">=2023.5.2"
 docs = ["sphinx", "sphinx-immaterial"]
 
 [tool.poetry.dev-dependencies]
-black = "^24.3.0"
+black = "^24.4.0"
 isort = "^5.13.2"
 pre-commit = "*"
 pytest = "^8"
