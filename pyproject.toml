@@ -72,7 +72,7 @@ pytest-flake8 = "*"
 pytest-cov = "*"
 mypy = "^1.9"
 flynt = "^1.0"
-deptry = "^0.15.0"
+deptry = "^0.16.2"
 bump2version = "^1.0.1"
 
 [tool.poetry.group.docs.dependencies]
