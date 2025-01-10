@@ -18,6 +18,6 @@ def validate(
 ) -> None:
     cls.check_schema(schema)
     validator = cls(schema, *args, **kwargs)
-    error = best_match(validator.iter_errors(instance))
+    error = best_match(validator.evolve(schema=schema).iter_errors(instance))
     if error is not None:
         raise error
