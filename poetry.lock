@@ -374,27 +374,34 @@ toml = ["tomli"]
 
 [[package]]
 name = "deptry"
-version = "0.16.2"
+version = "0.22.0"
 description = "A command line utility to check for unused, missing and transitive dependencies in a Python project."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "deptry-0.16.2-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:24bfbae07bd6533c852c795e8d88d05a8ad0801bec0d3662e1a37db763c52540"},
-    {file = "deptry-0.16.2-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:fc881688a2eaeafe51c0617d32a6535057bccdb74559cc667109f48f81cd976e"},
-    {file = "deptry-0.16.2-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:fed4b692f556e4c80acb42cec93e3b5fdc7fc2323049c2a0cfd9dfc4a9c7033e"},
-    {file = "deptry-0.16.2-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:93ec508a932d8f06c3bd1aa7a4548d5dbec92c3060d42eedcda3be9729bd7c3b"},
-    {file = "deptry-0.16.2-cp38-abi3-win_amd64.whl", hash = "sha256:eb92e9aacde66cfe001d6318eb0851ae0ca26fea441defed4765a47644daf8bb"},
-    {file = "deptry-0.16.2-pp310-pypy310_pp73-macosx_10_12_x86_64.whl", hash = "sha256:dfdceca2fbc87f4bce04df4207914a5eb37e67fb2107579ad2e88107c22d2456"},
-    {file = "deptry-0.16.2-pp310-pypy310_pp73-macosx_11_0_arm64.whl", hash = "sha256:96ab62dd5f4658735aac72d0e49f6d896eabf50a0e4e2cdecb436a1362aa696b"},
-    {file = "deptry-0.16.2-pp310-pypy310_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7e4408fa5a8d146b55bc40f0829fb875efef33174a2679bd9954ce988b9bc0d7"},
-    {file = "deptry-0.16.2-pp310-pypy310_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:af976afc2a0583f48dc25f616d2566fecd7af5080675c8eccb161def88d93503"},
-    {file = "deptry-0.16.2-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:dd86c9d34aa75b91fb72b34110f0660b2277bf9a95fe9cae3ead36d465bc44ac"},
-    {file = "deptry-0.16.2.tar.gz", hash = "sha256:f0f752cf6f5e9f7445a79fcf195b772cd2d4b889cd260e23867dd8013caa74c1"},
+    {file = "deptry-0.22.0-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:2b903c94162e30640bb7a3e6800c7afd03a6bb12b693a21290e06c713dba35af"},
+    {file = "deptry-0.22.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:8b523a33bed952679c97a9f55c690803f0fbeb32649946dcc1362c3f015897c7"},
+    {file = "deptry-0.22.0-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c68fa570be1443888d252c6f551356777e56e82e492e68e6db3d65b31100c450"},
+    {file = "deptry-0.22.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:016f8a5b6c32762beea47a4d9d2d7b04f1b6e534448e5444c7a742bd2fdb260d"},
+    {file = "deptry-0.22.0-cp39-abi3-musllinux_1_1_aarch64.whl", hash = "sha256:46c868a0493556b41096f9824a15a3ce38811e6b4a2699ebec16e06e9f85cd84"},
+    {file = "deptry-0.22.0-cp39-abi3-musllinux_1_1_x86_64.whl", hash = "sha256:aebba0d1ca119f6241ff0d5b72e72a9b912fa880e81f4ab346a32d9001d6ddb1"},
+    {file = "deptry-0.22.0-cp39-abi3-win_amd64.whl", hash = "sha256:2da497a9888f930b5c86c6524b29a4d284ed320edd4148ecc2e45e10f177f4fe"},
+    {file = "deptry-0.22.0-cp39-abi3-win_arm64.whl", hash = "sha256:35acf2ac783ba2ec43ba593ba14e0080393c0ab24797ba55fbed30f0ba02259f"},
+    {file = "deptry-0.22.0-pp310-pypy310_pp73-macosx_10_12_x86_64.whl", hash = "sha256:9db9d0b8244e2b20bd75a21312c35ee628a602b00c0e2f267fb90f4600de6d2d"},
+    {file = "deptry-0.22.0-pp310-pypy310_pp73-macosx_11_0_arm64.whl", hash = "sha256:edd0060065325cd70e6ce47feaa724cdb7fc3f4de673e4ed0fa38e8c1adc4155"},
+    {file = "deptry-0.22.0-pp310-pypy310_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8b371a3c3194c2db9196ab1f80d5ce08138dea731eff8dd9fb2997da42941fa7"},
+    {file = "deptry-0.22.0-pp310-pypy310_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1e20a8ba89078d06440316dba719c2278fdb19923e76633b808fd1b5670020c4"},
+    {file = "deptry-0.22.0-pp310-pypy310_pp73-musllinux_1_1_aarch64.whl", hash = "sha256:f4872f48225d1e7dbacb1be5e427945c8f76abf6b91453e038aae076b638ba01"},
+    {file = "deptry-0.22.0-pp310-pypy310_pp73-musllinux_1_1_x86_64.whl", hash = "sha256:9a12ebe86299e7bb054804464467f33c49e5a34f204b710fa10fbe1f31c56964"},
+    {file = "deptry-0.22.0-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:fbe6211b972337acdeec6c11a82b666597c1edd6c6e2a93eb705bf49644bfb08"},
+    {file = "deptry-0.22.0.tar.gz", hash = "sha256:32212cd40562f71b24da69babaed9a4233c567da390f681d86bb66f8ec4d2bfe"},
 ]
 
 [package.dependencies]
 click = ">=8.0.0,<9"
 colorama = {version = ">=0.4.6", markers = "sys_platform == \"win32\""}
+packaging = ">=23.2"
+requirements-parser = ">=0.11.0,<1"
 tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 
 [[package]]
@@ -1195,6 +1202,21 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
+name = "requirements-parser"
+version = "0.11.0"
+description = "This is a small Python module for parsing Pip requirement files."
+optional = false
+python-versions = "<4.0,>=3.8"
+files = [
+    {file = "requirements_parser-0.11.0-py3-none-any.whl", hash = "sha256:50379eb50311834386c2568263ae5225d7b9d0867fb55cf4ecc93959de2c2684"},
+    {file = "requirements_parser-0.11.0.tar.gz", hash = "sha256:35f36dc969d14830bf459803da84f314dc3d17c802592e9e970f63d0359e5920"},
+]
+
+[package.dependencies]
+packaging = ">=23.2"
+types-setuptools = ">=69.1.0"
+
+[[package]]
 name = "rfc3339-validator"
 version = "0.1.4"
 description = "A pure python RFC3339 validator"
@@ -1512,6 +1534,17 @@ files = [
 ]
 
 [[package]]
+name = "types-setuptools"
+version = "75.8.0.20250110"
+description = "Typing stubs for setuptools"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "types_setuptools-75.8.0.20250110-py3-none-any.whl", hash = "sha256:a9f12980bbf9bcdc23ecd80755789085bad6bfce4060c2275bc2b4ca9f2bc480"},
+    {file = "types_setuptools-75.8.0.20250110.tar.gz", hash = "sha256:96f7ec8bbd6e0a54ea180d66ad68ad7a1d7954e7281a710ea2de75e355545271"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.12.2"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -1584,4 +1617,4 @@ docs = []
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9.0"
-content-hash = "04e8a4e28d381d83214ac6d31174af00cfd2b099c8b34e9bbfff01e9b4508ccc"
+content-hash = "02ecac119d421da181cc98ed9ff0bdd6b1ba60bba86683745c2ea2d551552698"
