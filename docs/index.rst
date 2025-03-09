@@ -20,7 +20,7 @@ Installation
 
 .. md-tab-set::
 
-   .. md-tab-item:: Pip + PyPI (recommented)
+   .. md-tab-item:: Pip + PyPI (recommended)
 
       .. code-block:: console
 
