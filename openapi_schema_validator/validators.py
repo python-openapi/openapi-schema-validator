@@ -1,5 +1,6 @@
 from typing import Any
 from typing import cast
+
 from jsonschema import _keywords
 from jsonschema import _legacy_keywords
 from jsonschema.validators import Draft202012Validator

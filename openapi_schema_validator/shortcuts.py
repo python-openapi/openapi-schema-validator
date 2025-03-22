@@ -15,11 +15,14 @@ def validate(
     *args: Any,
     **kwargs: Any
 ) -> None:
+    """
+    Validate an instance against a given schema using the specified validator class.
+    """
     schema_dict = cast(dict[str, Any], schema)
     cls.check_schema(schema_dict)
     validator = cls(schema_dict, *args, **kwargs)
-    errors = list(validator.evolve(schema=schema_dict).iter_errors(instance))
-    if errors:
-        error = best_match(errors)
-        error.message = f"Validation failed: {error.message}"
+    error = best_match(
+        validator.evolve(schema=schema_dict).iter_errors(instance)
+    )
+    if error is not None:
         raise error
