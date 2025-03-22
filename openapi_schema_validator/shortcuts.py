@@ -1,4 +1,7 @@
-from typing import Any, Hashable, Mapping, Type
+from typing import Any
+from typing import Hashable
+from typing import Mapping
+from typing import Type
 
 from jsonschema.exceptions import best_match
 from jsonschema.protocols import Validator
@@ -28,9 +31,6 @@ def validate(
     """
     cls.check_schema(schema)
     validator = cls(schema, *args, **kwargs)
-    errors = list(validator.evolve(schema=schema).iter_errors(instance))
-
-    if errors:
-        error = best_match(errors)
-        error.message = f"Validation failed: {error.message}"
+    error = best_match(validator.evolve(schema=schema).iter_errors(instance))
+    if error is not None:
         raise error
