@@ -1,8 +1,5 @@
-from copy import deepcopy
 from typing import Any
-from typing import Dict
 from typing import Hashable
-from typing import ItemsView
 from typing import Iterator
 from typing import List
 from typing import Mapping
@@ -112,7 +109,7 @@ def type(
         # * nullable: true is only meaningful in combination with a type
         #   assertion specified in the same Schema Object.
         # * nullable: true operates within a single Schema Object
-        if "nullable" in schema and schema["nullable"] == True:
+        if "nullable" in schema and schema["nullable"] is True:
             return
         yield ValidationError("None for not nullable")
 
