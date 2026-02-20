@@ -10,6 +10,7 @@ from jsonschema._utils import extras_msg
 from jsonschema._utils import find_additional_properties
 from jsonschema.exceptions import FormatError
 from jsonschema.exceptions import ValidationError
+from jsonschema.exceptions import _WrappedReferencingError
 
 
 def handle_discriminator(
@@ -53,7 +54,7 @@ def handle_discriminator(
 
     try:
         validator._validate_reference(ref=ref, instance=instance)
-    except Exception:
+    except _WrappedReferencingError:
         yield ValidationError(
             f"{instance!r} reference {ref!r} could not be resolved",
             context=[],
