@@ -2,13 +2,11 @@ import binascii
 from base64 import b64decode
 from base64 import b64encode
 from numbers import Number
-from typing import Any
-from typing import Union
 
 from jsonschema._format import FormatChecker
 
 
-def is_int32(instance: Any) -> bool:
+def is_int32(instance: object) -> bool:
     # bool inherits from int, so ensure bools aren't reported as ints
     if isinstance(instance, bool):
         return True
@@ -17,7 +15,7 @@ def is_int32(instance: Any) -> bool:
     return ~(1 << 31) < instance < 1 << 31
 
 
-def is_int64(instance: Any) -> bool:
+def is_int64(instance: object) -> bool:
     # bool inherits from int, so ensure bools aren't reported as ints
     if isinstance(instance, bool):
         return True
@@ -26,7 +24,7 @@ def is_int64(instance: Any) -> bool:
     return ~(1 << 63) < instance < 1 << 63
 
 
-def is_float(instance: Any) -> bool:
+def is_float(instance: object) -> bool:
     # bool inherits from int
     if isinstance(instance, int):
         return True
@@ -35,7 +33,7 @@ def is_float(instance: Any) -> bool:
     return isinstance(instance, float)
 
 
-def is_double(instance: Any) -> bool:
+def is_double(instance: object) -> bool:
     # bool inherits from int
     if isinstance(instance, int):
         return True
@@ -46,7 +44,7 @@ def is_double(instance: Any) -> bool:
     return isinstance(instance, float)
 
 
-def is_binary(instance: Any) -> bool:
+def is_binary(instance: object) -> bool:
     if not isinstance(instance, (str, bytes)):
         return True
     if isinstance(instance, str):
@@ -54,7 +52,7 @@ def is_binary(instance: Any) -> bool:
     return True
 
 
-def is_byte(instance: Union[str, bytes]) -> bool:
+def is_byte(instance: object) -> bool:
     if not isinstance(instance, (str, bytes)):
         return True
     if isinstance(instance, str):
@@ -64,7 +62,7 @@ def is_byte(instance: Union[str, bytes]) -> bool:
     return encoded == instance
 
 
-def is_password(instance: Any) -> bool:
+def is_password(instance: object) -> bool:
     # A hint to UIs to obscure input
     return True
 

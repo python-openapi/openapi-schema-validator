@@ -142,7 +142,7 @@ class BaseTestOASValidatorValidate:
         }
 
         validator = validator_class(schema, registry=registry)
-        result = validator.validate({"name": "John", "age": 23}, schema)
+        result = validator.validate({"name": "John", "age": 23})
 
         assert result is None
 
