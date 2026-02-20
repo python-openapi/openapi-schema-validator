@@ -43,7 +43,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -56,7 +55,7 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9.0"
+python = "^3.10.0"
 jsonschema = "^4.19.1"
 rfc3339-validator = "*" # requred by jsonschema for date-time checker
 jsonschema-specifications = ">=2024.10.1"
