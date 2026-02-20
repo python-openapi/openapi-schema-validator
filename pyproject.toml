@@ -47,6 +47,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries",
     "Typing :: Typed",
 ]
@@ -63,7 +64,7 @@ jsonschema-specifications = ">=2024.10.1"
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-immaterial"]
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "^24.4.0"
 isort = "^5.13.2"
 pre-commit = "*"
