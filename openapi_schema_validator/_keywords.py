@@ -21,6 +21,13 @@ def handle_discriminator(
     """
     discriminator = schema["discriminator"]
     prop_name = discriminator["propertyName"]
+
+    if not validator.is_type(instance, "object"):
+        yield ValidationError(
+            f"{instance!r} is not of type 'object'", context=[]
+        )
+        return
+
     prop_value = instance.get(prop_name)
     if not prop_value:
         # instance is missing $propertyName
