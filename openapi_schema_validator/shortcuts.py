@@ -15,6 +15,9 @@ def validate(
     *args: Any,
     **kwargs: Any
 ) -> None:
+    """
+    Validate an instance against a given schema using the specified validator class.
+    """
     schema_dict = cast(dict[str, Any], schema)
     cls.check_schema(schema_dict)
     validator = cls(schema_dict, *args, **kwargs)
