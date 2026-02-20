@@ -241,6 +241,8 @@ def write_readOnly(
     instance: Any,
     schema: Mapping[str, Any],
 ) -> Iterator[ValidationError]:
+    if not ro:
+        return
     yield ValidationError(f"Tried to write read-only property with {instance}")
 
 
@@ -250,6 +252,8 @@ def read_writeOnly(
     instance: Any,
     schema: Mapping[str, Any],
 ) -> Iterator[ValidationError]:
+    if not wo:
+        return
     yield ValidationError(f"Tried to read write-only property with {instance}")
 
 

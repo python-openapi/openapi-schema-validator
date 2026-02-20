@@ -670,6 +670,32 @@ class TestOAS30ReadWriteValidatorValidate:
         )
         assert validator.validate({"another_prop": "hello"}) is None
 
+    def test_read_only_false(self):
+        schema = {
+            "type": "object",
+            "properties": {"some_prop": {"type": "string", "readOnly": False}},
+        }
+
+        validator = OAS30WriteValidator(
+            schema,
+            format_checker=oas30_format_checker,
+        )
+        assert validator.validate({"some_prop": "hello"}) is None
+
+    def test_write_only_false(self):
+        schema = {
+            "type": "object",
+            "properties": {
+                "some_prop": {"type": "string", "writeOnly": False}
+            },
+        }
+
+        validator = OAS30ReadValidator(
+            schema,
+            format_checker=oas30_format_checker,
+        )
+        assert validator.validate({"some_prop": "hello"}) is None
+
 
 class TestOAS31ValidatorFormatChecker:
     @pytest.fixture
