@@ -450,6 +450,13 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
         validator = validator_class(
             schema, format_checker=oas30_format_checker
         )
+
+        with pytest.raises(
+            ValidationError,
+            match="is not of type 'object'",
+        ):
+            validator.validate("not-an-object")
+
         with pytest.raises(
             ValidationError, match="does not contain discriminating property"
         ):
