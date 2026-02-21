@@ -3,6 +3,7 @@ from typing import cast
 
 from jsonschema import _keywords
 from jsonschema import _legacy_keywords
+from jsonschema.exceptions import ValidationError
 from jsonschema.validators import Draft202012Validator
 from jsonschema.validators import create
 from jsonschema.validators import extend
@@ -12,6 +13,13 @@ from openapi_schema_validator import _format as oas_format
 from openapi_schema_validator import _keywords as oas_keywords
 from openapi_schema_validator import _types as oas_types
 from openapi_schema_validator._types import oas31_type_checker
+
+
+def _oas30_id_of(schema: Any) -> str:
+    if isinstance(schema, dict):
+        return schema.get("id", "")  # type: ignore[no-any-return]
+    return ""
+
 
 OAS30_VALIDATORS = cast(
     Any,
@@ -65,9 +73,19 @@ OAS30Validator = create(
     # NOTE: version causes conflict with global jsonschema validator
     # See https://github.com/python-openapi/openapi-schema-validator/pull/12
     # version="oas30",
-    id_of=lambda schema: (
-        schema.get("id", "") if isinstance(schema, dict) else ""
-    ),
+    id_of=_oas30_id_of,
+)
+
+OAS30StrictValidator = extend(
+    OAS30Validator,
+    validators={
+        "type": oas_keywords.strict_type,
+    },
+    type_checker=oas_types.oas30_type_checker,
+    format_checker=oas_format.oas30_strict_format_checker,
+    # NOTE: version causes conflict with global jsonschema validator
+    # See https://github.com/python-openapi/openapi-schema-validator/pull/12
+    # version="oas30-strict",
 )
 
 OAS30ReadValidator = extend(
@@ -77,6 +95,7 @@ OAS30ReadValidator = extend(
         "writeOnly": oas_keywords.read_writeOnly,
     },
 )
+
 OAS30WriteValidator = extend(
     OAS30Validator,
     validators={

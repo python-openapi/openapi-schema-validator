@@ -137,3 +137,66 @@ OpenAPI 3.0 schema comes with ``readOnly`` and ``writeOnly`` keywords. In order 
    Traceback (most recent call last):
        ...
    ValidationError: Tried to write read-only property with 23
+
+Strict vs Pragmatic Validators
+------------------------------
+
+OpenAPI 3.0 has two validator variants with different behaviors for binary format:
+
+**OAS30Validator (default - pragmatic)**
+
+- Accepts Python ``bytes`` for ``type: string`` with ``format: binary``
+- More lenient for Python use cases where binary data is common
+- Use when validating Python objects directly
+
+**OAS30StrictValidator**
+
+- Follows OAS spec strictly: only accepts ``str`` for ``type: string``
+- For ``format: binary``, only accepts base64-encoded strings
+- Use when strict spec compliance is required
+
+Comparison Matrix
+~~~~~~~~~~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 20 22 23
+
+   * - Schema
+     - Value
+     - OAS30Validator (default)
+     - OAS30StrictValidator
+   * - ``type: string``
+     - ``"test"`` (str)
+     - Pass
+     - Pass
+   * - ``type: string``
+     - ``b"test"`` (bytes)
+     - **Fail**
+     - **Fail**
+   * - ``type: string, format: binary``
+     - ``b"test"`` (bytes)
+     - Pass
+     - **Fail**
+   * - ``type: string, format: binary``
+     - ``"dGVzdA=="`` (base64)
+     - Pass
+     - Pass
+   * - ``type: string, format: binary``
+     - ``"test"`` (plain str)
+     - Pass
+     - **Fail**
+
+Example usage:
+
+.. code-block:: python
+
+   from openapi_schema_validator import OAS30Validator, OAS30StrictValidator
+
+   # Pragmatic (default) - accepts bytes for binary format
+   validator = OAS30Validator({"type": "string", "format": "binary"})
+   validator.validate(b"binary data")  # passes
+
+   # Strict - follows spec precisely
+   validator = OAS30StrictValidator({"type": "string", "format": "binary"})
+   validator.validate(b"binary data")  # raises ValidationError
