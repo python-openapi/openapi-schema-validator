@@ -4,8 +4,8 @@ openapi-schema-validator
 
 .. image:: https://img.shields.io/pypi/v/openapi-schema-validator.svg
      :target: https://pypi.python.org/pypi/openapi-schema-validator
-.. image:: https://travis-ci.org/python-openapi/openapi-schema-validator.svg?branch=master
-     :target: https://travis-ci.org/python-openapi/openapi-schema-validator
+.. image:: https://github.com/python-openapi/openapi-schema-validator/actions/workflows/python-tests.yml/badge.svg
+     :target: https://github.com/python-openapi/openapi-schema-validator/actions
 .. image:: https://img.shields.io/codecov/c/github/python-openapi/openapi-schema-validator/master.svg?style=flat
      :target: https://codecov.io/github/python-openapi/openapi-schema-validator?branch=master
 .. image:: https://img.shields.io/pypi/pyversions/openapi-schema-validator.svg
