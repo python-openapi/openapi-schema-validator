@@ -44,11 +44,23 @@ def is_double(instance: object) -> bool:
     return isinstance(instance, float)
 
 
-def is_binary(instance: object) -> bool:
-    if not isinstance(instance, (str, bytes)):
-        return True
-    if isinstance(instance, str):
+def is_binary_strict(instance: object) -> bool:
+    # Strict: only accepts base64-encoded strings, not raw bytes
+    if isinstance(instance, bytes):
         return False
+    if isinstance(instance, str):
+        try:
+            b64decode(instance)
+            return True
+        except Exception:
+            return False
+    return True
+
+
+def is_binary_pragmatic(instance: object) -> bool:
+    # Pragmatic: accepts bytes (common in Python) or base64-encoded strings
+    if isinstance(instance, (str, bytes)):
+        return True
     return True
 
 
@@ -72,9 +84,20 @@ oas30_format_checker.checks("int32")(is_int32)
 oas30_format_checker.checks("int64")(is_int64)
 oas30_format_checker.checks("float")(is_float)
 oas30_format_checker.checks("double")(is_double)
-oas30_format_checker.checks("binary")(is_binary)
+oas30_format_checker.checks("binary")(is_binary_pragmatic)
 oas30_format_checker.checks("byte", (binascii.Error, TypeError))(is_byte)
 oas30_format_checker.checks("password")(is_password)
+
+oas30_strict_format_checker = FormatChecker()
+oas30_strict_format_checker.checks("int32")(is_int32)
+oas30_strict_format_checker.checks("int64")(is_int64)
+oas30_strict_format_checker.checks("float")(is_float)
+oas30_strict_format_checker.checks("double")(is_double)
+oas30_strict_format_checker.checks("binary")(is_binary_strict)
+oas30_strict_format_checker.checks("byte", (binascii.Error, TypeError))(
+    is_byte
+)
+oas30_strict_format_checker.checks("password")(is_password)
 
 oas31_format_checker = FormatChecker()
 oas31_format_checker.checks("int32")(is_int32)

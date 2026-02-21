@@ -11,7 +11,8 @@ from jsonschema._types import is_object
 
 
 def is_string(checker: Any, instance: Any) -> bool:
-    return isinstance(instance, (str, bytes))
+    # Both strict and pragmatic: only accepts str for plain string type
+    return isinstance(instance, str)
 
 
 oas30_type_checker = TypeChecker(
@@ -27,4 +28,5 @@ oas30_type_checker = TypeChecker(
         },
     ),
 )
+
 oas31_type_checker = draft202012_type_checker

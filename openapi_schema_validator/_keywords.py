@@ -115,12 +115,41 @@ def type(
     instance: Any,
     schema: Mapping[str, Any],
 ) -> Iterator[ValidationError]:
+    """Default type validator - allows Python bytes for binary format for pragmatic reasons."""
     if instance is None:
         # nullable implementation based on OAS 3.0.3
         # * nullable is only meaningful if its value is true
         # * nullable: true is only meaningful in combination with a type
         #   assertion specified in the same Schema Object.
         # * nullable: true operates within a single Schema Object
+        if schema.get("nullable") is True:
+            return
+        yield ValidationError("None for not nullable")
+
+    # Pragmatic: allow bytes for binary format (common in Python use cases)
+    if (
+        data_type == "string"
+        and schema.get("format") == "binary"
+        and isinstance(instance, bytes)
+    ):
+        return
+
+    if not validator.is_type(instance, data_type):
+        data_repr = repr(data_type)
+        yield ValidationError(f"{instance!r} is not of type {data_repr}")
+
+
+def strict_type(
+    validator: Any,
+    data_type: str,
+    instance: Any,
+    schema: Any,
+) -> Any:
+    """
+    Strict type validator - follows OAS spec precisely.
+    Does NOT allow Python bytes for binary format.
+    """
+    if instance is None:
         if schema.get("nullable") is True:
             return
         yield ValidationError("None for not nullable")
