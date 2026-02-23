@@ -107,6 +107,7 @@ sphinx-immaterial = ">=0.11,<0.13"
 addopts = """
 --capture=no
 --verbose
+--color=yes
 --showlocals
 --junitxml=reports/junit.xml
 --cov=openapi_schema_validator
