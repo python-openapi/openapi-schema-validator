@@ -89,7 +89,7 @@ docs = ["sphinx", "sphinx-immaterial"]
 
 [tool.poetry.group.dev.dependencies]
 black = ">=24.4,<27.0"
-isort = "^5.13.2"
+isort = ">=5.13.2,<9.0.0"
 pre-commit = "*"
 pytest = "^9"
 pytest-flake8 = "*"
