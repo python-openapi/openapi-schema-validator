@@ -101,7 +101,7 @@ By default, the latest OpenAPI schema syntax is expected.
 
 
 Strict vs Pragmatic Validators
-=============================
+==============================
 
 OpenAPI 3.0 has two validator variants with different behaviors for binary format:
 
@@ -116,7 +116,7 @@ OpenAPI 3.0 has two validator variants with different behaviors for binary forma
    - Use when strict spec compliance is required
 
 Comparison Matrix
-----------------
+-----------------
 
 .. list-table::
    :header-rows: 1
