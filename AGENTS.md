@@ -17,7 +17,7 @@ Use this as the default operating playbook when making changes.
 ## Source Layout
 
 - `openapi_schema_validator/__init__.py`: public exports + package metadata.
-- `openapi_schema_validator/validators.py`: validator class setup for OAS 3.0/3.1.
+- `openapi_schema_validator/validators.py`: validator class setup for OAS 3.0/3.1/3.2.
 - `openapi_schema_validator/_keywords.py`: custom keyword handlers and ValidationError generation.
 - `openapi_schema_validator/_format.py`: format checker functions and registrations.
 - `openapi_schema_validator/_types.py`: custom type checker setup.
@@ -128,7 +128,7 @@ Run commands from repository root.
 ### Behavioral constraints to preserve
 
 - Do not mutate incoming schema objects in helper APIs.
-- Maintain compatibility for both OAS 3.0 and OAS 3.1 validators.
+- Maintain compatibility for OAS 3.0, OAS 3.1, and OAS 3.2 validators.
 - Keep existing read/write behavior around `readOnly` and `writeOnly`.
 - Keep format and type checker semantics aligned with current tests.
 

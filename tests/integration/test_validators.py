@@ -19,9 +19,11 @@ from openapi_schema_validator import OAS30StrictValidator
 from openapi_schema_validator import OAS30Validator
 from openapi_schema_validator import OAS30WriteValidator
 from openapi_schema_validator import OAS31Validator
+from openapi_schema_validator import OAS32Validator
 from openapi_schema_validator import oas30_format_checker
 from openapi_schema_validator import oas30_strict_format_checker
 from openapi_schema_validator import oas31_format_checker
+from openapi_schema_validator import oas32_format_checker
 
 
 class TestOAS30ValidatorFormatChecker:
@@ -1001,6 +1003,66 @@ class TestOAS31ValidatorValidate(BaseTestOASValidatorValidate):
             "Expected at most 4 items but found 1 extra",
         ]
         assert any(error in str(excinfo.value) for error in errors)
+
+
+class TestOAS32ValidatorValidate(TestOAS31ValidatorValidate):
+    """OAS 3.2 uses the same JSON Schema dialect as 3.1."""
+
+    @pytest.fixture
+    def validator_class(self):
+        return OAS32Validator
+
+    @pytest.fixture
+    def format_checker(self):
+        return oas32_format_checker
+
+    def test_validator_is_distinct_from_oas31(self):
+        assert OAS32Validator is not OAS31Validator
+
+    def test_format_checker_is_distinct_from_oas31(self):
+        assert oas32_format_checker is not oas31_format_checker
+
+    def test_validator_shares_oas31_behavior(self):
+        assert OAS32Validator.VALIDATORS == OAS31Validator.VALIDATORS
+
+    def test_format_validation_int32(self, validator_class):
+        schema = {"type": "integer", "format": "int32"}
+        validator = validator_class(
+            schema, format_checker=oas32_format_checker
+        )
+
+        result = validator.validate(42)
+        assert result is None
+
+        with pytest.raises(ValidationError):
+            validator.validate(9999999999)
+
+    def test_format_validation_date(self, validator_class):
+        schema = {"type": "string", "format": "date"}
+        validator = validator_class(
+            schema, format_checker=oas32_format_checker
+        )
+
+        result = validator.validate("2024-01-15")
+        assert result is None
+
+        with pytest.raises(ValidationError):
+            validator.validate("not-a-date")
+
+    def test_schema_with_allof(self, validator_class):
+        schema = {
+            "allOf": [
+                {"type": "object", "properties": {"id": {"type": "integer"}}},
+                {"type": "object", "properties": {"name": {"type": "string"}}},
+            ]
+        }
+        validator = validator_class(schema)
+
+        result = validator.validate({"id": 1, "name": "test"})
+        assert result is None
+
+        with pytest.raises(ValidationError):
+            validator.validate({"id": "not-an-integer"})
 
 
 class TestOAS30StrictValidator:
