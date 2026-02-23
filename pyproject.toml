@@ -28,6 +28,29 @@ ignore_missing_imports = true
 module = "rfc3339_validator"
 ignore_missing_imports = true
 
+[tool.tbump]
+github_url = "https://github.com/python-openapi/openapi-schema-validator"
+
+[tool.tbump.version]
+current = "0.6.3"
+regex = '''
+  (?P<major>\d+)
+  \.
+  (?P<minor>\d+)
+  \.
+  (?P<patch>\d+)
+  '''
+
+[tool.tbump.git]
+message_template = "Version {new_version}"
+tag_template = "{new_version}"
+
+[[tool.tbump.file]]
+src = "openapi_schema_validator/__init__.py"
+
+[[tool.tbump.file]]
+src = "pyproject.toml"
+
 [tool.poetry]
 name = "openapi-schema-validator"
 version = "0.6.3"
@@ -74,7 +97,7 @@ pytest-cov = "*"
 mypy = "^1.14"
 flynt = "^1.0"
 deptry = ">=0.16.2,<0.25.0"
-bump2version = "^1.0.1"
+tbump = "^6.11.0"
 
 [tool.poetry.group.docs.dependencies]
 sphinx = ">=5.3,<8.0"
