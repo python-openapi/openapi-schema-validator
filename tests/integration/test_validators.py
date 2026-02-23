@@ -1023,9 +1023,46 @@ class TestOAS32ValidatorValidate(TestOAS31ValidatorValidate):
         assert oas32_format_checker is not oas31_format_checker
 
     def test_validator_shares_oas31_behavior(self):
-        assert (
-            OAS32Validator.VALIDATORS == OAS31Validator.VALIDATORS
+        assert OAS32Validator.VALIDATORS == OAS31Validator.VALIDATORS
+
+    def test_format_validation_int32(self, validator_class):
+        schema = {"type": "integer", "format": "int32"}
+        validator = validator_class(
+            schema, format_checker=oas32_format_checker
         )
+
+        result = validator.validate(42)
+        assert result is None
+
+        with pytest.raises(ValidationError):
+            validator.validate(9999999999)
+
+    def test_format_validation_date(self, validator_class):
+        schema = {"type": "string", "format": "date"}
+        validator = validator_class(
+            schema, format_checker=oas32_format_checker
+        )
+
+        result = validator.validate("2024-01-15")
+        assert result is None
+
+        with pytest.raises(ValidationError):
+            validator.validate("not-a-date")
+
+    def test_schema_with_allof(self, validator_class):
+        schema = {
+            "allOf": [
+                {"type": "object", "properties": {"id": {"type": "integer"}}},
+                {"type": "object", "properties": {"name": {"type": "string"}}},
+            ]
+        }
+        validator = validator_class(schema)
+
+        result = validator.validate({"id": 1, "name": "test"})
+        assert result is None
+
+        with pytest.raises(ValidationError):
+            validator.validate({"id": "not-an-integer"})
 
 
 class TestOAS30StrictValidator:
