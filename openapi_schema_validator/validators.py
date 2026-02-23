@@ -121,3 +121,13 @@ OAS31Validator = extend(
     type_checker=oas31_type_checker,
     format_checker=oas_format.oas31_format_checker,
 )
+
+# OAS 3.2 uses JSON Schema Draft 2020-12 as its base dialect, same as
+# OAS 3.1. The OAS-specific vocabulary differs slightly (e.g. xml keyword
+# changes), but since xml is not_implemented in the current validators,
+# the behavior is equivalent.
+OAS32Validator = extend(
+    OAS31Validator,
+    {},
+    format_checker=oas_format.oas32_format_checker,
+)

@@ -67,6 +67,8 @@ if you want to disambiguate the expected schema version, import and use ``OAS31V
 
    validate({"name": "John", "age": 23}, schema, cls=OAS31Validator)
 
+For OpenAPI 3.2, use ``OAS32Validator`` (behaves identically to ``OAS31Validator``, since 3.2 uses the same JSON Schema dialect).
+
 In order to validate OpenAPI 3.0 schema, import and use ``OAS30Validator`` instead of ``OAS31Validator``.
 
 .. code-block:: python

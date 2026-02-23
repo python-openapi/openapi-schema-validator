@@ -19,9 +19,11 @@ from openapi_schema_validator import OAS30StrictValidator
 from openapi_schema_validator import OAS30Validator
 from openapi_schema_validator import OAS30WriteValidator
 from openapi_schema_validator import OAS31Validator
+from openapi_schema_validator import OAS32Validator
 from openapi_schema_validator import oas30_format_checker
 from openapi_schema_validator import oas30_strict_format_checker
 from openapi_schema_validator import oas31_format_checker
+from openapi_schema_validator import oas32_format_checker
 
 
 class TestOAS30ValidatorFormatChecker:
@@ -1001,6 +1003,29 @@ class TestOAS31ValidatorValidate(BaseTestOASValidatorValidate):
             "Expected at most 4 items but found 1 extra",
         ]
         assert any(error in str(excinfo.value) for error in errors)
+
+
+class TestOAS32ValidatorValidate(TestOAS31ValidatorValidate):
+    """OAS 3.2 uses the same JSON Schema dialect as 3.1."""
+
+    @pytest.fixture
+    def validator_class(self):
+        return OAS32Validator
+
+    @pytest.fixture
+    def format_checker(self):
+        return oas32_format_checker
+
+    def test_validator_is_distinct_from_oas31(self):
+        assert OAS32Validator is not OAS31Validator
+
+    def test_format_checker_is_distinct_from_oas31(self):
+        assert oas32_format_checker is not oas31_format_checker
+
+    def test_validator_shares_oas31_behavior(self):
+        assert (
+            OAS32Validator.VALIDATORS == OAS31Validator.VALIDATORS
+        )
 
 
 class TestOAS30StrictValidator:

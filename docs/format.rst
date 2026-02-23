@@ -12,3 +12,5 @@ You can check format for predefined OAS primitive types
    Traceback (most recent call last):
        ...
    ValidationError: '-12' is not a 'date'
+
+For OpenAPI 3.2, use ``oas32_format_checker`` (behaves identically to ``oas31_format_checker``, since 3.2 uses the same JSON Schema dialect).

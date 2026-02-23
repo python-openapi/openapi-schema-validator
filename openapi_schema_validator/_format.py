@@ -105,3 +105,11 @@ oas31_format_checker.checks("int64")(is_int64)
 oas31_format_checker.checks("float")(is_float)
 oas31_format_checker.checks("double")(is_double)
 oas31_format_checker.checks("password")(is_password)
+
+# OAS 3.2 uses the same format checks as OAS 3.1
+oas32_format_checker = FormatChecker()
+oas32_format_checker.checks("int32")(is_int32)
+oas32_format_checker.checks("int64")(is_int64)
+oas32_format_checker.checks("float")(is_float)
+oas32_format_checker.checks("double")(is_double)
+oas32_format_checker.checks("password")(is_password)
