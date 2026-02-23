@@ -467,8 +467,8 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
                 "properties": {
                     "discipline": {
                         "type": "string",
-                        # we allow both the explicitely matched mountain_hiking discipline
-                        # and the implicitely matched MoutainHiking discipline
+                        # we allow both the explicitly matched mountain_hiking discipline
+                        # and the implicitly matched MoutainHiking discipline
                         "enum": ["mountain_hiking", "MountainHiking"],
                     },
                     "length": {
@@ -499,7 +499,7 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
             {"$ref": "#/components/schemas/AlpineClimbing"},
         ]
 
-        # Add the compoments in a minimalis schema
+        # Add the components in a minimalis schema
         schema = {
             "$ref": "#/components/schemas/Route",
             "components": {"schemas": components},
