@@ -91,7 +91,7 @@ docs = ["sphinx", "sphinx-immaterial"]
 black = ">=24.4,<27.0"
 isort = "^5.13.2"
 pre-commit = "*"
-pytest = "^8"
+pytest = "^9"
 pytest-flake8 = "*"
 pytest-cov = "*"
 mypy = "^1.14"
