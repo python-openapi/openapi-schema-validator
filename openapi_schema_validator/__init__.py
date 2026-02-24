@@ -12,7 +12,7 @@ from openapi_schema_validator.validators import OAS32Validator
 
 __author__ = "Artur Maciag"
 __email__ = "maciag.artur@gmail.com"
-__version__ = "0.7.1"
+__version__ = "0.7.2"
 __url__ = "https://github.com/python-openapi/openapi-schema-validator"
 __license__ = "3-clause BSD License"
 
