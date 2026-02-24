@@ -83,6 +83,7 @@ python = "^3.10.0"
 jsonschema = "^4.19.1"
 rfc3339-validator = "*" # requred by jsonschema for date-time checker
 jsonschema-specifications = ">=2024.10.1"
+referencing = "^0.37.0"
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-immaterial"]

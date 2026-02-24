@@ -100,6 +100,26 @@ To validate an OpenAPI v3.1 schema:
 
 By default, the latest OpenAPI schema syntax is expected.
 
+The OpenAPI 3.1 base dialect URI is registered for
+``jsonschema.validators.validator_for`` resolution.
+Schemas declaring
+``"$schema": "https://spec.openapis.org/oas/3.1/dialect/base"``
+resolve directly to ``OAS31Validator`` without unresolved-metaschema
+fallback warnings.
+
+.. code-block:: python
+
+   from jsonschema.validators import validator_for
+
+   from openapi_schema_validator import OAS31Validator
+
+   schema = {
+       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+       "type": "object",
+   }
+
+   assert validator_for(schema) is OAS31Validator
+
 
 Strict vs Pragmatic Validators
 ==============================
