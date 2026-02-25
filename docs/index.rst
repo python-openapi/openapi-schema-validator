@@ -14,7 +14,7 @@ Openapi-schema-validator is a Python library that validates schema against:
 
 * `OpenAPI Schema Specification v3.0 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#schemaObject>`__ which is an extended subset of the `JSON Schema Specification Wright Draft 00 <http://json-schema.org/>`__.
 * `OpenAPI Schema Specification v3.1 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.1.0.md#schemaObject>`__ which is an extended superset of the `JSON Schema Specification Draft 2020-12 <http://json-schema.org/>`__.
-* `OpenAPI Schema Specification v3.2 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.2.0.md#schemaObject>`__ which uses the same JSON Schema dialect as v3.1.
+* `OpenAPI Schema Specification v3.2 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.2.0.md#schemaObject>`__ using the published OAS 3.2 JSON Schema dialect resources.
 
 Installation
 ------------

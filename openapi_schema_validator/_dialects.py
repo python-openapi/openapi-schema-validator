@@ -9,12 +9,18 @@ from openapi_schema_validator._specifications import (
 __all__ = [
     "OAS31_BASE_DIALECT_ID",
     "OAS31_BASE_DIALECT_METASCHEMA",
+    "OAS32_BASE_DIALECT_ID",
+    "OAS32_BASE_DIALECT_METASCHEMA",
     "register_openapi_dialect",
 ]
 
 OAS31_BASE_DIALECT_ID = "https://spec.openapis.org/oas/3.1/dialect/base"
 OAS31_BASE_DIALECT_METASCHEMA = OPENAPI_SPECIFICATIONS.contents(
     OAS31_BASE_DIALECT_ID,
+)
+OAS32_BASE_DIALECT_ID = "https://spec.openapis.org/oas/3.2/dialect/2025-09-17"
+OAS32_BASE_DIALECT_METASCHEMA = OPENAPI_SPECIFICATIONS.contents(
+    OAS32_BASE_DIALECT_ID,
 )
 
 _REGISTERED_VALIDATORS: dict[tuple[str, str], Any] = {}

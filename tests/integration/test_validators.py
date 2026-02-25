@@ -4,6 +4,7 @@ from typing import Any
 from typing import cast
 
 import pytest
+from jsonschema import SchemaError
 from jsonschema import ValidationError
 from jsonschema.exceptions import (
     _WrappedReferencingError as WrappedReferencingError,
@@ -28,9 +29,12 @@ from openapi_schema_validator import oas30_format_checker
 from openapi_schema_validator import oas30_strict_format_checker
 from openapi_schema_validator import oas31_format_checker
 from openapi_schema_validator import oas32_format_checker
+from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_ID
 from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_METASCHEMA
+from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_ID
+from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_METASCHEMA
 from openapi_schema_validator._dialects import register_openapi_dialect
-from openapi_schema_validator.validators import OAS31_BASE_DIALECT_ID
+from openapi_schema_validator.validators import check_openapi_schema
 
 
 class TestOAS30ValidatorFormatChecker:
@@ -1013,7 +1017,7 @@ class TestOAS31ValidatorValidate(BaseTestOASValidatorValidate):
 
 
 class TestOAS32ValidatorValidate(TestOAS31ValidatorValidate):
-    """OAS 3.2 uses the same JSON Schema dialect as 3.1."""
+    """OAS 3.2 uses the OAS 3.2 published dialect resources."""
 
     @pytest.fixture
     def validator_class(self):
@@ -1031,6 +1035,9 @@ class TestOAS32ValidatorValidate(TestOAS31ValidatorValidate):
 
     def test_validator_shares_oas31_behavior(self):
         assert OAS32Validator.VALIDATORS == OAS31Validator.VALIDATORS
+
+    def test_validator_has_oas32_dialect_metaschema(self):
+        assert OAS32Validator.META_SCHEMA["$id"] == OAS32_BASE_DIALECT_ID
 
     def test_format_validation_int32(self, validator_class):
         schema = {"type": "integer", "format": "int32"}
@@ -1070,6 +1077,29 @@ class TestOAS32ValidatorValidate(TestOAS31ValidatorValidate):
 
         with pytest.raises(ValidationError):
             validator.validate({"id": "not-an-integer"})
+
+    def test_check_schema_accepts_oas32_discriminator_default_mapping(self):
+        schema = {
+            "type": "object",
+            "discriminator": {
+                "propertyName": "kind",
+                "defaultMapping": "#/components/schemas/Pet",
+            },
+        }
+
+        check_openapi_schema(OAS32Validator, schema)
+
+    def test_oas31_check_schema_rejects_discriminator_default_mapping(self):
+        schema = {
+            "type": "object",
+            "discriminator": {
+                "propertyName": "kind",
+                "defaultMapping": "#/components/schemas/Pet",
+            },
+        }
+
+        with pytest.raises(SchemaError):
+            check_openapi_schema(OAS31Validator, schema)
 
 
 class TestOAS30StrictValidator:
@@ -1142,6 +1172,25 @@ class TestValidatorForDiscovery:
             for warning in caught
         )
 
+    def test_oas32_base_dialect_resolves_to_oas32_validator(self):
+        schema = {"$schema": OAS32_BASE_DIALECT_ID}
+
+        validator_class = validator_for(schema)
+
+        assert validator_class is OAS32Validator
+
+    def test_oas32_base_dialect_discovery_has_no_deprecation_warning(self):
+        schema = {"$schema": OAS32_BASE_DIALECT_ID}
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            validator_for(schema)
+
+        assert not any(
+            issubclass(warning.category, DeprecationWarning)
+            for warning in caught
+        )
+
     def test_oas31_base_dialect_keeps_oas_keyword_behavior(self):
         schema = {
             "$schema": OAS31_BASE_DIALECT_ID,
@@ -1201,3 +1250,21 @@ class TestValidatorForDiscovery:
         assert (
             validator_for({"$schema": OAS31_BASE_DIALECT_ID}) is OAS31Validator
         )
+
+    def test_openapi_oas32_dialect_registration_is_idempotent(self):
+        register_openapi_dialect(
+            validator=OAS32Validator,
+            dialect_id=OAS32_BASE_DIALECT_ID,
+            version_name="oas32",
+            metaschema=OAS32_BASE_DIALECT_METASCHEMA,
+        )
+        register_openapi_dialect(
+            validator=OAS32Validator,
+            dialect_id=OAS32_BASE_DIALECT_ID,
+            version_name="oas32",
+            metaschema=OAS32_BASE_DIALECT_METASCHEMA,
+        )
+
+        validator_class = validator_for({"$schema": OAS32_BASE_DIALECT_ID})
+
+        assert validator_class is OAS32Validator

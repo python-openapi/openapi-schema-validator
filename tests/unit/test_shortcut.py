@@ -1,7 +1,9 @@
+import inspect
 from unittest.mock import patch
 
 import pytest
 
+from openapi_schema_validator import OAS32Validator
 from openapi_schema_validator import validate
 
 
@@ -39,5 +41,18 @@ def test_validate_does_not_mutate_schema(schema):
 def test_validate_does_not_fetch_remote_metaschemas(schema):
     with patch("urllib.request.urlopen") as urlopen:
         validate({"email": "foo@bar.com"}, schema)
+
+    urlopen.assert_not_called()
+
+
+def test_validate_defaults_to_oas32_validator():
+    signature = inspect.signature(validate)
+
+    assert signature.parameters["cls"].default is OAS32Validator
+
+
+def test_oas32_validate_does_not_fetch_remote_metaschemas(schema):
+    with patch("urllib.request.urlopen") as urlopen:
+        validate({"email": "foo@bar.com"}, schema, cls=OAS32Validator)
 
     urlopen.assert_not_called()
