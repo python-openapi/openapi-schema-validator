@@ -2,6 +2,7 @@ import warnings
 from base64 import b64encode
 from typing import Any
 from typing import cast
+from unittest.mock import patch
 
 import pytest
 from jsonschema import SchemaError
@@ -34,7 +35,6 @@ from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_METASCHEMA
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_ID
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_METASCHEMA
 from openapi_schema_validator._dialects import register_openapi_dialect
-from openapi_schema_validator.validators import check_openapi_schema
 
 
 class TestOAS30ValidatorFormatChecker:
@@ -1087,7 +1087,7 @@ class TestOAS32ValidatorValidate(TestOAS31ValidatorValidate):
             },
         }
 
-        check_openapi_schema(OAS32Validator, schema)
+        OAS32Validator.check_schema(schema)
 
     def test_oas31_check_schema_rejects_discriminator_default_mapping(self):
         schema = {
@@ -1099,7 +1099,21 @@ class TestOAS32ValidatorValidate(TestOAS31ValidatorValidate):
         }
 
         with pytest.raises(SchemaError):
-            check_openapi_schema(OAS31Validator, schema)
+            OAS31Validator.check_schema(schema)
+
+    def test_oas32_check_schema_does_not_fetch_remote_metaschemas(self):
+        schema = {
+            "type": "object",
+            "discriminator": {
+                "propertyName": "kind",
+                "defaultMapping": "#/components/schemas/Pet",
+            },
+        }
+
+        with patch("urllib.request.urlopen") as urlopen:
+            OAS32Validator.check_schema(schema)
+
+        urlopen.assert_not_called()
 
 
 class TestOAS30StrictValidator:

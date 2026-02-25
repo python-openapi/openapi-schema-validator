@@ -179,3 +179,6 @@ OAS30WriteValidator = extend(
 
 OAS31Validator = _build_oas31_validator()
 OAS32Validator = _build_oas32_validator()
+
+OAS31Validator.check_schema = classmethod(check_openapi_schema)
+OAS32Validator.check_schema = classmethod(check_openapi_schema)
