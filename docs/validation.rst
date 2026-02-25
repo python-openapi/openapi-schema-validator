@@ -67,26 +67,33 @@ if you want to disambiguate the expected schema version, import and use ``OAS31V
 
    validate({"name": "John", "age": 23}, schema, cls=OAS31Validator)
 
-The OpenAPI 3.1 base dialect URI is registered for
+The OpenAPI 3.1 and 3.2 base dialect URIs are registered for
 ``jsonschema.validators.validator_for`` resolution.
 If your schema declares
-``"$schema": "https://spec.openapis.org/oas/3.1/dialect/base"``,
-``validator_for`` resolves directly to ``OAS31Validator`` without
-unresolved-metaschema fallback warnings.
+``"$schema": "https://spec.openapis.org/oas/3.1/dialect/base"`` or
+``"$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17"``,
+``validator_for`` resolves directly to ``OAS31Validator`` or
+``OAS32Validator`` without unresolved-metaschema fallback warnings.
 
 .. code-block:: python
 
    from jsonschema.validators import validator_for
 
    from openapi_schema_validator import OAS31Validator
+   from openapi_schema_validator import OAS32Validator
 
    schema = {
        "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
        "type": "object",
    }
+   schema32 = {
+       "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+       "type": "object",
+   }
    assert validator_for(schema) is OAS31Validator
+   assert validator_for(schema32) is OAS32Validator
 
-For OpenAPI 3.2, use ``OAS32Validator`` (behaves identically to ``OAS31Validator``, since 3.2 uses the same JSON Schema dialect).
+For OpenAPI 3.2, use ``OAS32Validator``.
 
 In order to validate OpenAPI 3.0 schema, import and use ``OAS30Validator`` instead of ``OAS31Validator``.
 

@@ -6,14 +6,15 @@ from jsonschema.exceptions import best_match
 from jsonschema.protocols import Validator
 
 from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_ID
-from openapi_schema_validator.validators import OAS31Validator
+from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_ID
+from openapi_schema_validator.validators import OAS32Validator
 from openapi_schema_validator.validators import check_openapi_schema
 
 
 def validate(
     instance: Any,
     schema: Mapping[str, Any],
-    cls: type[Validator] = OAS31Validator,
+    cls: type[Validator] = OAS32Validator,
     *args: Any,
     **kwargs: Any
 ) -> None:
@@ -24,11 +25,11 @@ def validate(
 
     meta_schema = getattr(cls, "META_SCHEMA", None)
     # jsonschema's default check_schema path does not accept a custom
-    # registry, so for the OAS 3.1 dialect we use the package registry
+    # registry, so for OAS dialects we use the package registry
     # explicitly to keep metaschema resolution local and deterministic.
-    if (
-        isinstance(meta_schema, dict)
-        and meta_schema.get("$id") == OAS31_BASE_DIALECT_ID
+    if isinstance(meta_schema, dict) and meta_schema.get("$id") in (
+        OAS31_BASE_DIALECT_ID,
+        OAS32_BASE_DIALECT_ID,
     ):
         check_openapi_schema(cls, schema_dict)
     else:

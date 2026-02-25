@@ -15,6 +15,8 @@ from openapi_schema_validator import _keywords as oas_keywords
 from openapi_schema_validator import _types as oas_types
 from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_ID
 from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_METASCHEMA
+from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_ID
+from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_METASCHEMA
 from openapi_schema_validator._dialects import register_openapi_dialect
 from openapi_schema_validator._specifications import (
     REGISTRY as OPENAPI_SPECIFICATIONS,
@@ -134,6 +136,20 @@ def _build_oas31_validator() -> Any:
     )
 
 
+def _build_oas32_validator() -> Any:
+    validator = extend(
+        OAS31Validator,
+        {},
+        format_checker=oas_format.oas32_format_checker,
+    )
+    return register_openapi_dialect(
+        validator=validator,
+        dialect_id=OAS32_BASE_DIALECT_ID,
+        version_name="oas32",
+        metaschema=OAS32_BASE_DIALECT_METASCHEMA,
+    )
+
+
 OAS30Validator = _build_oas30_validator()
 OAS30StrictValidator = extend(
     OAS30Validator,
@@ -162,13 +178,7 @@ OAS30WriteValidator = extend(
 )
 
 OAS31Validator = _build_oas31_validator()
+OAS32Validator = _build_oas32_validator()
 
-# OAS 3.2 uses JSON Schema Draft 2020-12 as its base dialect, same as
-# OAS 3.1. The OAS-specific vocabulary differs slightly (e.g. xml keyword
-# changes), but since xml is not_implemented in the current validators,
-# the behavior is equivalent.
-OAS32Validator = extend(
-    OAS31Validator,
-    {},
-    format_checker=oas_format.oas32_format_checker,
-)
+OAS31Validator.check_schema = classmethod(check_openapi_schema)
+OAS32Validator.check_schema = classmethod(check_openapi_schema)
