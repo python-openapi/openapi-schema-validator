@@ -60,6 +60,8 @@ The first argument is always the value you want to validate.
 The second argument is always the OpenAPI schema object.
 The ``cls`` keyword argument is optional and defaults to ``OAS32Validator``.
 Use ``cls`` when you need a specific validator version/behavior.
+Common forwarded keyword arguments include ``registry`` (reference context)
+and ``format_checker`` (format validation behavior).
 
 To validate an OpenAPI schema:
 
