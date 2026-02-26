@@ -127,7 +127,6 @@ unresolved-metaschema fallback warnings.
    assert validator_for(schema) is OAS31Validator
    assert validator_for(schema32) is OAS32Validator
 
-
 Binary Data Semantics
 =====================
 
@@ -188,6 +187,19 @@ Quick Reference
      - Pass
      - Fail
      - Same semantics as OAS 3.1
+
+
+Regex Behavior
+==============
+
+By default, ``pattern`` handling follows host Python regex behavior.
+For ECMAScript-oriented regex validation and matching (via ``regress``),
+install the optional extra:
+
+.. code-block:: console
+
+   pip install "openapi-schema-validator[ecma-regex]"
+
 
 For more details read about `Validation <https://openapi-schema-validator.readthedocs.io/en/latest/validation.html>`__.
 
