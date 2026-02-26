@@ -297,6 +297,10 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
         "value",
         [
             b64encode(b"string").decode(),
+            b64encode(b"\x00\x01\x02").decode(),
+            "",
+            "AQ==",
+            "SGVsbG8=",
         ],
     )
     def test_string_format_byte_valid(self, validator_class, value):
@@ -309,7 +313,19 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
 
         assert result is None
 
-    @pytest.mark.parametrize("value", ["string"])
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "string",
+            "SGVsbG8",
+            "SGVsbG8===",
+            "SGVsbG8$",
+            "SGVsbG8 ",
+            "SGVsbG8\n",
+            "SGVsbG8_",
+            "SGVsbG8-",
+        ],
+    )
     def test_string_format_byte_invalid(self, validator_class, value):
         schema = {"type": "string", "format": "byte"}
         validator = validator_class(
