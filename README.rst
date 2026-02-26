@@ -3,22 +3,22 @@ openapi-schema-validator
 ************************
 
 .. image:: https://img.shields.io/pypi/v/openapi-schema-validator.svg
-     :target: https://pypi.python.org/pypi/openapi-schema-validator
+     :target: https://pypi.org/project/openapi-schema-validator/
 .. image:: https://github.com/python-openapi/openapi-schema-validator/actions/workflows/python-tests.yml/badge.svg
      :target: https://github.com/python-openapi/openapi-schema-validator/actions
 .. image:: https://img.shields.io/codecov/c/github/python-openapi/openapi-schema-validator/master.svg?style=flat
      :target: https://codecov.io/github/python-openapi/openapi-schema-validator?branch=master
 .. image:: https://img.shields.io/pypi/pyversions/openapi-schema-validator.svg
-     :target: https://pypi.python.org/pypi/openapi-schema-validator
+     :target: https://pypi.org/project/openapi-schema-validator/
 .. image:: https://img.shields.io/pypi/format/openapi-schema-validator.svg
-     :target: https://pypi.python.org/pypi/openapi-schema-validator
+     :target: https://pypi.org/project/openapi-schema-validator/
 .. image:: https://img.shields.io/pypi/status/openapi-schema-validator.svg
-     :target: https://pypi.python.org/pypi/openapi-schema-validator
+     :target: https://pypi.org/project/openapi-schema-validator/
 
 About
 #####
 
-Openapi-schema-validator is a Python library that validates schema against:
+openapi-schema-validator is a Python library that validates schemas against:
 
 * `OpenAPI Schema Specification v3.0 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#schemaObject>`__ which is an extended subset of the `JSON Schema Specification Wright Draft 00 <http://json-schema.org/>`__.
 * `OpenAPI Schema Specification v3.1 <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.1.0.md#schemaObject>`__ which is an extended superset of the `JSON Schema Specification Draft 2020-12 <http://json-schema.org/>`__.
@@ -44,7 +44,7 @@ Alternatively you can download the code and install from the repository:
 
 .. code-block:: console
 
-   pip install -e git+https://github.com/python-openapi/openapi-schema-validator.git#egg=openapi_schema_validator
+   pip install "git+https://github.com/python-openapi/openapi-schema-validator.git"
 
 
 Usage
@@ -60,6 +60,22 @@ The first argument is always the value you want to validate.
 The second argument is always the OpenAPI schema object.
 The ``cls`` keyword argument is optional and defaults to ``OAS32Validator``.
 Use ``cls`` when you need a specific validator version/behavior.
+
+.. code-block:: python
+
+   from openapi_schema_validator import OAS30Validator
+   from openapi_schema_validator import OAS31Validator
+   from openapi_schema_validator import validate
+
+   # OpenAPI 3.0 behavior
+   validate(instance, schema, cls=OAS30Validator)
+
+   # OpenAPI 3.1 behavior
+   validate(instance, schema, cls=OAS31Validator)
+
+   # OpenAPI 3.2 behavior (default)
+   validate(instance, schema)
+
 Common forwarded keyword arguments include ``registry`` (reference context)
 and ``format_checker`` (format validation behavior).
 By default, ``validate`` uses a local-only empty registry to avoid implicit
@@ -110,6 +126,10 @@ To validate an OpenAPI schema:
    validate({"name": "John", "age": 23, "address": [1600, "Pennsylvania", "Avenue"]}, schema)
 
    validate({"name": "John", "city": "London"}, schema)
+
+Expected failure output:
+
+.. code-block:: text
 
    Traceback (most recent call last):
        ...
@@ -179,35 +199,6 @@ OpenAPI 3.1+ follows JSON Schema semantics for string typing in this library.
   ``contentMediaType``)
 - for raw binary payloads, model via media type (for example
   ``application/octet-stream``) rather than schema string formats
-
-Quick Reference
----------------
-
-.. list-table::
-   :header-rows: 1
-   :widths: 28 24 24 24
-
-   * - Context
-     - ``"text"`` (str)
-     - ``b"text"`` (bytes)
-     - Notes
-   * - OAS 3.0 + ``OAS30Validator``
-     - Pass
-     - Pass for ``format: binary``
-     - Compatibility behavior for Python runtime payloads
-   * - OAS 3.0 + ``OAS30StrictValidator``
-     - Pass
-     - Fail
-     - Strict 3.0 validation mode
-   * - OAS 3.1 + ``OAS31Validator``
-     - Pass
-     - Fail
-     - Use ``contentEncoding``/``contentMediaType`` and media types
-   * - OAS 3.2 + ``OAS32Validator``
-     - Pass
-     - Fail
-     - Same semantics as OAS 3.1
-
 
 Regex Behavior
 ==============
