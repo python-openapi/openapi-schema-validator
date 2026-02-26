@@ -6,11 +6,16 @@ from typing import cast
 from jsonschema._keywords import allOf as _allOf
 from jsonschema._keywords import anyOf as _anyOf
 from jsonschema._keywords import oneOf as _oneOf
+from jsonschema._keywords import pattern as _pattern
 from jsonschema._utils import extras_msg
 from jsonschema._utils import find_additional_properties
 from jsonschema.exceptions import FormatError
 from jsonschema.exceptions import ValidationError
 from jsonschema.exceptions import _WrappedReferencingError
+
+from openapi_schema_validator._regex import ECMARegexSyntaxError
+from openapi_schema_validator._regex import has_ecma_regex
+from openapi_schema_validator._regex import search as regex_search
 
 
 def handle_discriminator(
@@ -157,6 +162,34 @@ def strict_type(
     if not validator.is_type(instance, data_type):
         data_repr = repr(data_type)
         yield ValidationError(f"{instance!r} is not of type {data_repr}")
+
+
+def pattern(
+    validator: Any,
+    patrn: str,
+    instance: Any,
+    schema: Mapping[str, Any],
+) -> Iterator[ValidationError]:
+    if not has_ecma_regex():
+        yield from cast(
+            Iterator[ValidationError],
+            _pattern(validator, patrn, instance, schema),
+        )
+        return
+
+    if not validator.is_type(instance, "string"):
+        return
+
+    try:
+        matches = regex_search(patrn, instance)
+    except ECMARegexSyntaxError as exc:
+        yield ValidationError(
+            f"{patrn!r} is not a valid regular expression ({exc})"
+        )
+        return
+
+    if not matches:
+        yield ValidationError(f"{instance!r} does not match {patrn!r}")
 
 
 def format(

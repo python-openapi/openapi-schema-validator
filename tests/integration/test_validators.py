@@ -37,6 +37,7 @@ from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_METASCHEMA
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_ID
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_METASCHEMA
 from openapi_schema_validator._dialects import register_openapi_dialect
+from openapi_schema_validator._regex import has_ecma_regex
 
 
 class TestOAS30ValidatorFormatChecker:
@@ -126,12 +127,19 @@ class BaseTestOASValidatorValidate:
         with pytest.raises(ValidationError):
             validator.validate(value)
 
-    def test_invalid_pattern_raises_regex_error(self, validator_class):
+    def test_invalid_pattern_raises_expected_error(self, validator_class):
         schema = {"type": "string", "pattern": "["}
         validator = validator_class(schema)
 
-        with pytest.raises(re.error):
-            validator.validate("foo")
+        if has_ecma_regex():
+            with pytest.raises(
+                ValidationError,
+                match="is not a valid regular expression",
+            ):
+                validator.validate("foo")
+        else:
+            with pytest.raises(re.error):
+                validator.validate("foo")
 
     def test_invalid_pattern_rejected_by_validate_helper(
         self, validator_class
@@ -140,6 +148,37 @@ class BaseTestOASValidatorValidate:
 
         with pytest.raises(SchemaError, match="is not a 'regex'"):
             validate("foo", schema, cls=validator_class)
+
+    @pytest.mark.skipif(
+        not has_ecma_regex(), reason="requires optional ecma-regex extra"
+    )
+    def test_z_escape_behaves_as_ecma_literal_escape(self, validator_class):
+        schema = {"type": "string", "pattern": r"^foo\z"}
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError, match="does not match"):
+            validator.validate("foo")
+
+        result = validator.validate("fooz")
+
+        assert result is None
+
+        result = validate("fooz", schema, cls=validator_class)
+
+        assert result is None
+
+    @pytest.mark.skipif(
+        not has_ecma_regex(), reason="requires optional ecma-regex extra"
+    )
+    def test_escaped_z_pattern_is_allowed_with_ecma_regex(
+        self, validator_class
+    ):
+        schema = {"type": "string", "pattern": r"^foo\\z$"}
+        validator = validator_class(schema)
+
+        result = validator.validate(r"foo\z")
+
+        assert result is None
 
     def test_referencing(self, validator_class):
         name_schema = Resource.from_contents(

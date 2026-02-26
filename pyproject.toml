@@ -28,6 +28,10 @@ ignore_missing_imports = true
 module = "rfc3339_validator"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "regress"
+ignore_missing_imports = true
+
 [tool.tbump]
 github_url = "https://github.com/python-openapi/openapi-schema-validator"
 
@@ -84,9 +88,11 @@ jsonschema = "^4.19.1"
 rfc3339-validator = "*" # requred by jsonschema for date-time checker
 jsonschema-specifications = ">=2024.10.1"
 referencing = "^0.37.0"
+regress = {version = ">=2025.10.1", optional = true}
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-immaterial"]
+ecma-regex = ["regress"]
 
 [tool.poetry.group.dev.dependencies]
 black = ">=24.4,<27.0"

@@ -138,7 +138,8 @@ Malformed schema values (for example an invalid regex in ``pattern``) raise
 If you instantiate a validator class directly and call ``.validate(...)``,
 schema checking is not performed automatically, matching
 ``jsonschema`` validator-class behavior.
-For malformed regex patterns this may raise a lower-level regex error.
+For malformed regex patterns this may raise a lower-level regex error
+(default mode) or ``ValidationError`` from the validator (ECMAScript mode).
 
 Use ``<ValidatorClass>.check_schema(schema)`` first when you need deterministic
 schema-validation errors with direct validator usage.
@@ -244,6 +245,21 @@ Quick Reference
      - Pass
      - Fail
      - Same semantics as OAS 3.1
+
+Regex Behavior
+--------------
+
+Pattern validation follows one of two modes:
+
+- default installation: follows host Python regex behavior
+- ``ecma-regex`` extra installed: uses ``regress`` for ECMAScript-oriented
+  regex validation and matching
+
+Install optional ECMAScript regex support with:
+
+.. code-block:: console
+
+   pip install "openapi-schema-validator[ecma-regex]"
 
 Example usage:
 

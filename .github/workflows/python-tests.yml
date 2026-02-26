@@ -62,6 +62,46 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v5
 
+  tests_no_extras:
+    name: "py3.14 no extras"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Get full Python version
+        id: full-python-version
+        run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
+
+      - name: Set up poetry
+        uses: Gr1N/setup-poetry@v9
+
+      - name: Configure poetry
+        run: poetry config virtualenvs.in-project true
+
+      - name: Set up cache
+        uses: actions/cache@v5
+        id: cache
+        with:
+          path: .venv
+          key: venv-no-extras-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Ensure cache is healthy
+        if: steps.cache.outputs.cache-hit == 'true'
+        run: timeout 10s poetry run pip --version || rm -rf .venv
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Test fallback regex behavior
+        env:
+          PYTEST_ADDOPTS: "--color=yes"
+        run: poetry run pytest tests/integration/test_validators.py -k pattern
+
   static_checks:
     name: "Static checks"
     runs-on: ubuntu-latest

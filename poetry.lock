@@ -1507,6 +1507,136 @@ rpds-py = ">=0.7.0"
 typing-extensions = {version = ">=4.4.0", markers = "python_version < \"3.13\""}
 
 [[package]]
+name = "regress"
+version = "2025.10.1"
+description = "Python bindings to Rust's regress ECMA regular expressions library"
+optional = true
+python-versions = ">=3.10"
+groups = ["main"]
+markers = "extra == \"ecma-regex\""
+files = [
+    {file = "regress-2025.10.1-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:590abc9fa10255dcf84b4469f08cad9787001c38600080a033cd7a71f51cae02"},
+    {file = "regress-2025.10.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:dc9046f25971e9d6dc3b57028de8991d0d7c346efcb0c15acbfecbfb8e4c1813"},
+    {file = "regress-2025.10.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:81733f0e7f583d181bc9fc187b3d766489bcf7e0c85eff26f1e067c942e4e45a"},
+    {file = "regress-2025.10.1-cp310-cp310-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:3d48ae257483ff7da43c15b8071b132a1e75e4be2242a44e2587b8492afae32e"},
+    {file = "regress-2025.10.1-cp310-cp310-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:30e70b966015beef7e9287feaf37ed9606744ceaa88be24b10824f5b4c354498"},
+    {file = "regress-2025.10.1-cp310-cp310-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:6c1c968ee4dca933e0cd6cea51d9c6494c3d82650ce826e7a5d007c9de720da2"},
+    {file = "regress-2025.10.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:212fe8c4f823730d1578d0fe8b5edf21b393074b90a8ec704d6d6c1c96ffe7dc"},
+    {file = "regress-2025.10.1-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:cb23c4ab28e75e35f033e4e392f01f6a9344a961e2f4ded56af5520b5841fe8d"},
+    {file = "regress-2025.10.1-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:fdcd839a87fae1e47bf376248589ebcb2e58d3a0fad66837d69856ae99ef3c93"},
+    {file = "regress-2025.10.1-cp310-cp310-musllinux_1_2_i686.whl", hash = "sha256:1809ac971207bb2e098a46e08c2f241a259ac3bda48228f295a3c2cba49c6c0e"},
+    {file = "regress-2025.10.1-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:cbf1371ae2cfe1a2d6e1bb21f73a557138bc45347021f1701f196b484789639a"},
+    {file = "regress-2025.10.1-cp310-cp310-win32.whl", hash = "sha256:8a9c00ede347a5a431e36d4fcf75e2ec9094feac2f6170f2ffbd5e32f7f7a4b4"},
+    {file = "regress-2025.10.1-cp310-cp310-win_amd64.whl", hash = "sha256:cba77808a756f1f117916c0afb0e79f01be1cb46ee51c77780e8afc59ddac76b"},
+    {file = "regress-2025.10.1-cp311-cp311-macosx_10_12_x86_64.whl", hash = "sha256:02da99e41c6a97f6d2146d326541b4035ed2139c92b2f56ca7e464ceb84fe24f"},
+    {file = "regress-2025.10.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:5d961e81b169fce4f6c0e35f52bbfca9e20abf9674dd391c75708f0665ef4f6f"},
+    {file = "regress-2025.10.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c34b13e7785554997e18725b896d404ba992cee5b691768476f14b48de0c393a"},
+    {file = "regress-2025.10.1-cp311-cp311-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:15efcb8d568e712919cb56b78fffe08a09d5ed1844b43cccc3235c2da90d0e59"},
+    {file = "regress-2025.10.1-cp311-cp311-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:5a2ddb0d1c0821b70dd50daa773c5f3fbb2155398c57809a2f54447958c9569f"},
+    {file = "regress-2025.10.1-cp311-cp311-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:70c78c6cf679da47fbde85b75407fdfb4642477315ee94d6cdd62a0606941b83"},
+    {file = "regress-2025.10.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:707e2846e784ecef666a6892753cf5d8441e4cf02bcc7fa10fd21527429815fc"},
+    {file = "regress-2025.10.1-cp311-cp311-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:5c147e4d3799022bac9fc49fd042a51b7f746c41ed231fa6b496720dab0d2f9d"},
+    {file = "regress-2025.10.1-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:148f15530807a63e24ca2dea3795546723d84c0b3a8e4152a24b58318f841b3c"},
+    {file = "regress-2025.10.1-cp311-cp311-musllinux_1_2_i686.whl", hash = "sha256:9670d957d156fa90e5582c4337ca1757b643859780896c8d853b015cd01456dc"},
+    {file = "regress-2025.10.1-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:af290cfb3b7d4b14319a88feab4e86f54a2c43bd8189be5a0dcd8f847f832847"},
+    {file = "regress-2025.10.1-cp311-cp311-win32.whl", hash = "sha256:7343ef7eae795e1449308d6d05131195f5af31ab1b2b6b405ff9370b64c1e7e1"},
+    {file = "regress-2025.10.1-cp311-cp311-win_amd64.whl", hash = "sha256:8f42578d920fc878fe19ed8e2fbe38edd212c451bb2fc5e0084716d5acd26c4c"},
+    {file = "regress-2025.10.1-cp311-cp311-win_arm64.whl", hash = "sha256:a6f0320f53e8fd8722211c0620fcd9bfecc0db05bf0d59385ee301f86b815671"},
+    {file = "regress-2025.10.1-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:45695cd7ddc6a919863f243a09a9e737257f958c0d2af0e71e349c9d0f3048ad"},
+    {file = "regress-2025.10.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:63503a8f601a10e5d9d72ea6efb415a2838a4766736775322578ce5fe18cb233"},
+    {file = "regress-2025.10.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:28941c80252119ef051ad67195fa8d155a0c8dc9ecb801786d94eeea6738e4c3"},
+    {file = "regress-2025.10.1-cp312-cp312-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:6d26daee7d46905c8d4232f44c39ea788f10d39c166735177f603783b4ace4e8"},
+    {file = "regress-2025.10.1-cp312-cp312-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:f0599f9cb12722300b6d4fcd6bd9b2be5bf233bc567c3ca503d8e392de23798a"},
+    {file = "regress-2025.10.1-cp312-cp312-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:46b92e1ec6092e6e989e4ad5f52f0a358e88355f70cf4dba9abce84f3cd513cf"},
+    {file = "regress-2025.10.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7ac0e197c7f1b5ffca42341518b6a03e2ea3cdd66516af9278492d2d2bfc9ce2"},
+    {file = "regress-2025.10.1-cp312-cp312-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:05e6c68021dff89fee7bcdab25e0819cff4c7f0761dc41f0fb609b0e9ebb6272"},
+    {file = "regress-2025.10.1-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:39600db4e404155168d6f75c3dbb2ae03ef3e288b4a57c7a6562a1144bf07682"},
+    {file = "regress-2025.10.1-cp312-cp312-musllinux_1_2_i686.whl", hash = "sha256:d48e91d14a366570685f76adaf9d108e3abc5522572e7e1d0d78c3cc3ebf0833"},
+    {file = "regress-2025.10.1-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:ce4e38ada2a39159d8a2523084e2b5ed94b3f7f7b196ba6b99c2d6c4ff634a87"},
+    {file = "regress-2025.10.1-cp312-cp312-win32.whl", hash = "sha256:c35c8cd42900d9195e5bf48d701dda28c204854fba7cc27d18f309745f57b8b5"},
+    {file = "regress-2025.10.1-cp312-cp312-win_amd64.whl", hash = "sha256:089b6c5f0965962e8046493e5a1222a24e88d6f235fa8fe2424ec869e6ff613c"},
+    {file = "regress-2025.10.1-cp312-cp312-win_arm64.whl", hash = "sha256:469b03b1deffb6d20ea4f95aa44ef0e0e5a9b47d56f709276b06a96338b570a0"},
+    {file = "regress-2025.10.1-cp313-cp313-macosx_10_12_x86_64.whl", hash = "sha256:9100da34f69e18ad6d545f5d74f8ee729e42ce200a73752dd6d94f8a373d0e71"},
+    {file = "regress-2025.10.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:9e25096697b034848d8fc7910cdb38b7abc2bd2d7ade8767893359918ed4efd0"},
+    {file = "regress-2025.10.1-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6c4c40a8c9f3e0119d2384a52b55dcc770461e1ead6ae7b41314999223116a15"},
+    {file = "regress-2025.10.1-cp313-cp313-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:25d8518285aa3ce67ddbede90a1a9ca6a5d23a1b8275dd5a9722af0c64b37b2a"},
+    {file = "regress-2025.10.1-cp313-cp313-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:8051fac3696730bb84d7675c62c7073792a0e105233d4f8e1055f2cab9b04fce"},
+    {file = "regress-2025.10.1-cp313-cp313-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:8e337ce3b150ca0ff599b1150b995ff6a2e32b5940e17ac3f30a29133960709e"},
+    {file = "regress-2025.10.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:290a15652c3fafe387db02061d4ed9a100804ed5a162d069b5a0ac28b5df162a"},
+    {file = "regress-2025.10.1-cp313-cp313-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:b4bc2008b59e5124c1672d7fd9f203e5d4a4ff88ebaf4666e3281141e2d8db20"},
+    {file = "regress-2025.10.1-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:56ef2f8ef9a102a7d42cbbc2f3c0c5e1b186bd8eaa78d564da566b0bf20653dc"},
+    {file = "regress-2025.10.1-cp313-cp313-musllinux_1_2_i686.whl", hash = "sha256:0680ac0b0a0058acb55b64aa56956732cf56b0baa84ea95e3fa124ab16da58aa"},
+    {file = "regress-2025.10.1-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:47c03bfd853651241fc11436fb14ef7c9b312bb9a9c2828aa5c93943e945f1ef"},
+    {file = "regress-2025.10.1-cp313-cp313-win32.whl", hash = "sha256:3d12e6a834ed5f6d9dc7e86ea8fd77d37bb13900129930151d87c3261c3a799e"},
+    {file = "regress-2025.10.1-cp313-cp313-win_amd64.whl", hash = "sha256:ee3b7325ea849097d674020c72b2e6deb8f1018f085a7ecbd22831cd217b7f80"},
+    {file = "regress-2025.10.1-cp313-cp313-win_arm64.whl", hash = "sha256:e5f35e04fe6382c236d60c98b3f0a4a22dea75398b99c9c9bf3fb9d386cd7ebb"},
+    {file = "regress-2025.10.1-cp313-cp313t-macosx_10_12_x86_64.whl", hash = "sha256:0ee12c4e1c4e6e3609f41dd58065bc241945e912772f7320238d6544f0745950"},
+    {file = "regress-2025.10.1-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:389c2278848cbfed81753a04ce8ea6c037271179cb9ef4decac7d3c65ae3330b"},
+    {file = "regress-2025.10.1-cp313-cp313t-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bf743b00cac20f8e8d271f275df7bc192ebb4faa7aee8fe98484df338786dec6"},
+    {file = "regress-2025.10.1-cp313-cp313t-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:5541da1f581377bc20d2f77e017453aa8f2c2f4bfe7679dee00e139ec700abe8"},
+    {file = "regress-2025.10.1-cp313-cp313t-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:a67216efa72bb27db170f637d67eb9acdc167da5d617163b057803de7aed1e6d"},
+    {file = "regress-2025.10.1-cp313-cp313t-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:fb61e653a325aea4681cf7b96ba9bbabc1aeb3f3d8fe877a07800024907398b9"},
+    {file = "regress-2025.10.1-cp313-cp313t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e2a0a7da1d42fdff8068ab976a66beea572621514a130b37592489ae134a0e27"},
+    {file = "regress-2025.10.1-cp313-cp313t-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:337ef62f785dc6e05c4a09be7a902980cf4d4f15346f4eca9eaf02745485440c"},
+    {file = "regress-2025.10.1-cp313-cp313t-musllinux_1_2_aarch64.whl", hash = "sha256:aaf5d102e05b109dde13363e705969b3ffdbbfeb880270187eed0871e75f0c8f"},
+    {file = "regress-2025.10.1-cp313-cp313t-musllinux_1_2_i686.whl", hash = "sha256:adf331c8938e0d8705fc5d05d08fab09c11cb4bcdf8a64fa21902972c4cd38f4"},
+    {file = "regress-2025.10.1-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:287f86b5c0bf3bc9c0abd45bf6745ba9c6a5624c3132b07631bac4403b45143f"},
+    {file = "regress-2025.10.1-cp313-cp313t-win32.whl", hash = "sha256:877e05e7c570ee1e077e8b587cca8a318b7675f3c94c6c4e25d0d145abf7c0b6"},
+    {file = "regress-2025.10.1-cp313-cp313t-win_amd64.whl", hash = "sha256:97307f87b128389d8b3f385c8e431fc318263281d1a1c0394606bc813aea05fc"},
+    {file = "regress-2025.10.1-cp314-cp314-macosx_10_12_x86_64.whl", hash = "sha256:56123dbe783a2bab04d1a1850605c483d40f36196bc52d249aa245d06f866f78"},
+    {file = "regress-2025.10.1-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:8405a31f0a1475e1c9aa20c4d6e1465ef2f7259581c018a2e273083494ca9a61"},
+    {file = "regress-2025.10.1-cp314-cp314-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:12430b2c7263a7b359d30dd0f2b179426d489df30da78cd21023376eb2fe2682"},
+    {file = "regress-2025.10.1-cp314-cp314-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:c7ecba827aff7f951db40be777c32608a1b16bbeb7f02fcc97a2e9fc6702641f"},
+    {file = "regress-2025.10.1-cp314-cp314-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:293be370961c6887efb82e466a15523ff24a702d444f44917ce318b222ffd229"},
+    {file = "regress-2025.10.1-cp314-cp314-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:783b9c50760aab988e4d60dcb7c54eba3fe730d80f9a877f1dc52d14263f86b1"},
+    {file = "regress-2025.10.1-cp314-cp314-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c0ed3b4d0df960aeccb685f8de5001c19f426f1ab09fde715e5abdbf9c59b26a"},
+    {file = "regress-2025.10.1-cp314-cp314-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:08e99c44e4c3860352400af96b25a4ebb673c16d53c6367153631ec77d5130b8"},
+    {file = "regress-2025.10.1-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:6b52096ecbf39f50756e51efa9286f47c598572f6b8bb2119f855de817f38b8e"},
+    {file = "regress-2025.10.1-cp314-cp314-musllinux_1_2_i686.whl", hash = "sha256:b99a73cfbdc5d99681aeb3aeaa2d88369023c96648cc785433d6a92c8d3a8394"},
+    {file = "regress-2025.10.1-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:05d02b4d7179b85acf28d7329a488901d6baef5f5b337dcd52f53ea0ff980bc3"},
+    {file = "regress-2025.10.1-cp314-cp314-win32.whl", hash = "sha256:e7cc153fabb47b6f8dfc2903186934e07aa57ee1debe9b3569ac4779b43708ae"},
+    {file = "regress-2025.10.1-cp314-cp314-win_amd64.whl", hash = "sha256:102c4627f026db8d361ab61155e0f1093176555d60ddb1cc4c9b6f5bbe255c1f"},
+    {file = "regress-2025.10.1-cp314-cp314-win_arm64.whl", hash = "sha256:e5c441a6017a5a29bb38c573892d882485cc26937cb1ee12da8593723bf6c041"},
+    {file = "regress-2025.10.1-cp314-cp314t-macosx_10_12_x86_64.whl", hash = "sha256:77d63b338c2a4e56b4f05632d3fd94061ad47ee2b272b158b9c2e09545a4c6bb"},
+    {file = "regress-2025.10.1-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:722c408a3bc92b4904005e68244c28fa6df943290df8d670faf349414c86aabb"},
+    {file = "regress-2025.10.1-cp314-cp314t-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f3afe24e6474f5dbc448f865641c29bcbed4eb3b87ac9eb0e6755c4eff4f7111"},
+    {file = "regress-2025.10.1-cp314-cp314t-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:9fdbbea49bf2fe65f7272b0316e1343aff1ccbb85b58fab325778c416d648ed9"},
+    {file = "regress-2025.10.1-cp314-cp314t-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:6d451a88292c5a93f57cf754c71b3aa8b570ed159f9fd481554948c467e6105d"},
+    {file = "regress-2025.10.1-cp314-cp314t-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:a97649f21c875b7e95e10a59f0f487a518735f51a7aec7fc95fb2c3d9a3914d5"},
+    {file = "regress-2025.10.1-cp314-cp314t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a542e38c8bb95f618674a5d2d248f1010547d7ff2e46a6cf4fa4b851459ba440"},
+    {file = "regress-2025.10.1-cp314-cp314t-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:933561ea90b2ac9a826e956a994b8a66635cd96467374281da992ceea8b0de4c"},
+    {file = "regress-2025.10.1-cp314-cp314t-musllinux_1_2_aarch64.whl", hash = "sha256:b6b5aa9f9408fdf260c73071282a28d29efbb4c30a4b95ab29863bea31987621"},
+    {file = "regress-2025.10.1-cp314-cp314t-musllinux_1_2_i686.whl", hash = "sha256:afee501f000666afe18531132edcaf0dc0178dd591cccf5b9596563e7456c118"},
+    {file = "regress-2025.10.1-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:4d0bf23a6d996655ed88c822bb0123cc2e92a1df95079ce7408552c35ec05d47"},
+    {file = "regress-2025.10.1-cp314-cp314t-win32.whl", hash = "sha256:adaa80c97927d623ff72b920bcc637568f124eabe84559c7927a91253ff55d5e"},
+    {file = "regress-2025.10.1-cp314-cp314t-win_amd64.whl", hash = "sha256:6553c8ba57fa92ab3e9ef5c811d6214c80131bba06496bd5920e6e5a3d53ca8e"},
+    {file = "regress-2025.10.1-pp310-pypy310_pp73-macosx_10_12_x86_64.whl", hash = "sha256:b5254f758206ba45776aefbd3c4223898890209b4dd3a743f2dc5cd1ebc5e9fd"},
+    {file = "regress-2025.10.1-pp310-pypy310_pp73-macosx_11_0_arm64.whl", hash = "sha256:966dcad04fe1821c7af9bf6dd33bbeca5c2649b7a3c5b2af57700e6d93335fd4"},
+    {file = "regress-2025.10.1-pp310-pypy310_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8d725e10a99ff65b0ad83b8c20f05645d9c67dbc809e2bf3b1db230d3e15081b"},
+    {file = "regress-2025.10.1-pp310-pypy310_pp73-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:3605ef64ab64658856ce8d6fda730dfb62c01002e2283bd6400df8e912d1b56a"},
+    {file = "regress-2025.10.1-pp310-pypy310_pp73-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:daece9f2fbaaadd23ef2cb31ffbaecd74f946938ff9b70d22c891c66d1435ad2"},
+    {file = "regress-2025.10.1-pp310-pypy310_pp73-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:1460d95d39d956ba0fab8a7b614b7ee5486473b1b210f65d6a3043dc08462f38"},
+    {file = "regress-2025.10.1-pp310-pypy310_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ac04243bf4ba86196b2491bdacd9450b339b3e5e97192aab82234baac1f0a74f"},
+    {file = "regress-2025.10.1-pp310-pypy310_pp73-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:c3962e4b980bfb844518beb1a3afce069674377ba99189fe339918fe7e7cbb7a"},
+    {file = "regress-2025.10.1-pp310-pypy310_pp73-musllinux_1_2_aarch64.whl", hash = "sha256:f418c11a6bae820fad1334e0569336e2e7848cf4b81e503bfb038daf0e57ec12"},
+    {file = "regress-2025.10.1-pp310-pypy310_pp73-musllinux_1_2_i686.whl", hash = "sha256:19b875513ebecc2b37a125d5794ce91fb4c203b06cb187e15d13b2a761df4621"},
+    {file = "regress-2025.10.1-pp310-pypy310_pp73-musllinux_1_2_x86_64.whl", hash = "sha256:415dd30885dfdb57f281f7c284e4495e85a90aa66965e3f10cb1bd862f40c2e4"},
+    {file = "regress-2025.10.1-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:faa057895de8e41301f9367b286bb3fd0cd80bc8523c8c80866fe746a33d13b6"},
+    {file = "regress-2025.10.1-pp311-pypy311_pp73-macosx_10_12_x86_64.whl", hash = "sha256:de16665fcc008db88729f52bab92e36d0c0534bcb3f334ff6d2c7574b16a3d6d"},
+    {file = "regress-2025.10.1-pp311-pypy311_pp73-macosx_11_0_arm64.whl", hash = "sha256:1624855927d72bb0f8281785fc110eb89702078abe1c42e2e6cbe872ec374277"},
+    {file = "regress-2025.10.1-pp311-pypy311_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d0f63f4c3f2e701c832e54434ee10bd0bd2c850b0ae4029829d2dd0c9a340d83"},
+    {file = "regress-2025.10.1-pp311-pypy311_pp73-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:ccfc11e2b632a21d82a56b52a70fc002b990fcf4f6b30661724732776bea6f1d"},
+    {file = "regress-2025.10.1-pp311-pypy311_pp73-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:be96403b244e3d6925e225b4da5fbc4f5dd6f06b07f751f00047aa48fd2c7fe3"},
+    {file = "regress-2025.10.1-pp311-pypy311_pp73-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:15a7c2777e8eeb153fe87327871669c3bd1aab4fe20c1fccf448616bc298350d"},
+    {file = "regress-2025.10.1-pp311-pypy311_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:905c4e364526f89b33db8e69468b15d9c294a56af4d533f2700e0e1a363fbae7"},
+    {file = "regress-2025.10.1-pp311-pypy311_pp73-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:0d1f3c465f415521ca259209dd2587c9a35785b35e98d62d4a7fba3c2bf1cfc8"},
+    {file = "regress-2025.10.1-pp311-pypy311_pp73-musllinux_1_2_aarch64.whl", hash = "sha256:701d1e4f2b30abfb39b27759a52e68cab8b76484b3d9b51b2d7f368807613f77"},
+    {file = "regress-2025.10.1-pp311-pypy311_pp73-musllinux_1_2_i686.whl", hash = "sha256:189899161133e7c56e733a3fc939642611585c5599626352ee0849cd34d7f436"},
+    {file = "regress-2025.10.1-pp311-pypy311_pp73-musllinux_1_2_x86_64.whl", hash = "sha256:4c559282471f4f0c9bf7b588985c4bec16de0a85e1a3e017dca39640e15118ce"},
+    {file = "regress-2025.10.1.tar.gz", hash = "sha256:dcc0a8af0cdbc3d6e0d4725f113335d0a5ffbba86ae3ca18d2b5b352c5f2c8ed"},
+]
+
+[[package]]
 name = "requests"
 version = "2.32.5"
 description = "Python HTTP for Humans."
@@ -2068,8 +2198,9 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 
 [extras]
 docs = []
+ecma-regex = ["regress"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10.0"
-content-hash = "09c27eb4b3e29b9e0ec20db1cab6922cb73e91eeac1049b29e1b65a6a5ca8359"
+content-hash = "dd73974c171fe06ed00a48c4b069c177885162945d22079c1d71cd7bc70e0a11"

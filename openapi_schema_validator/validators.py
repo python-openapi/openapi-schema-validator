@@ -62,7 +62,7 @@ OAS30_VALIDATORS = cast(
         "minimum": _legacy_keywords.minimum_draft3_draft4,
         "maxLength": _keywords.maxLength,
         "minLength": _keywords.minLength,
-        "pattern": _keywords.pattern,
+        "pattern": oas_keywords.pattern,
         "maxItems": _keywords.maxItems,
         "minItems": _keywords.minItems,
         "uniqueItems": _keywords.uniqueItems,
@@ -118,6 +118,7 @@ def _build_oas31_validator() -> Any:
             "allOf": oas_keywords.allOf,
             "oneOf": oas_keywords.oneOf,
             "anyOf": oas_keywords.anyOf,
+            "pattern": oas_keywords.pattern,
             "description": oas_keywords.not_implemented,
             # fixed OAS fields
             "discriminator": oas_keywords.not_implemented,
@@ -180,5 +181,11 @@ OAS30WriteValidator = extend(
 OAS31Validator = _build_oas31_validator()
 OAS32Validator = _build_oas32_validator()
 
+# These validator classes are generated via jsonschema create/extend, so there
+# is no simpler hook to inject registry-aware schema checking while preserving
+# each class's FORMAT_CHECKER. Override check_schema on each class to keep
+# OpenAPI metaschema resolution local and to apply optional ecma-regex
+# behavior consistently across OAS 3.0/3.1/3.2.
+OAS30Validator.check_schema = classmethod(check_openapi_schema)
 OAS31Validator.check_schema = classmethod(check_openapi_schema)
 OAS32Validator.check_schema = classmethod(check_openapi_schema)
