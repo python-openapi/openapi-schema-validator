@@ -50,7 +50,18 @@ Alternatively you can download the code and install from the repository:
 Usage
 #####
 
-To validate an OpenAPI v3.1 schema:
+``validate`` call signature is:
+
+.. code-block:: python
+
+   validate(instance, schema, cls=OAS32Validator, **kwargs)
+
+The first argument is always the value you want to validate.
+The second argument is always the OpenAPI schema object.
+The ``cls`` keyword argument is optional and defaults to ``OAS32Validator``.
+Use ``cls`` when you need a specific validator version/behavior.
+
+To validate an OpenAPI schema:
 
 .. code-block:: python
 
@@ -99,6 +110,9 @@ To validate an OpenAPI v3.1 schema:
    ValidationError: Additional properties are not allowed ('city' was unexpected)
 
 By default, the latest OpenAPI schema syntax is expected.
+
+Default dialect resolution
+--------------------------
 
 The OpenAPI 3.1 and 3.2 base dialect URIs are registered for
 ``jsonschema.validators.validator_for`` resolution.
