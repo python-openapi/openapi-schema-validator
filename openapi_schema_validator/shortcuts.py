@@ -4,6 +4,7 @@ from typing import cast
 
 from jsonschema.exceptions import best_match
 from jsonschema.protocols import Validator
+from referencing import Registry
 
 from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_ID
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_ID
@@ -16,6 +17,7 @@ def validate(
     schema: Mapping[str, Any],
     cls: type[Validator] = OAS32Validator,
     *args: Any,
+    allow_remote_references: bool = False,
     **kwargs: Any
 ) -> None:
     """
@@ -33,8 +35,13 @@ def validate(
             (``#/...``) are resolved against this mapping.
         cls: Validator class to use. Defaults to ``OAS32Validator``.
         *args: Positional arguments forwarded to ``cls`` constructor.
+        allow_remote_references: If ``True`` and no explicit ``registry`` is
+            provided, allow jsonschema's default remote reference retrieval
+            behavior.
         **kwargs: Keyword arguments forwarded to ``cls`` constructor
-            (for example ``registry`` and ``format_checker``).
+            (for example ``registry`` and ``format_checker``). If omitted,
+            a local-only empty ``Registry`` is used to avoid implicit remote
+            reference retrieval.
 
     Raises:
         jsonschema.exceptions.SchemaError: If ``schema`` is invalid.
@@ -54,7 +61,11 @@ def validate(
     else:
         cls.check_schema(schema_dict)
 
-    validator = cls(schema_dict, *args, **kwargs)
+    validator_kwargs = kwargs.copy()
+    if not allow_remote_references:
+        validator_kwargs.setdefault("registry", Registry())
+
+    validator = cls(schema_dict, *args, **validator_kwargs)
     error = best_match(
         validator.evolve(schema=schema_dict).iter_errors(instance)
     )

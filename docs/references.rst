@@ -4,6 +4,10 @@ References
 You can resolve JSON Schema references by passing registry.
 The ``validate(instance, schema, ...)`` shortcut resolves local references
 (``#/...``) against the provided ``schema`` mapping.
+By default, the shortcut uses a local-only empty registry and does not
+implicitly retrieve remote references.
+If needed, ``allow_remote_references=True`` enables jsonschema's default
+remote retrieval behavior.
 
 .. code-block:: python
 
