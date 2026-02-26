@@ -19,7 +19,13 @@ def validate(
     **kwargs: Any
 ) -> None:
     """
-    Validate an instance against a given schema using the specified validator class.
+    Validate an instance against a given schema using the specified
+    validator class.
+
+    Unlike direct ``Validator(schema).validate(instance)`` usage, this helper
+    checks schema validity first.
+    Invalid schemas therefore raise ``SchemaError`` before any instance
+    validation occurs.
     """
     schema_dict = cast(dict[str, Any], schema)
 
