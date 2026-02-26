@@ -68,10 +68,13 @@ def is_byte(instance: object) -> bool:
     if not isinstance(instance, (str, bytes)):
         return True
     if isinstance(instance, str):
-        instance = instance.encode()
+        instance = instance.encode("ascii", errors="strict")
 
-    encoded = b64encode(b64decode(instance))
-    return encoded == instance
+    try:
+        b64decode(instance, validate=True)
+    except (binascii.Error, ValueError):
+        return False
+    return True
 
 
 def is_password(instance: object) -> bool:
