@@ -6,12 +6,13 @@ sphinx:
 formats: all
 
 build:
-  os: ubuntu-20.04
+  os: ubuntu-24.04
   tools:
     python: "3.10"
   jobs:
     post_create_environment:
-      - pip install poetry
+      - pip install "poetry==2.1.1"
       - poetry config virtualenvs.create false
     post_install:
-      - poetry install --with docs
+      - poetry install --with docs --no-interaction --no-ansi
+      - python -m pip install --no-cache-dir "sphinx-immaterial>=0.11,<0.14"
