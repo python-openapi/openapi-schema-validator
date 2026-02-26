@@ -1,3 +1,4 @@
+import re
 import warnings
 from base64 import b64encode
 from typing import Any
@@ -30,6 +31,7 @@ from openapi_schema_validator import oas30_format_checker
 from openapi_schema_validator import oas30_strict_format_checker
 from openapi_schema_validator import oas31_format_checker
 from openapi_schema_validator import oas32_format_checker
+from openapi_schema_validator import validate
 from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_ID
 from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_METASCHEMA
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_ID
@@ -123,6 +125,21 @@ class BaseTestOASValidatorValidate:
 
         with pytest.raises(ValidationError):
             validator.validate(value)
+
+    def test_invalid_pattern_raises_regex_error(self, validator_class):
+        schema = {"type": "string", "pattern": "["}
+        validator = validator_class(schema)
+
+        with pytest.raises(re.error):
+            validator.validate("foo")
+
+    def test_invalid_pattern_rejected_by_validate_helper(
+        self, validator_class
+    ):
+        schema = {"type": "string", "pattern": "["}
+
+        with pytest.raises(SchemaError, match="is not a 'regex'"):
+            validate("foo", schema, cls=validator_class)
 
     def test_referencing(self, validator_class):
         name_schema = Resource.from_contents(

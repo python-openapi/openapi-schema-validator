@@ -127,6 +127,22 @@ In order to validate OpenAPI 3.0 schema, import and use ``OAS30Validator`` inste
 
    validate({"name": "John", "age": None}, schema, cls=OAS30Validator)
 
+Schema errors vs instance errors
+--------------------------------
+
+The high-level ``validate(...)`` helper checks schema validity before instance
+validation, following ``jsonschema.validate(...)`` behavior.
+Malformed schema values (for example an invalid regex in ``pattern``) raise
+``SchemaError``.
+
+If you instantiate a validator class directly and call ``.validate(...)``,
+schema checking is not performed automatically, matching
+``jsonschema`` validator-class behavior.
+For malformed regex patterns this may raise a lower-level regex error.
+
+Use ``<ValidatorClass>.check_schema(schema)`` first when you need deterministic
+schema-validation errors with direct validator usage.
+
 Read/write context
 ------------------
 
