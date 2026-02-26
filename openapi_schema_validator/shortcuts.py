@@ -26,6 +26,17 @@ def validate(
     checks schema validity first.
     Invalid schemas therefore raise ``SchemaError`` before any instance
     validation occurs.
+
+    Args:
+        instance: Value to validate against ``schema``.
+        schema: OpenAPI schema mapping used for validation.
+        cls: Validator class to use. Defaults to ``OAS32Validator``.
+        *args: Positional arguments forwarded to ``cls`` constructor.
+        **kwargs: Keyword arguments forwarded to ``cls`` constructor.
+
+    Raises:
+        jsonschema.exceptions.SchemaError: If ``schema`` is invalid.
+        jsonschema.exceptions.ValidationError: If ``instance`` is invalid.
     """
     schema_dict = cast(dict[str, Any], schema)
 
