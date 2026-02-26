@@ -1,10 +1,29 @@
-import openapi_schema_validator
+import re
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT_DIR))
+
+
+def _read_project_version() -> str:
+    pyproject_path = ROOT_DIR / "pyproject.toml"
+    pyproject_content = pyproject_path.read_text(encoding="utf-8")
+    match = re.search(
+        r"\[tool\.poetry\][\s\S]*?^version\s*=\s*\"([^\"]+)\"",
+        pyproject_content,
+        re.MULTILINE,
+    )
+    if match is None:
+        return "unknown"
+    return match.group(1)
+
 
 project = "openapi-schema-validator"
 copyright = "2023, Artur Maciag"
 author = "Artur Maciag"
 
-release = openapi_schema_validator.__version__
+release = _read_project_version()
 
 extensions = [
     "sphinx.ext.autodoc",
