@@ -54,7 +54,7 @@ Usage
 
 .. code-block:: python
 
-   validate(instance, schema, cls=OAS32Validator, **kwargs)
+   validate(instance, schema, cls=OAS32Validator, allow_remote_references=False, **kwargs)
 
 The first argument is always the value you want to validate.
 The second argument is always the OpenAPI schema object.
@@ -62,6 +62,10 @@ The ``cls`` keyword argument is optional and defaults to ``OAS32Validator``.
 Use ``cls`` when you need a specific validator version/behavior.
 Common forwarded keyword arguments include ``registry`` (reference context)
 and ``format_checker`` (format validation behavior).
+By default, ``validate`` uses a local-only empty registry to avoid implicit
+remote ``$ref`` retrieval. To resolve external references, pass an explicit
+``registry``. Set ``allow_remote_references=True`` only if you explicitly
+accept jsonschema's default remote retrieval behavior.
 
 To validate an OpenAPI schema:
 

@@ -6,7 +6,9 @@ If you believe you have found a security vulnerability in the repository, please
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them directly to the repository maintainer.
+Instead, please report them directly to the repository maintainers or use GitHub's private vulnerability reporting flow
+(``Security Advisories``) to report security issues privately:
+https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/report-a-vulnerability/privately-reporting-a-security-vulnerability
 
 Please include the requested information listed below (as much as you can provide) to help us better understand the nature and scope of the possible issue:
 
