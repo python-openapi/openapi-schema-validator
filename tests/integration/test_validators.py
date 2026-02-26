@@ -851,6 +851,26 @@ class TestOAS31ValidatorValidate(BaseTestOASValidatorValidate):
         with pytest.raises(ValidationError):
             validator.validate(value)
 
+    @pytest.mark.parametrize("value", [b"test"])
+    def test_string_binary_rejects_bytes(
+        self, validator_class, format_checker, value
+    ):
+        schema = {"type": "string", "format": "binary"}
+        validator = validator_class(schema, format_checker=format_checker)
+
+        with pytest.raises(ValidationError):
+            validator.validate(value)
+
+    @pytest.mark.parametrize("value", [True, 3, 3.12, None])
+    def test_string_binary_invalid(
+        self, validator_class, format_checker, value
+    ):
+        schema = {"type": "string", "format": "binary"}
+        validator = validator_class(schema, format_checker=format_checker)
+
+        with pytest.raises(ValidationError):
+            validator.validate(value)
+
     @pytest.mark.parametrize(
         "schema_type",
         [

@@ -166,54 +166,68 @@ OpenAPI 3.0 schema comes with ``readOnly`` and ``writeOnly`` keywords. In order 
        ...
    ValidationError: Tried to write read-only property with 23
 
-Strict vs Pragmatic Validators
-------------------------------
+Binary Data Semantics
+---------------------
 
-OpenAPI 3.0 has two validator variants with different behaviors for binary format:
+The handling of binary-like payloads differs between OpenAPI versions.
 
-**OAS30Validator (default - pragmatic)**
+OpenAPI 3.0
+~~~~~~~~~~~
 
-- Accepts Python ``bytes`` for ``type: string`` with ``format: binary``
-- More lenient for Python use cases where binary data is common
-- Use when validating Python objects directly
+OpenAPI 3.0 keeps historical ``format: binary`` / ``format: byte`` usage on
+``type: string``.
+
+**OAS30Validator (default - compatibility behavior)**
+
+- ``type: string`` accepts ``str``
+- ``type: string, format: binary`` accepts Python ``bytes`` and strings
+- useful when validating Python-native runtime data
 
 **OAS30StrictValidator**
 
-- Follows OAS spec strictly: only accepts ``str`` for ``type: string``
-- For ``format: binary``, only accepts base64-encoded strings
-- Use when strict spec compliance is required
+- ``type: string`` accepts ``str`` only
+- ``type: string, format: binary`` uses strict format validation
+- use when you want strict, spec-oriented behavior for 3.0 schemas
 
-Comparison Matrix
-~~~~~~~~~~~~~~~~~
+OpenAPI 3.1+
+~~~~~~~~~~~~
+
+OpenAPI 3.1+ follows JSON Schema semantics for string typing in this library.
+
+- ``type: string`` accepts ``str`` only (not ``bytes``)
+- ``format: binary`` and ``format: byte`` are not treated as built-in formats
+- for base64-in-JSON, model with ``contentEncoding: base64`` (optionally
+  ``contentMediaType``)
+- for raw binary payloads, model via media type (for example
+  ``application/octet-stream``) rather than schema string formats
+
+Quick Reference
+~~~~~~~~~~~~~~~
 
 .. list-table::
    :header-rows: 1
-   :widths: 35 20 22 23
+   :widths: 28 24 24 24
 
-   * - Schema
-     - Value
-     - OAS30Validator (default)
-     - OAS30StrictValidator
-   * - ``type: string``
-     - ``"test"`` (str)
+   * - Context
+     - ``"text"`` (str)
+     - ``b"text"`` (bytes)
+     - Notes
+   * - OAS 3.0 + ``OAS30Validator``
      - Pass
+     - Pass for ``format: binary``
+     - Compatibility behavior for Python runtime payloads
+   * - OAS 3.0 + ``OAS30StrictValidator``
      - Pass
-   * - ``type: string``
-     - ``b"test"`` (bytes)
-     - **Fail**
-     - **Fail**
-   * - ``type: string, format: binary``
-     - ``b"test"`` (bytes)
+     - Fail
+     - Strict 3.0 validation mode
+   * - OAS 3.1 + ``OAS31Validator``
      - Pass
-     - **Fail**
-   * - ``type: string, format: binary``
-     - ``"dGVzdA=="`` (base64)
+     - Fail
+     - Use ``contentEncoding``/``contentMediaType`` and media types
+   * - OAS 3.2 + ``OAS32Validator``
      - Pass
-     - Pass
-   * - ``type: string, format: binary``
-     - ``"test"`` (plain str)
-     - Pass
-     - **Fail**
+     - Fail
+     - Same semantics as OAS 3.1
 
 Example usage:
 
