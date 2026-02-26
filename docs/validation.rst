@@ -16,6 +16,10 @@ The first argument is always the value you want to validate.
 The second argument is always the OpenAPI schema object.
 The ``cls`` keyword argument is optional and defaults to ``OAS32Validator``.
 Use ``cls`` when you need a specific validator version/behavior.
+Common forwarded keyword arguments include:
+
+- ``registry`` for reference resolution context
+- ``format_checker`` to control format validation behavior
 
 To validate an OpenAPI schema:
 
@@ -74,9 +78,13 @@ Common pitfalls
   ``validate(schema, instance)``
 - ``validate`` does not load files from a path; load your OpenAPI document
   first and pass the parsed schema mapping
-- when validating a schema fragment that uses ``$ref`` (for example,
-  ``paths/.../responses/.../schema``), provide reference context via
-  ``registry=...`` as shown in :doc:`references`
+- ``validate`` treats the provided ``schema`` as the reference root; local
+  references like ``#/components/...`` must exist within that mapping
+- when a schema uses external references (for example ``urn:...``), provide
+  reference context via ``registry=...`` as shown in :doc:`references`
+- for schema fragments containing local references (for example,
+  ``paths/.../responses/.../schema``), use a validator built from the full
+  schema root and then validate the fragment via ``validator.evolve(...)``
 
 Validators
 ----------

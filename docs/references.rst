@@ -1,7 +1,9 @@
 References
 ==========
 
-You can resolve JSON Schema references by passing registry
+You can resolve JSON Schema references by passing registry.
+The ``validate(instance, schema, ...)`` shortcut resolves local references
+(``#/...``) against the provided ``schema`` mapping.
 
 .. code-block:: python
 

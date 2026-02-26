@@ -29,10 +29,12 @@ def validate(
 
     Args:
         instance: Value to validate against ``schema``.
-        schema: OpenAPI schema mapping used for validation.
+        schema: OpenAPI schema mapping used for validation. Local references
+            (``#/...``) are resolved against this mapping.
         cls: Validator class to use. Defaults to ``OAS32Validator``.
         *args: Positional arguments forwarded to ``cls`` constructor.
-        **kwargs: Keyword arguments forwarded to ``cls`` constructor.
+        **kwargs: Keyword arguments forwarded to ``cls`` constructor
+            (for example ``registry`` and ``format_checker``).
 
     Raises:
         jsonschema.exceptions.SchemaError: If ``schema`` is invalid.
