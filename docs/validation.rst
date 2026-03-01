@@ -10,7 +10,14 @@ Validate
 
 .. code-block:: python
 
-   validate(instance, schema, cls=OAS32Validator, allow_remote_references=False, **kwargs)
+   validate(
+       instance,
+       schema,
+       cls=OAS32Validator,
+       allow_remote_references=False,
+       check_schema=True,
+       **kwargs,
+   )
 
 The first argument is always the value you want to validate.
 The second argument is always the OpenAPI schema object.
@@ -18,6 +25,7 @@ The ``cls`` keyword argument is optional and defaults to ``OAS32Validator``.
 Use ``cls`` when you need a specific validator version/behavior.
 The ``allow_remote_references`` keyword argument is optional and defaults to
 ``False``.
+The ``check_schema`` keyword argument is optional and defaults to ``True``.
 Common forwarded keyword arguments include:
 
 - ``registry`` for explicit external reference resolution context
@@ -27,6 +35,13 @@ By default, ``validate`` uses a local-only empty registry to avoid implicit
 remote ``$ref`` retrieval.
 Set ``allow_remote_references=True`` only if you explicitly accept
 jsonschema's default remote retrieval behavior.
+
+For trusted pre-validated schemas in hot paths, set ``check_schema=False`` to
+skip schema checking.
+
+The shortcut keeps an internal compiled-validator cache.
+Use ``OPENAPI_SCHEMA_VALIDATOR_VALIDATE_CACHE_MAX_SIZE`` to control cache
+capacity (default: ``128``).
 
 To validate an OpenAPI schema:
 
@@ -171,9 +186,13 @@ Schema errors vs instance errors
 --------------------------------
 
 The high-level ``validate(...)`` helper checks schema validity before instance
-validation, following ``jsonschema.validate(...)`` behavior.
+validation by default (``check_schema=True``), following
+``jsonschema.validate(...)`` behavior.
 Malformed schema values (for example an invalid regex in ``pattern``) raise
 ``SchemaError``.
+
+When ``check_schema=False``, schema checking is skipped and malformed schemas
+may instead fail during validation with lower-level errors.
 
 If you instantiate a validator class directly and call ``.validate(...)``,
 schema checking is not performed automatically, matching

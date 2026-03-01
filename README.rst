@@ -54,7 +54,14 @@ Usage
 
 .. code-block:: python
 
-   validate(instance, schema, cls=OAS32Validator, allow_remote_references=False, **kwargs)
+   validate(
+       instance,
+       schema,
+       cls=OAS32Validator,
+       allow_remote_references=False,
+       check_schema=True,
+       **kwargs,
+   )
 
 The first argument is always the value you want to validate.
 The second argument is always the OpenAPI schema object.
@@ -82,6 +89,15 @@ By default, ``validate`` uses a local-only empty registry to avoid implicit
 remote ``$ref`` retrieval. To resolve external references, pass an explicit
 ``registry``. Set ``allow_remote_references=True`` only if you explicitly
 accept jsonschema's default remote retrieval behavior.
+
+``check_schema`` defaults to ``True`` and validates the schema before
+validating an instance. For trusted pre-validated schemas in hot paths, set
+``check_schema=False`` to skip schema checking.
+
+The ``validate`` helper keeps an internal compiled-validator cache. You can
+control cache size using the
+``OPENAPI_SCHEMA_VALIDATOR_VALIDATE_CACHE_MAX_SIZE`` environment variable
+(default: ``128``).
 
 To validate an OpenAPI schema:
 
