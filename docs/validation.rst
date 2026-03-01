@@ -40,7 +40,7 @@ For trusted pre-validated schemas in hot paths, set ``check_schema=False`` to
 skip schema checking.
 
 The shortcut keeps an internal compiled-validator cache.
-Use ``OPENAPI_SCHEMA_VALIDATOR_VALIDATE_CACHE_MAX_SIZE`` to control cache
+Use ``OPENAPI_SCHEMA_VALIDATOR_COMPILED_VALIDATOR_CACHE_MAX_SIZE`` to control cache
 capacity (default: ``128``).
 
 To validate an OpenAPI schema:

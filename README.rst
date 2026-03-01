@@ -96,7 +96,7 @@ validating an instance. For trusted pre-validated schemas in hot paths, set
 
 The ``validate`` helper keeps an internal compiled-validator cache. You can
 control cache size using the
-``OPENAPI_SCHEMA_VALIDATOR_VALIDATE_CACHE_MAX_SIZE`` environment variable
+``OPENAPI_SCHEMA_VALIDATOR_COMPILED_VALIDATOR_CACHE_MAX_SIZE`` environment variable
 (default: ``128``).
 
 To validate an OpenAPI schema:

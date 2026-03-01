@@ -79,7 +79,8 @@ Performance benchmark
 ^^^^^^^^^^^^^^^^^^^^^
 
 The ``validate`` shortcut uses an internal compiled-validator cache. You can
-adjust cache capacity with the ``OPENAPI_SCHEMA_VALIDATOR_VALIDATE_CACHE_MAX_SIZE``
+adjust cache capacity with the
+``OPENAPI_SCHEMA_VALIDATOR_COMPILED_VALIDATOR_CACHE_MAX_SIZE``
 environment variable (default: ``128``).
 
 To collect a local benchmark report for validation performance, run:

@@ -102,6 +102,6 @@ class ValidatorCache:
             self._cache.clear()
 
     def _prune_if_needed(self) -> None:
-        max_size = get_settings().validate_cache_max_size
+        max_size = get_settings().compiled_validator_cache_max_size
         while len(self._cache) > max_size:
             self._cache.popitem(last=False)

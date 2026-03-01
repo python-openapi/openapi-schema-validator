@@ -181,7 +181,10 @@ def test_validate_cache_max_size_from_env(monkeypatch):
     schema_a = {"type": "string"}
     schema_b = {"type": "integer"}
 
-    monkeypatch.setenv("OPENAPI_SCHEMA_VALIDATOR_VALIDATE_CACHE_MAX_SIZE", "1")
+    monkeypatch.setenv(
+        "OPENAPI_SCHEMA_VALIDATOR_COMPILED_VALIDATOR_CACHE_MAX_SIZE",
+        "1",
+    )
     reset_settings_cache()
 
     with patch(

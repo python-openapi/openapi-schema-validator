@@ -81,10 +81,10 @@ def validate(
         validator_kwargs.setdefault("registry", _LOCAL_ONLY_REGISTRY)
 
     key = _VALIDATOR_CACHE.build_key(
-        schema=schema,
+        schema=schema_dict,
         cls=cls,
         args=args,
-        kwargs=kwargs,
+        kwargs=validator_kwargs,
         allow_remote_references=allow_remote_references,
     )
 

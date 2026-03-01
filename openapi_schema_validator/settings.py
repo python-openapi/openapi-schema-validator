@@ -11,7 +11,7 @@ class OpenAPISchemaValidatorSettings(BaseSettings):
         extra="ignore",
     )
 
-    validate_cache_max_size: int = Field(default=128, ge=0)
+    compiled_validator_cache_max_size: int = Field(default=128, ge=0)
 
 
 @lru_cache(maxsize=1)
