@@ -1,12 +1,18 @@
 import inspect
+import re
 from unittest.mock import patch
 
 import pytest
+from jsonschema.exceptions import SchemaError
+from jsonschema.exceptions import ValidationError
 from referencing import Registry
 from referencing import Resource
 
 from openapi_schema_validator import OAS32Validator
 from openapi_schema_validator import validate
+from openapi_schema_validator._regex import has_ecma_regex
+from openapi_schema_validator.settings import reset_settings_cache
+from openapi_schema_validator.shortcuts import clear_validate_cache
 
 
 @pytest.fixture(scope="function")
@@ -21,6 +27,15 @@ def schema():
         },
         "example": {"enabled": False, "email": "foo@bar.com"},
     }
+
+
+@pytest.fixture(autouse=True)
+def clear_validate_cache_fixture():
+    reset_settings_cache()
+    clear_validate_cache()
+    yield
+    clear_validate_cache()
+    reset_settings_cache()
 
 
 def test_validate_does_not_add_nullable_to_schema(schema):
@@ -118,3 +133,65 @@ def test_validate_can_allow_implicit_remote_references():
             validate({}, schema, allow_remote_references=True)
 
     assert urlopen.called
+
+
+def test_validate_skip_schema_check():
+    schema = {"type": "string", "pattern": "["}
+
+    with pytest.raises(SchemaError, match="is not a 'regex'"):
+        validate("foo", schema)
+
+    if has_ecma_regex():
+        with pytest.raises(
+            ValidationError, match="is not a valid regular expression"
+        ):
+            validate("foo", schema, check_schema=False)
+    else:
+        with pytest.raises(re.error):
+            validate("foo", schema, check_schema=False)
+
+
+def test_validate_cache_avoids_rechecking_schema(schema):
+    with patch(
+        "openapi_schema_validator.shortcuts.check_openapi_schema"
+    ) as check_schema_mock:
+        validate({"email": "foo@bar.com"}, schema, cls=OAS32Validator)
+        validate({"email": "foo@bar.com"}, schema, cls=OAS32Validator)
+
+    check_schema_mock.assert_called_once()
+
+
+def test_validate_cache_promotes_unchecked_validator(schema):
+    with patch(
+        "openapi_schema_validator.shortcuts.check_openapi_schema"
+    ) as check_schema_mock:
+        validate(
+            {"email": "foo@bar.com"},
+            schema,
+            cls=OAS32Validator,
+            check_schema=False,
+        )
+        validate({"email": "foo@bar.com"}, schema, cls=OAS32Validator)
+        validate({"email": "foo@bar.com"}, schema, cls=OAS32Validator)
+
+    check_schema_mock.assert_called_once()
+
+
+def test_validate_cache_max_size_from_env(monkeypatch):
+    schema_a = {"type": "string"}
+    schema_b = {"type": "integer"}
+
+    monkeypatch.setenv(
+        "OPENAPI_SCHEMA_VALIDATOR_COMPILED_VALIDATOR_CACHE_MAX_SIZE",
+        "1",
+    )
+    reset_settings_cache()
+
+    with patch(
+        "openapi_schema_validator.shortcuts.check_openapi_schema"
+    ) as check_schema_mock:
+        validate("foo", schema_a, cls=OAS32Validator)
+        validate(1, schema_b, cls=OAS32Validator)
+        validate("foo", schema_a, cls=OAS32Validator)
+
+    assert check_schema_mock.call_count == 3
