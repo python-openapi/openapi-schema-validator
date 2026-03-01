@@ -91,7 +91,7 @@ Environment variables:
 
 * ``OPENAPI_SCHEMA_VALIDATOR_COMPILED_VALIDATOR_CACHE_MAX_SIZE``
   Maximum number of compiled validators kept by the ``validate`` shortcut
-  cache. Default: ``128``.
+  cache. Default: ``128``. Loaded once at first use.
 
 See :doc:`validation` for runtime behavior details.
 

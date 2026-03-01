@@ -98,6 +98,8 @@ The ``validate`` helper keeps an internal compiled-validator cache. You can
 control cache size using the
 ``OPENAPI_SCHEMA_VALIDATOR_COMPILED_VALIDATOR_CACHE_MAX_SIZE`` environment variable
 (default: ``128``).
+The value is loaded once at first use and reused for the lifetime of the
+process.
 
 To validate an OpenAPI schema:
 

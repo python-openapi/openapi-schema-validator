@@ -42,6 +42,7 @@ skip schema checking.
 The shortcut keeps an internal compiled-validator cache.
 Use ``OPENAPI_SCHEMA_VALIDATOR_COMPILED_VALIDATOR_CACHE_MAX_SIZE`` to control cache
 capacity (default: ``128``).
+The setting is read once at first use and then cached for the process lifetime.
 
 To validate an OpenAPI schema:
 
