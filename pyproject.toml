@@ -89,6 +89,8 @@ rfc3339-validator = "*" # requred by jsonschema for date-time checker
 jsonschema-specifications = ">=2024.10.1"
 referencing = "^0.37.0"
 regress = {version = ">=2025.10.1", optional = true}
+pydantic = "^2.0.0"
+pydantic-settings = "^2.0.0"
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-immaterial"]

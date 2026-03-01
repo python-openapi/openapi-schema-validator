@@ -74,3 +74,26 @@ To run all checks on all files, enter:
    pre-commit run --all-files
 
 Pre-commit check results are also attached to your PR through integration with Github Action.
+
+Performance benchmark
+^^^^^^^^^^^^^^^^^^^^^
+
+The ``validate`` shortcut uses an internal compiled-validator cache. You can
+adjust cache capacity with the ``OPENAPI_SCHEMA_VALIDATOR_VALIDATE_CACHE_MAX_SIZE``
+environment variable (default: ``128``).
+
+To collect a local benchmark report for validation performance, run:
+
+.. code-block:: console
+
+   poetry run python benchmarks/run.py --output reports/benchmarks/current.json
+
+To compare two benchmark reports and optionally fail on regressions, run:
+
+.. code-block:: console
+
+   poetry run python benchmarks/compare.py \
+     --baseline reports/benchmarks/baseline.json \
+     --candidate reports/benchmarks/current.json \
+     --regression-threshold 5 \
+     --fail-on-regression
