@@ -14,7 +14,7 @@ from typing import Any
 
 from benchmarks.cases import BenchmarkCase
 from benchmarks.cases import build_cases
-from openapi_schema_validator.shortcuts import _clear_validate_cache
+from openapi_schema_validator.shortcuts import clear_validate_cache
 from openapi_schema_validator.shortcuts import validate
 
 
@@ -64,7 +64,7 @@ def _measure_helper_validate_per_second(
     *,
     check_schema: bool,
 ) -> float:
-    _clear_validate_cache()
+    clear_validate_cache()
     for _ in range(warmup):
         validate(
             case.instance,

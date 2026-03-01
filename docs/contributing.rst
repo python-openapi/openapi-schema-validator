@@ -73,7 +73,7 @@ To run all checks on all files, enter:
 
    pre-commit run --all-files
 
-Pre-commit check results are also attached to your PR through integration with Github Action.
+Pre-commit check results are also attached to your PR through integration with GitHub Actions.
 
 Performance benchmark
 ^^^^^^^^^^^^^^^^^^^^^
