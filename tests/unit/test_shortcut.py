@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import pytest
 from jsonschema.exceptions import SchemaError
+from jsonschema.exceptions import ValidationError
 from referencing import Registry
 from referencing import Resource
 
@@ -141,7 +142,9 @@ def test_validate_skip_schema_check():
         validate("foo", schema)
 
     if has_ecma_regex():
-        with pytest.raises(Exception):
+        with pytest.raises(
+            ValidationError, match="is not a valid regular expression"
+        ):
             validate("foo", schema, check_schema=False)
     else:
         with pytest.raises(re.error):
