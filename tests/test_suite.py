@@ -6,6 +6,7 @@ https://github.com/python-openapi/openapi-schema-test-suite
 to validate OAS 3.1 and OAS 3.2 schema validators against
 the canonical test cases.
 """
+
 import json
 from pathlib import Path
 from typing import Any
@@ -25,27 +26,8 @@ SUITE_ROOT = (
     / "tests"
 )
 
-# Known failures due to limitations in the underlying jsonschema library.
 # Each entry is (dialect, relative_path, case_description, test_description).
 _KNOWN_FAILURES: dict[tuple[str, str, str, str], str] = {
-    (
-        "oas31",
-        "unevaluated.json",
-        "unevaluatedProperties with if/then/else",
-        "non-premium type with name is valid",
-    ): (
-        "jsonschema does not collect annotations from failing 'if' subschemas, "
-        "causing properties evaluated by 'if' to be reported as unevaluated"
-    ),
-    (
-        "oas32",
-        "unevaluated.json",
-        "unevaluatedProperties with if/then/else",
-        "non-premium type with name is valid",
-    ): (
-        "jsonschema does not collect annotations from failing 'if' subschemas, "
-        "causing properties evaluated by 'if' to be reported as unevaluated"
-    ),
     (
         "oas31",
         "optional/format/format-assertion.json",
@@ -95,7 +77,9 @@ def _collect_params() -> list[pytest.param]:
         for json_path in sorted(dialect_dir.rglob("*.json")):
             rel_path = json_path.relative_to(dialect_dir)
             is_in_optional_dir = rel_path.parts[0] == "optional"
-            format_checker = config["format_checker"] if is_in_optional_dir else None
+            format_checker = (
+                config["format_checker"] if is_in_optional_dir else None
+            )
 
             test_cases: list[dict[str, Any]] = json.loads(
                 json_path.read_text(encoding="utf-8")
@@ -108,9 +92,7 @@ def _collect_params() -> list[pytest.param]:
                     data: Any = test["data"]
                     expected_valid: bool = test["valid"]
 
-                    param_id = (
-                        f"{dialect}/{rel_path}/{case_desc}/{test_desc}"
-                    )
+                    param_id = f"{dialect}/{rel_path}/{case_desc}/{test_desc}"
                     failure_key = (
                         dialect,
                         str(rel_path),
