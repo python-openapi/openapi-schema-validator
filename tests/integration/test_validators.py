@@ -1107,6 +1107,79 @@ class TestOAS31ValidatorValidate(BaseTestOASValidatorValidate):
         ]
         assert any(error in str(excinfo.value) for error in errors)
 
+    def test_discriminator_is_annotation_only(self, validator_class):
+        schema = {
+            "components": {
+                "schemas": {
+                    "A": {
+                        "type": "object",
+                        "properties": {"kind": {"type": "string"}},
+                        "required": ["kind"],
+                    },
+                    "B": {
+                        "type": "object",
+                        "properties": {
+                            "kind": {"type": "string"},
+                            "other": {"type": "string"},
+                        },
+                        "required": ["kind"],
+                    },
+                }
+            },
+            "oneOf": [
+                {"$ref": "#/components/schemas/A"},
+                {"$ref": "#/components/schemas/B"},
+            ],
+            "discriminator": {"propertyName": "kind"},
+        }
+
+        validator = validator_class(schema)
+
+        # A payload valid for both schemas A and B
+        instance = {"kind": "B"}
+
+        # oneOf fails because it matches BOTH A and B, discriminator does not restrict it
+        with pytest.raises(ValidationError):
+            validator.validate(instance)
+
+    @pytest.mark.parametrize(
+        "mapping_ref",
+        [
+            "#/components/schemas/Missing",
+            "#missing-anchor",
+            "#bad/frag",
+        ],
+    )
+    def test_discriminator_unresolvable_reference_ignored(
+        self, validator_class, mapping_ref
+    ):
+        schema = {
+            "oneOf": [{"$ref": "#/components/schemas/MountainHiking"}],
+            "discriminator": {
+                "propertyName": "discipline",
+                "mapping": {"mountain_hiking": mapping_ref},
+            },
+            "components": {
+                "schemas": {
+                    "MountainHiking": {
+                        "type": "object",
+                        "properties": {
+                            "discipline": {"type": "string"},
+                            "length": {"type": "integer"},
+                        },
+                        "required": ["discipline", "length"],
+                    },
+                },
+            },
+        }
+
+        validator = validator_class(schema)
+
+        # It should not raise any referencing errors because discriminator mapping is annotation-only
+        validator.validate(
+            {"discipline": "mountain_hiking", "length": 10},
+        )
+
 
 class TestOAS32ValidatorValidate(TestOAS31ValidatorValidate):
     """OAS 3.2 uses the OAS 3.2 published dialect resources."""

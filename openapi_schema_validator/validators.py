@@ -115,12 +115,10 @@ def _build_oas31_validator() -> Any:
         Draft202012Validator,
         {
             # adjusted to OAS
-            "allOf": oas_keywords.allOf,
-            "oneOf": oas_keywords.oneOf,
-            "anyOf": oas_keywords.anyOf,
             "pattern": oas_keywords.pattern,
             "description": oas_keywords.not_implemented,
             # fixed OAS fields
+            # discriminator is annotation-only in OAS 3.1+
             "discriminator": oas_keywords.not_implemented,
             "xml": oas_keywords.not_implemented,
             "externalDocs": oas_keywords.not_implemented,
