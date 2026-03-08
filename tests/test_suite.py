@@ -3,7 +3,7 @@ Test runner for the openapi-schema-test-suite.
 
 This module integrates the external test suite from
 https://github.com/python-openapi/openapi-schema-test-suite
-to validate OAS 3.1 and OAS 3.2 schema validators against
+to validate OAS 3.0, OAS 3.1 and OAS 3.2 schema validators against
 the canonical test cases.
 """
 
@@ -14,8 +14,10 @@ from typing import Any
 import pytest
 from jsonschema.exceptions import ValidationError
 
+from openapi_schema_validator import OAS30Validator
 from openapi_schema_validator import OAS31Validator
 from openapi_schema_validator import OAS32Validator
+from openapi_schema_validator import oas30_format_checker
 from openapi_schema_validator import oas31_format_checker
 from openapi_schema_validator import oas32_format_checker
 
@@ -29,6 +31,18 @@ SUITE_ROOT = (
 # Each entry is (dialect, relative_path, case_description, test_description).
 _KNOWN_FAILURES: dict[tuple[str, str, str, str], str] = {
     (
+        "oas30",
+        "optional/format/format-assertion.json",
+        "format uri with assertion",
+        "a relative URI is not a valid URI",
+    ): "uri format checker does not validate RFC 3986 absolute-URI requirement",
+    (
+        "oas30",
+        "optional/format/format-assertion.json",
+        "format uri with assertion",
+        "an invalid URI is not valid",
+    ): "uri format checker does not validate RFC 3986 absolute-URI requirement",
+    (
         "oas31",
         "optional/format/format-assertion.json",
         "format uri with assertion",
@@ -52,9 +66,49 @@ _KNOWN_FAILURES: dict[tuple[str, str, str, str], str] = {
         "format uri with assertion",
         "an invalid URI is not valid",
     ): "uri format checker does not validate RFC 3986 absolute-URI requirement",
+    (
+        "oas30",
+        "discriminator.json",
+        "discriminator as annotation",
+        "a cat object is valid",
+    ): "discriminator not fully supported in base oas30",
+    (
+        "oas30",
+        "discriminator.json",
+        "discriminator as annotation",
+        "a dog object is valid",
+    ): "discriminator not fully supported in base oas30",
+    (
+        "oas30",
+        "discriminator.json",
+        "discriminator with mapping",
+        "a car object is valid",
+    ): "discriminator mapping",
+    (
+        "oas30",
+        "discriminator.json",
+        "discriminator with mapping",
+        "a truck object is valid",
+    ): "discriminator mapping",
+    (
+        "oas30",
+        "ref.json",
+        "$ref sibling keywords are ignored",
+        "a short string is valid because minLength sibling is ignored",
+    ): "we do not ignore sibling keywords in oas30",
+    (
+        "oas30",
+        "type.json",
+        "integer type matches integers",
+        "a float with zero fractional part is an integer",
+    ): "float with zero fractional part",
 }
 
 _DIALECT_CONFIG: dict[str, dict[str, Any]] = {
+    "oas30": {
+        "validator_class": OAS30Validator,
+        "format_checker": oas30_format_checker,
+    },
     "oas31": {
         "validator_class": OAS31Validator,
         "format_checker": oas31_format_checker,
