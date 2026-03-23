@@ -105,7 +105,7 @@ pytest-flake8 = "*"
 pytest-cov = "*"
 mypy = "^1.14"
 flynt = "^1.0"
-deptry = ">=0.16.2,<0.25.0"
+deptry = ">=0.16.2,<0.26.0"
 tbump = "^6.11.0"
 
 [tool.poetry.group.docs.dependencies]
