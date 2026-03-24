@@ -97,14 +97,12 @@ docs = ["sphinx", "sphinx-immaterial"]
 ecma-regex = ["regress"]
 
 [tool.poetry.group.dev.dependencies]
-black = ">=24.4,<27.0"
-isort = ">=5.13.2,<9.0.0"
-pre-commit = "*"
+ruff = "^0.15.7,<1.0"
+pre-commit = ">=4.5.1"
 pytest = "^9"
 pytest-flake8 = "*"
 pytest-cov = "*"
 mypy = "^1.14"
-flynt = "^1.0"
 deptry = ">=0.16.2,<0.25.0"
 tbump = "^6.11.0"
 
@@ -123,11 +121,3 @@ addopts = """
 --cov-report=term-missing
 --cov-report=xml
 """
-
-[tool.black]
-line-length = 79
-
-[tool.isort]
-profile = "black"
-line_length = 79
-force_single_line = true

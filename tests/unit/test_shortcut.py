@@ -7,6 +7,7 @@ from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError
 from referencing import Registry
 from referencing import Resource
+from referencing.exceptions import Unresolvable
 
 from openapi_schema_validator import OAS32Validator
 from openapi_schema_validator import validate
@@ -15,7 +16,7 @@ from openapi_schema_validator.settings import reset_settings_cache
 from openapi_schema_validator.shortcuts import clear_validate_cache
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def schema():
     return {
         "type": "object",
@@ -43,7 +44,7 @@ def test_validate_does_not_add_nullable_to_schema(schema):
     Verify that calling validate does not add the 'nullable' key to the schema
     """
     validate({"email": "foo@bar.com"}, schema)
-    assert "nullable" not in schema["properties"]["email"].keys()
+    assert "nullable" not in schema["properties"]["email"]
 
 
 def test_validate_does_not_mutate_schema(schema):
@@ -78,9 +79,8 @@ def test_oas32_validate_does_not_fetch_remote_metaschemas(schema):
 def test_validate_blocks_implicit_remote_http_references_by_default():
     schema = {"$ref": "http://example.com/remote-schema.json"}
 
-    with patch("urllib.request.urlopen") as urlopen:
-        with pytest.raises(Exception, match="Unresolvable"):
-            validate({}, schema)
+    with patch("urllib.request.urlopen") as urlopen, pytest.raises(Exception, match="Unresolvable"):
+        validate({}, schema)
 
     urlopen.assert_not_called()
 
@@ -88,9 +88,8 @@ def test_validate_blocks_implicit_remote_http_references_by_default():
 def test_validate_blocks_implicit_file_references_by_default():
     schema = {"$ref": "file:///etc/hosts"}
 
-    with patch("urllib.request.urlopen") as urlopen:
-        with pytest.raises(Exception, match="Unresolvable"):
-            validate({}, schema)
+    with patch("urllib.request.urlopen") as urlopen, pytest.raises(Exception, match="Unresolvable"):
+        validate({}, schema)
 
     urlopen.assert_not_called()
 
@@ -128,9 +127,14 @@ def test_validate_honors_explicit_registry():
 def test_validate_can_allow_implicit_remote_references():
     schema = {"$ref": "http://example.com/remote-schema.json"}
 
-    with patch("urllib.request.urlopen") as urlopen:
-        with pytest.raises(Exception):
-            validate({}, schema, allow_remote_references=True)
+    with (
+        patch("urllib.request.urlopen") as urlopen,
+        pytest.raises(
+            Unresolvable,
+            match=r"http://example\.com/remote-schema\.json",
+        ),
+    ):
+        validate({}, schema, allow_remote_references=True)
 
     assert urlopen.called
 
@@ -142,9 +146,7 @@ def test_validate_skip_schema_check():
         validate("foo", schema)
 
     if has_ecma_regex():
-        with pytest.raises(
-            ValidationError, match="is not a valid regular expression"
-        ):
+        with pytest.raises(ValidationError, match="is not a valid regular expression"):
             validate("foo", schema, check_schema=False)
     else:
         with pytest.raises(re.error):
@@ -152,9 +154,7 @@ def test_validate_skip_schema_check():
 
 
 def test_validate_cache_avoids_rechecking_schema(schema):
-    with patch(
-        "openapi_schema_validator.shortcuts.check_openapi_schema"
-    ) as check_schema_mock:
+    with patch("openapi_schema_validator.shortcuts.check_openapi_schema") as check_schema_mock:
         validate({"email": "foo@bar.com"}, schema, cls=OAS32Validator)
         validate({"email": "foo@bar.com"}, schema, cls=OAS32Validator)
 
@@ -162,9 +162,7 @@ def test_validate_cache_avoids_rechecking_schema(schema):
 
 
 def test_validate_cache_promotes_unchecked_validator(schema):
-    with patch(
-        "openapi_schema_validator.shortcuts.check_openapi_schema"
-    ) as check_schema_mock:
+    with patch("openapi_schema_validator.shortcuts.check_openapi_schema") as check_schema_mock:
         validate(
             {"email": "foo@bar.com"},
             schema,
@@ -187,9 +185,7 @@ def test_validate_cache_max_size_from_env(monkeypatch):
     )
     reset_settings_cache()
 
-    with patch(
-        "openapi_schema_validator.shortcuts.check_openapi_schema"
-    ) as check_schema_mock:
+    with patch("openapi_schema_validator.shortcuts.check_openapi_schema") as check_schema_mock:
         validate("foo", schema_a, cls=OAS32Validator)
         validate(1, schema_b, cls=OAS32Validator)
         validate("foo", schema_a, cls=OAS32Validator)

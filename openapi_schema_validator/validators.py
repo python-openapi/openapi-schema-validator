@@ -4,7 +4,6 @@ from typing import cast
 from jsonschema import _keywords
 from jsonschema import _legacy_keywords
 from jsonschema.exceptions import SchemaError
-from jsonschema.exceptions import ValidationError
 from jsonschema.validators import Draft202012Validator
 from jsonschema.validators import create
 from jsonschema.validators import extend
@@ -18,9 +17,7 @@ from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_METASCHEMA
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_ID
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_METASCHEMA
 from openapi_schema_validator._dialects import register_openapi_dialect
-from openapi_schema_validator._specifications import (
-    REGISTRY as OPENAPI_SPECIFICATIONS,
-)
+from openapi_schema_validator._specifications import REGISTRY as OPENAPI_SPECIFICATIONS
 from openapi_schema_validator._types import oas31_type_checker
 
 _CHECK_SCHEMA_UNSET = object()

@@ -1,9 +1,9 @@
 from collections import OrderedDict
+from collections.abc import Hashable
+from collections.abc import Mapping
 from dataclasses import dataclass
 from threading import RLock
 from typing import Any
-from typing import Hashable
-from typing import Mapping
 
 from jsonschema.protocols import Validator
 
@@ -23,12 +23,7 @@ class ValidatorCache:
 
     def _freeze_value(self, value: Any) -> Hashable:
         if isinstance(value, dict):
-            return tuple(
-                sorted(
-                    (str(key), self._freeze_value(item))
-                    for key, item in value.items()
-                )
-            )
+            return tuple(sorted((str(key), self._freeze_value(item)) for key, item in value.items()))
         if isinstance(value, list):
             return tuple(self._freeze_value(item) for item in value)
         if isinstance(value, tuple):

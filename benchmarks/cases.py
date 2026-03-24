@@ -117,30 +117,14 @@ def build_cases() -> list[BenchmarkCase]:
                         },
                         "Route": {
                             "oneOf": [
-                                {
-                                    "$ref": (
-                                        "#/components/schemas/"
-                                        "MountainHiking"
-                                    )
-                                },
-                                {
-                                    "$ref": (
-                                        "#/components/schemas/"
-                                        "AlpineClimbing"
-                                    )
-                                },
+                                {"$ref": ("#/components/schemas/MountainHiking")},
+                                {"$ref": ("#/components/schemas/AlpineClimbing")},
                             ],
                             "discriminator": {
                                 "propertyName": "discipline",
                                 "mapping": {
-                                    "mountain_hiking": (
-                                        "#/components/schemas/"
-                                        "MountainHiking"
-                                    ),
-                                    "alpine_climbing": (
-                                        "#/components/schemas/"
-                                        "AlpineClimbing"
-                                    ),
+                                    "mountain_hiking": ("#/components/schemas/MountainHiking"),
+                                    "alpine_climbing": ("#/components/schemas/AlpineClimbing"),
                                 },
                             },
                         },

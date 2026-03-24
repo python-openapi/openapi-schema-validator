@@ -2,9 +2,7 @@ from typing import Any
 
 from jsonschema.validators import validates
 
-from openapi_schema_validator._specifications import (
-    REGISTRY as OPENAPI_SPECIFICATIONS,
-)
+from openapi_schema_validator._specifications import REGISTRY as OPENAPI_SPECIFICATIONS
 
 __all__ = [
     "OAS31_BASE_DIALECT_ID",

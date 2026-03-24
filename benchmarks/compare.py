@@ -45,10 +45,7 @@ def _parse_args() -> argparse.Namespace:
         "--regression-threshold",
         type=float,
         default=0.0,
-        help=(
-            "Percent threshold for regressions. "
-            "Example: 5 means fail only when regression exceeds 5%%."
-        ),
+        help="Percent threshold for regressions. Example: 5 means fail only when regression exceeds 5%%.",
     )
     parser.add_argument(
         "--fail-on-regression",
@@ -102,9 +99,7 @@ def _compare_reports(
 
     for case_name in sorted(baseline_cases):
         if case_name not in candidate_cases:
-            regressions.append(
-                f"Missing case in candidate report: {case_name}"
-            )
+            regressions.append(f"Missing case in candidate report: {case_name}")
             continue
 
         report_lines.append(f"Case: {case_name}")
@@ -119,19 +114,14 @@ def _compare_reports(
             status = _format_status(regression, change)
 
             report_lines.append(
-                "  "
-                f"{metric}: baseline={baseline_value:.6f} "
-                f"candidate={candidate_value:.6f} -> {status}"
+                f"  {metric}: baseline={baseline_value:.6f} candidate={candidate_value:.6f} -> {status}"
             )
 
             if regression and abs(change) > regression_threshold:
-                regressions.append(
-                    f"{case_name} {metric} regressed by {abs(change):.2f}%"
-                )
+                regressions.append(f"{case_name} {metric} regressed by {abs(change):.2f}%")
 
     extra_candidate_cases = set(candidate_cases).difference(baseline_cases)
-    for case_name in sorted(extra_candidate_cases):
-        report_lines.append(f"Case present only in candidate: {case_name}")
+    report_lines.extend(f"Case present only in candidate: {case_name}" for case_name in sorted(extra_candidate_cases))
 
     return report_lines, regressions
 
@@ -146,15 +136,12 @@ def main() -> int:
         args.regression_threshold,
     )
 
-    print(
-        f"Comparing candidate {args.candidate} "
-        f"against baseline {args.baseline}"
-    )
-    print("")
+    print(f"Comparing candidate {args.candidate} against baseline {args.baseline}")
+    print()
     print("\n".join(report_lines))
 
     if regressions:
-        print("")
+        print()
         print("Regressions above threshold:")
         for regression in regressions:
             print(f"- {regression}")

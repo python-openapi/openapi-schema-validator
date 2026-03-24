@@ -1,7 +1,7 @@
 import json
+from collections.abc import Iterator
 from importlib.resources import files
 from typing import Any
-from typing import Iterator
 
 from jsonschema_specifications import REGISTRY as JSONSCHEMA_REGISTRY
 from referencing import Resource

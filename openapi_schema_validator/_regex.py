@@ -5,10 +5,13 @@ _REGEX_CLASS: Any = None
 _REGRESS_ERROR: type[Exception] = Exception
 
 try:
-    from regress import Regex as _REGEX_CLASS
-    from regress import RegressError as _REGRESS_ERROR
+    from regress import Regex as _RegressRegex
+    from regress import RegressError as _RegressError
 except ImportError:  # pragma: no cover - optional dependency
     pass
+else:
+    _REGEX_CLASS = _RegressRegex
+    _REGRESS_ERROR = _RegressError
 
 
 class ECMARegexSyntaxError(ValueError):
