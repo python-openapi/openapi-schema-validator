@@ -1,6 +1,5 @@
 import binascii
 from base64 import b64decode
-from base64 import b64encode
 from numbers import Number
 
 from jsonschema._format import FormatChecker
@@ -106,9 +105,7 @@ oas30_strict_format_checker.checks("int64")(is_int64)
 oas30_strict_format_checker.checks("float")(is_float)
 oas30_strict_format_checker.checks("double")(is_double)
 oas30_strict_format_checker.checks("binary")(is_binary_strict)
-oas30_strict_format_checker.checks("byte", (binascii.Error, TypeError))(
-    is_byte
-)
+oas30_strict_format_checker.checks("byte", (binascii.Error, TypeError))(is_byte)
 oas30_strict_format_checker.checks("password")(is_password)
 oas30_strict_format_checker.checks("regex")(is_regex)
 

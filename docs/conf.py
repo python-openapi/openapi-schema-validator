@@ -61,7 +61,6 @@ html_theme_options = {
             "scheme": "slate",
             "primary": "lime",
             "accent": "amber",
-            "scheme": "slate",
             "toggle": {
                 "icon": "material/toggle-switch",
                 "name": "Switch to light mode",

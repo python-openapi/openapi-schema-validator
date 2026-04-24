@@ -10,7 +10,7 @@ Use this as the default operating playbook when making changes.
 - Runtime package: `openapi_schema_validator/`.
 - Tests: `pytest` in `tests/unit` and `tests/integration`.
 - Type checking: `mypy` with `strict = true`.
-- Formatting and imports: `black` and `isort`.
+- Formatting and imports: `ruff`.
 - Extra static analysis: `deptry`.
 - Supported Python versions: 3.10, 3.11, 3.12, 3.13, 3.14.
 
@@ -68,9 +68,8 @@ Run commands from repository root.
 
 - Full pre-commit run: `poetry run pre-commit run -a`
 - Staged files pre-commit run: `poetry run pre-commit run`
-- Format explicitly: `poetry run black .`
-- Sort imports explicitly: `poetry run isort .`
-- Convert to f-strings where safe: `poetry run flynt .`
+- Format explicitly: `poetry run ruff format .`
+- Lint code: `poetry run ruff check .`
 - Dependency hygiene: `poetry run deptry .`
 
 ### Build package / docs

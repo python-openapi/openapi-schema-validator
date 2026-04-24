@@ -19,17 +19,17 @@ __url__ = "https://github.com/python-openapi/openapi-schema-validator"
 __license__ = "3-clause BSD License"
 
 __all__ = [
-    "validate",
-    "OAS30ReadValidator",
-    "OAS30StrictValidator",
-    "OAS30WriteValidator",
-    "OAS30Validator",
-    "oas30_format_checker",
-    "oas30_strict_format_checker",
-    "OAS31Validator",
-    "oas31_format_checker",
-    "OAS32Validator",
-    "oas32_format_checker",
     "OAS31_BASE_DIALECT_ID",
     "OAS32_BASE_DIALECT_ID",
+    "OAS30ReadValidator",
+    "OAS30StrictValidator",
+    "OAS30Validator",
+    "OAS30WriteValidator",
+    "OAS31Validator",
+    "OAS32Validator",
+    "oas30_format_checker",
+    "oas30_strict_format_checker",
+    "oas31_format_checker",
+    "oas32_format_checker",
+    "validate",
 ]

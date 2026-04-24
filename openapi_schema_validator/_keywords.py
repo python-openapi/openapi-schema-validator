@@ -1,6 +1,6 @@
+from collections.abc import Iterator
+from collections.abc import Mapping
 from typing import Any
-from typing import Iterator
-from typing import Mapping
 from typing import cast
 
 from jsonschema._keywords import allOf as _allOf
@@ -18,9 +18,7 @@ from openapi_schema_validator._regex import has_ecma_regex
 from openapi_schema_validator._regex import search as regex_search
 
 
-def handle_discriminator(
-    validator: Any, _: Any, instance: Any, schema: Mapping[str, Any]
-) -> Iterator[ValidationError]:
+def handle_discriminator(validator: Any, _: Any, instance: Any, schema: Mapping[str, Any]) -> Iterator[ValidationError]:
     """
     Handle presence of discriminator in anyOf, oneOf and allOf.
     The behaviour is the same in all 3 cases because at most 1 schema will match.
@@ -29,9 +27,7 @@ def handle_discriminator(
     prop_name = discriminator["propertyName"]
 
     if not validator.is_type(instance, "object"):
-        yield ValidationError(
-            f"{instance!r} is not of type 'object'", context=[]
-        )
+        yield ValidationError(f"{instance!r} is not of type 'object'", context=[])
         return
 
     prop_value = instance.get(prop_name)
@@ -44,10 +40,7 @@ def handle_discriminator(
         return
 
     # Use explicit mapping if available, otherwise try implicit value
-    ref = (
-        discriminator.get("mapping", {}).get(prop_value)
-        or f"#/components/schemas/{prop_value}"
-    )
+    ref = discriminator.get("mapping", {}).get(prop_value) or f"#/components/schemas/{prop_value}"
 
     if not isinstance(ref, str):
         # this is a schema error
@@ -132,11 +125,7 @@ def type(
         yield ValidationError("None for not nullable")
 
     # Pragmatic: allow bytes for binary format (common in Python use cases)
-    if (
-        data_type == "string"
-        and schema.get("format") == "binary"
-        and isinstance(instance, bytes)
-    ):
+    if data_type == "string" and schema.get("format") == "binary" and isinstance(instance, bytes):
         return
 
     if not validator.is_type(instance, data_type):
@@ -183,9 +172,7 @@ def pattern(
     try:
         matches = regex_search(patrn, instance)
     except ECMARegexSyntaxError as exc:
-        yield ValidationError(
-            f"{patrn!r} is not a valid regular expression ({exc})"
-        )
+        yield ValidationError(f"{patrn!r} is not a valid regular expression ({exc})")
         return
 
     if not matches:
@@ -235,11 +222,8 @@ def required(
             if prop_schema:
                 read_only = prop_schema.get("readOnly", False)
                 write_only = prop_schema.get("writeOnly", False)
-                if (
-                    getattr(validator, "write", True)
-                    and read_only
-                    or getattr(validator, "read", True)
-                    and write_only
+                if (getattr(validator, "write", True) and read_only) or (
+                    getattr(validator, "read", True) and write_only
                 ):
                     continue
             yield ValidationError(f"{property!r} is a required property")
@@ -299,10 +283,9 @@ def additionalProperties(
         for extra in extras:
             for error in validator.descend(instance[extra], aP, path=extra):
                 yield error
-    elif validator.is_type(aP, "boolean"):
-        if not aP:
-            error = "Additional properties are not allowed (%s %s unexpected)"
-            yield ValidationError(error % extras_msg(extras))
+    elif validator.is_type(aP, "boolean") and not aP:
+        error = "Additional properties are not allowed (%s %s unexpected)"
+        yield ValidationError(error % extras_msg(extras))
 
 
 def write_readOnly(

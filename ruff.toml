@@ -1,0 +1,90 @@
+exclude = [
+    "allure_dir",
+    ".idea",
+    "__pycache__",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "site-packages",
+    "venv",
+]
+
+line-length = 120
+indent-width = 4
+target-version = "py310"
+
+[lint.pylint]
+max-positional-args = 8
+max-args = 8
+
+[lint]
+preview = true
+
+select = [
+    "E",        # pycodestyle (errors)
+    "W",        # pycodestyle (warnings)
+    "F",        # pyflakes
+    "I",        # isort (imports ordering)
+    "UP",       # pyupgrade
+    "B",        # bugbear
+    "C4",       # comprehensions
+    "SIM",      # simplify
+    "TID",      # tidy imports
+    "G",        # f-string is forbidden
+    "FURB",     # refurb
+    "ASYNC",    # async
+    "PERF",     # perflint
+    "PLE",      # pylint (error)
+    "T10",      # flake8-debugger
+    "EXE",      # flake8-executable
+    "INT",      # flake8-gettext
+    "ISC",      # flake8-implicit-str-concat
+    "PT",       # pytest
+    "LOG",      # logging
+    "FAST",     # fastapi
+    "S",        # bandit
+    "RSE",      # flake8-raise
+    "PLR5501",  # pylint refactor - collapsible-else-if
+    "RUF",      # Ruff-specific rules
+    "PYI"       # flake8-pyi
+]
+
+ignore = [
+    "COM812",    # puts unnecessary commas at the end of lists/tuples
+    "PLR6201",   # puts the set where it is not needed
+    "ANN002",    # args и kwargs
+    "ANN003",    # args и kwargs
+]
+
+[lint.per-file-ignores]
+"**/{tests}/*" = ["ANN", "PLR", "D", "S"]
+"openapi_schema_validator/__init__.py" = ["RUF067"]
+
+
+[lint.isort]
+force-single-line = true
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+

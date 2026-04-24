@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
-from typing import Mapping
 from typing import cast
 
 from jsonschema.exceptions import best_match
@@ -106,9 +106,7 @@ def validate(
     else:
         _VALIDATOR_CACHE.touch(key)
 
-    error = best_match(
-        cached.validator.evolve(schema=schema_dict).iter_errors(instance)
-    )
+    error = best_match(cached.validator.evolve(schema=schema_dict).iter_errors(instance))
     if error is not None:
         raise error
 
