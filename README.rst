@@ -60,6 +60,7 @@ Usage
        cls=OAS32Validator,
        allow_remote_references=False,
        check_schema=True,
+       enforce_properties_required=False,
        **kwargs,
    )
 
@@ -93,6 +94,12 @@ accept jsonschema's default remote retrieval behavior.
 ``check_schema`` defaults to ``True`` and validates the schema before
 validating an instance. For trusted pre-validated schemas in hot paths, set
 ``check_schema=False`` to skip schema checking.
+
+When ``enforce_properties_required=True`` is passed, all properties declared
+in the schema's ``properties`` object are strictly required to be present in
+the instance (except those marked as ``writeOnly`` or ``readOnly`` where
+appropriate), regardless of the schema's ``required`` array. This is useful for
+response or contract testing to ensure no documented fields are missing.
 
 The ``validate`` helper keeps an internal compiled-validator cache. You can
 control cache size using the

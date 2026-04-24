@@ -16,6 +16,7 @@ Validate
        cls=OAS32Validator,
        allow_remote_references=False,
        check_schema=True,
+       enforce_properties_required=False,
        **kwargs,
    )
 
@@ -38,6 +39,12 @@ jsonschema's default remote retrieval behavior.
 
 For trusted pre-validated schemas in hot paths, set ``check_schema=False`` to
 skip schema checking.
+
+When ``enforce_properties_required=True`` is passed, all properties declared
+in the schema's ``properties`` object are strictly required to be present in
+the instance (except those marked as ``writeOnly`` or ``readOnly`` where
+appropriate), regardless of the schema's ``required`` array. This is useful for
+response or contract testing to ensure no documented fields are missing.
 
 The shortcut keeps an internal compiled-validator cache.
 Use ``OPENAPI_SCHEMA_VALIDATOR_COMPILED_VALIDATOR_CACHE_MAX_SIZE`` to control cache

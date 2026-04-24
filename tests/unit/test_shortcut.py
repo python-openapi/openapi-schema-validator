@@ -13,6 +13,11 @@ from openapi_schema_validator import validate
 from openapi_schema_validator._regex import has_ecma_regex
 from openapi_schema_validator.settings import reset_settings_cache
 from openapi_schema_validator.shortcuts import clear_validate_cache
+from openapi_schema_validator.validators import OAS30ReadValidator
+from openapi_schema_validator.validators import OAS30Validator
+from openapi_schema_validator.validators import OAS30WriteValidator
+from openapi_schema_validator.validators import OAS31Validator
+from openapi_schema_validator.validators import OAS32Validator
 
 
 @pytest.fixture(scope="function")
@@ -195,3 +200,186 @@ def test_validate_cache_max_size_from_env(monkeypatch):
         validate("foo", schema_a, cls=OAS32Validator)
 
     assert check_schema_mock.call_count == 3
+
+
+@pytest.mark.parametrize(
+    "schema, cls, instance, enforce, expected_error",
+    [
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "nickname": {"type": "string"},
+                },
+                "required": ["id"],
+            },
+            OAS30Validator,
+            {"id": "42"},
+            False,
+            None,
+        ),
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "nickname": {"type": "string"},
+                },
+                "required": ["id"],
+            },
+            OAS30Validator,
+            {"id": "42"},
+            True,
+            "'nickname' is a required property",
+        ),
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string", "readOnly": True},
+                    "password": {"type": "string", "writeOnly": True},
+                    "normal": {"type": "string"},
+                },
+            },
+            OAS30ReadValidator,
+            {"id": "123"},
+            True,
+            "'normal' is a required property",
+        ),
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string", "readOnly": True},
+                    "password": {"type": "string", "writeOnly": True},
+                    "normal": {"type": "string"},
+                },
+            },
+            OAS30ReadValidator,
+            {"normal": "abc"},
+            True,
+            "'id' is a required property",
+        ),
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string", "readOnly": True},
+                    "password": {"type": "string", "writeOnly": True},
+                    "normal": {"type": "string"},
+                },
+            },
+            OAS30ReadValidator,
+            {"id": "123", "normal": "abc"},
+            True,
+            None,
+        ),
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string", "readOnly": True},
+                    "password": {"type": "string", "writeOnly": True},
+                    "normal": {"type": "string"},
+                },
+            },
+            OAS30WriteValidator,
+            {"normal": "abc"},
+            True,
+            "'password' is a required property",
+        ),
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string", "readOnly": True},
+                    "password": {"type": "string", "writeOnly": True},
+                    "normal": {"type": "string"},
+                },
+            },
+            OAS30WriteValidator,
+            {"password": "secret"},
+            True,
+            "'normal' is a required property",
+        ),
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string", "readOnly": True},
+                    "password": {"type": "string", "writeOnly": True},
+                    "normal": {"type": "string"},
+                },
+            },
+            OAS30WriteValidator,
+            {"password": "secret", "normal": "abc"},
+            True,
+            None,
+        ),
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "foo": True,
+                },
+            },
+            OAS31Validator,
+            {},
+            False,
+            None,
+        ),
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "foo": True,
+                },
+            },
+            OAS31Validator,
+            {},
+            True,
+            "'foo' is a required property",
+        ),
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "foo": {"type": "string"},
+                },
+            },
+            OAS32Validator,
+            {},
+            False,
+            None,
+        ),
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "foo": {"type": "string"},
+                },
+            },
+            OAS32Validator,
+            {},
+            True,
+            "'foo' is a required property",
+        ),
+    ],
+)
+def test_enforce_properties_required(
+    schema, cls, instance, enforce, expected_error
+):
+    if expected_error:
+        with pytest.raises(ValidationError) as exc:
+            validate(
+                instance,
+                schema,
+                cls=cls,
+                enforce_properties_required=enforce,
+            )
+        assert expected_error in str(exc.value)
+    else:
+        validate(
+            instance, schema, cls=cls, enforce_properties_required=enforce
+        )

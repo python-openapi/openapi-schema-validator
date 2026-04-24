@@ -12,6 +12,9 @@ from openapi_schema_validator._caches import ValidatorCache
 from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_ID
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_ID
 from openapi_schema_validator.validators import OAS32Validator
+from openapi_schema_validator.validators import (
+    build_enforce_properties_required_validator,
+)
 from openapi_schema_validator.validators import check_openapi_schema
 
 _LOCAL_ONLY_REGISTRY = Registry()
@@ -42,6 +45,7 @@ def validate(
     *args: Any,
     allow_remote_references: bool = False,
     check_schema: bool = True,
+    enforce_properties_required: bool = False,
     **kwargs: Any,
 ) -> None:
     """
@@ -65,6 +69,11 @@ def validate(
         check_schema: If ``True`` (default), validate the provided schema
             before validating ``instance``. If ``False``, skip schema
             validation and run instance validation directly.
+        enforce_properties_required: If ``True``, all properties declared in
+            the schema's ``properties`` object are strictly required to be
+            present in the instance (except those marked as ``writeOnly`` or
+            ``readOnly`` where appropriate), regardless of the schema's
+            ``required`` array. Defaults to ``False``.
         **kwargs: Keyword arguments forwarded to ``cls`` constructor
             (for example ``registry`` and ``format_checker``). If omitted,
             a local-only empty ``Registry`` is used to avoid implicit remote
@@ -74,6 +83,9 @@ def validate(
         jsonschema.exceptions.SchemaError: If ``schema`` is invalid.
         jsonschema.exceptions.ValidationError: If ``instance`` is invalid.
     """
+    if enforce_properties_required:
+        cls = build_enforce_properties_required_validator(cls)  # type: ignore[arg-type]
+
     schema_dict = cast(dict[str, Any], schema)
 
     validator_kwargs = kwargs.copy()

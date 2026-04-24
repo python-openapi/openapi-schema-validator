@@ -1,10 +1,14 @@
+from functools import lru_cache
 from typing import Any
+from typing import Iterator
+from typing import Mapping
 from typing import cast
 
 from jsonschema import _keywords
 from jsonschema import _legacy_keywords
 from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError
+from jsonschema.protocols import Validator
 from jsonschema.validators import Draft202012Validator
 from jsonschema.validators import create
 from jsonschema.validators import extend
@@ -187,3 +191,47 @@ OAS32Validator = _build_oas32_validator()
 OAS30Validator.check_schema = classmethod(check_openapi_schema)
 OAS31Validator.check_schema = classmethod(check_openapi_schema)
 OAS32Validator.check_schema = classmethod(check_openapi_schema)
+
+
+@lru_cache(maxsize=None)
+def build_enforce_properties_required_validator(
+    validator_class: Any,
+) -> type[Validator]:
+    properties_validator = validator_class.VALIDATORS.get("properties")
+    required_validator = validator_class.VALIDATORS.get("required")
+
+    def enforce_properties(
+        validator: Any,
+        properties: Any,
+        instance: Any,
+        schema: Mapping[str, Any],
+    ) -> Iterator[Any]:
+        if properties_validator is not None:
+            yield from properties_validator(
+                validator, properties, instance, schema
+            )
+
+        if not validator.is_type(instance, "object"):
+            return
+
+        if required_validator is not None:
+            schema_required = (
+                schema.get("required", []) if isinstance(schema, dict) else []
+            )
+            missing_props = [
+                p for p in properties.keys() if p not in schema_required
+            ]
+            if missing_props:
+                yield from required_validator(
+                    validator, missing_props, instance, schema
+                )
+
+    extended_validator = extend(
+        validator_class,
+        validators={"properties": enforce_properties},
+    )
+    if hasattr(validator_class, "check_schema"):
+        extended_validator.check_schema = classmethod(
+            validator_class.check_schema.__func__
+        )
+    return cast(type[Validator], extended_validator)
