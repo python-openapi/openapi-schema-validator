@@ -1,0 +1,3 @@
+[submodule "vendor/openapi-schema-test-suite"]
+	path = vendor/openapi-schema-test-suite
+	url = https://github.com/python-openapi/openapi-schema-test-suite.git

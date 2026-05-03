@@ -80,6 +80,7 @@ classifiers = [
 ]
 include = [
     {path = "tests", format = "sdist"},
+    {path = "vendor/openapi-schema-test-suite/tests", format = "sdist"},
 ]
 
 [tool.poetry.dependencies]
