@@ -34,6 +34,14 @@ test-cleanup: test-cache-cleanup reports-cleanup
 docs-html:
 	sphinx-build -b html docs docs/_build
 
+docs-pagefind: docs-html
+	@npx --yes pagefind --site docs/_build
+
+docs-manifest:
+	@cp docs/manifest.json docs/_build/manifest.json
+
+docs-publish: docs-html docs-pagefind docs-manifest
+
 docs-cleanup:
 	@rm -rf docs/_build
 
