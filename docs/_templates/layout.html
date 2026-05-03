@@ -1,0 +1,27 @@
+{# Shell-aware layout override for the Python OpenAPI website. #}
+{# Theme contract: docs-theme-contract.md (themeContractVersion 1).        #}
+{% extends "!layout.html" %}
+
+{% block extrahead %}
+  {{ super() }}
+  <meta name="ecosystem-shell" content="Python OpenAPI" />
+  <meta name="ecosystem-project" content="openapi-schema-validator" />
+  <meta data-theme-contract-version="1" />
+{% endblock %}
+
+{% block header %}
+  <aside class="ecosystem-shell-banner" aria-label="Python OpenAPI">
+    <a class="ecosystem-home" href="/" data-ecosystem-home="true">
+      ← Back to the Python OpenAPI
+    </a>
+    <span class="ecosystem-project-label" aria-current="page">openapi-schema-validator</span>
+  </aside>
+  {{ super() }}
+{% endblock %}
+
+{% block footer %}
+  {{ super() }}
+  <p class="ecosystem-footer-note" data-theme-contract-version="1">
+    Part of the <a href="/" class="ecosystem-home">Python OpenAPI</a>.
+  </p>
+{% endblock %}

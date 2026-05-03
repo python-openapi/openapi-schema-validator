@@ -1,0 +1,25 @@
+{
+  "manifestVersion": 1,
+  "projectSlug": "openapi-schema-validator",
+  "displayName": "openapi-schema-validator",
+  "themeContractVersion": 1,
+  "latestStableVersion": "latest",
+  "routes": {
+    "publicProjectPath": "/openapi-schema-validator",
+    "latestDocsPath": "/openapi-schema-validator/docs/",
+    "versionedDocsPrefix": "/openapi-schema-validator/docs/"
+  },
+  "versions": [
+    {
+      "version": "latest",
+      "label": "latest",
+      "channel": "stable",
+      "isLatestStable": true,
+      "publicBasePath": "/openapi-schema-validator/docs/latest/",
+      "originUrl": "https://openapi-schema-validator.readthedocs.io/en/latest/",
+      "sitemapUrl": "https://openapi-schema-validator.readthedocs.io/en/latest/sitemap.xml",
+      "searchBundleUrl": "https://openapi-schema-validator.readthedocs.io/en/latest/pagefind/",
+      "publishedAt": "2026-05-03T00:00:00Z"
+    }
+  ]
+}
