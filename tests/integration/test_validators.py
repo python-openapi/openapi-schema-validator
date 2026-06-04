@@ -1,6 +1,7 @@
 import re
 import warnings
 from base64 import b64encode
+from copy import deepcopy
 from typing import Any
 from typing import cast
 from unittest.mock import patch
@@ -25,7 +26,9 @@ from openapi_schema_validator import OAS30ReadValidator
 from openapi_schema_validator import OAS30StrictValidator
 from openapi_schema_validator import OAS30Validator
 from openapi_schema_validator import OAS30WriteValidator
+from openapi_schema_validator import OAS31StrictValidator
 from openapi_schema_validator import OAS31Validator
+from openapi_schema_validator import OAS32StrictValidator
 from openapi_schema_validator import OAS32Validator
 from openapi_schema_validator import oas30_format_checker
 from openapi_schema_validator import oas30_strict_format_checker
@@ -284,6 +287,39 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
 
         with pytest.raises(ValidationError):
             validator.validate(value)
+
+    def test_binary_octet_max_length_rejects_and_accepts(
+        self, validator_class
+    ):
+        # maxLength constrains raw bytes by octet count for OAS 3.0 too.
+        schema = {"type": "string", "format": "binary", "maxLength": 1}
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"abc")
+        assert validator.validate(b"a") is None
+
+    def test_binary_format_byte_rejects_bytes(
+        self, validator_class, format_checker
+    ):
+        # format: byte is base64-encoded text, so raw bytes are rejected.
+        schema = {"type": "string", "format": "byte"}
+        validator = validator_class(schema, format_checker=format_checker)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"\x00\x01\x02")
+
+    def test_binary_enum_bytes_stays_active(self, validator_class):
+        schema = {
+            "type": "string",
+            "format": "binary",
+            "enum": [b"a", b"b"],
+        }
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"zzz")
+        assert validator.validate(b"a") is None
 
     @pytest.mark.parametrize(
         "schema_type",
@@ -1180,6 +1216,255 @@ class TestOAS31ValidatorValidate(BaseTestOASValidatorValidate):
             {"discipline": "mountain_hiking", "length": 10},
         )
 
+    # -- binary bytes (runs for both OAS 3.1 and OAS 3.2 via inheritance) --
+
+    @pytest.mark.parametrize(
+        "schema",
+        [
+            {},
+            {"contentMediaType": "application/octet-stream"},
+            {"contentMediaType": "application/pdf"},
+        ],
+    )
+    def test_binary_typeless_accepts_bytes(self, validator_class, schema):
+        # Canonical 3.1/3.2 raw-binary form: a typeless schema asserts no type.
+        validator = validator_class(schema)
+
+        assert validator.validate(b"\x00\x01\x02") is None
+
+    def test_binary_type_string_content_media_type_accepts_bytes(
+        self, validator_class
+    ):
+        # Pragmatic compatibility extension.
+        schema = {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+        }
+        validator = validator_class(schema)
+
+        assert validator.validate(b"raw") is None
+
+    @pytest.mark.parametrize(
+        "content_encoding",
+        ["base64", "base64url", "base16", "base32", "quoted-printable"],
+    )
+    def test_binary_type_string_encoded_rejects_bytes(
+        self, validator_class, content_encoding
+    ):
+        # Encoded text stays on the string path; type: string asserts, so the
+        # type wrapper rejects raw bytes.
+        schema = {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "contentEncoding": content_encoding,
+        }
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"raw")
+
+    def test_binary_type_string_format_byte_rejects_bytes(
+        self, validator_class
+    ):
+        schema = {"type": "string", "format": "byte"}
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"\x00\x01\x02")
+
+    def test_binary_typeless_encoded_still_accepts_bytes(
+        self, validator_class
+    ):
+        # A typeless schema asserts nothing, so it accepts bytes even though the
+        # encoded-text gate classifies it as not-binary (enforceability
+        # boundary). Rejection would require a type: string assertion.
+        schema = {
+            "contentMediaType": "application/octet-stream",
+            "contentEncoding": "base16",
+        }
+        validator = validator_class(schema)
+
+        assert validator.validate(b"raw") is None
+
+    def test_binary_octet_max_length_rejects_and_accepts(
+        self, validator_class
+    ):
+        schema = {"contentMediaType": "application/pdf", "maxLength": 1}
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"abc")
+        assert validator.validate(b"a") is None
+
+    def test_binary_octet_min_length_rejects_and_accepts(
+        self, validator_class
+    ):
+        schema = {"contentMediaType": "application/pdf", "minLength": 2}
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"a")
+        assert validator.validate(b"ab") is None
+
+    def test_string_max_length_still_applies_to_str(self, validator_class):
+        # The octet-length wrapper delegates to the native string check for
+        # non-binary instances.
+        schema = {"type": "string", "maxLength": 2}
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate("abc")
+        assert validator.validate("ab") is None
+
+    def test_string_min_length_still_applies_to_str(self, validator_class):
+        schema = {"type": "string", "minLength": 2}
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate("a")
+        assert validator.validate("ab") is None
+
+    def test_binary_enum_bytes_stays_active(self, validator_class):
+        schema = {
+            "contentMediaType": "application/octet-stream",
+            "enum": [b"a", b"b"],
+        }
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"zzz")
+        assert validator.validate(b"a") is None
+
+    def test_binary_const_bytes_stays_active(self, validator_class):
+        schema = {
+            "contentMediaType": "application/octet-stream",
+            "const": b"a",
+        }
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"b")
+        assert validator.validate(b"a") is None
+
+    @pytest.mark.parametrize("ecma", [True, False])
+    def test_binary_pattern_does_not_raise_or_reject(
+        self, validator_class, ecma
+    ):
+        # pattern is guarded by is_type(instance, "string") on both the ECMA and
+        # non-ECMA paths, so it short-circuits bytes -- no TypeError, no error.
+        schema = {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "pattern": "^a",
+        }
+        validator = validator_class(schema)
+
+        with patch(
+            "openapi_schema_validator._keywords.has_ecma_regex",
+            return_value=ecma,
+        ):
+            assert validator.validate(b"does-not-match-pattern") is None
+
+    def test_binary_multi_type_accepts_none_and_bytes(self, validator_class):
+        schema = {
+            "type": ["string", "null"],
+            "contentMediaType": "application/octet-stream",
+        }
+        validator = validator_class(schema)
+
+        assert validator.validate(None) is None
+        assert validator.validate(b"raw") is None
+
+    @pytest.mark.parametrize(
+        "content_media_type",
+        [
+            "application/json",
+            "application/ld+json",
+            "image/svg+xml",
+            "application/problem+json; charset=utf-8",
+        ],
+    )
+    def test_binary_structured_text_type_string_rejects_bytes(
+        self, validator_class, content_media_type
+    ):
+        schema = {"type": "string", "contentMediaType": content_media_type}
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"raw")
+
+    def test_binary_media_type_parameter_opaque_accepts_bytes(
+        self, validator_class
+    ):
+        schema = {
+            "type": "string",
+            "contentMediaType": "application/pdf; version=1",
+        }
+        validator = validator_class(schema)
+
+        assert validator.validate(b"%PDF") is None
+
+    def test_binary_oneof_selects_binary_branch_for_bytes(
+        self, validator_class
+    ):
+        schema = {
+            "oneOf": [
+                {"type": "integer"},
+                {
+                    "type": "string",
+                    "contentMediaType": "application/octet-stream",
+                },
+            ]
+        }
+        validator = validator_class(schema)
+
+        assert validator.validate(b"raw") is None
+
+    def test_binary_anyof_selects_binary_branch_for_bytes(
+        self, validator_class
+    ):
+        schema = {
+            "anyOf": [
+                {"type": "integer"},
+                {"contentMediaType": "application/octet-stream"},
+            ]
+        }
+        validator = validator_class(schema)
+
+        assert validator.validate(b"raw") is None
+
+    def test_binary_nested_object_property_accepts_bytes(
+        self, validator_class
+    ):
+        schema = {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "type": "string",
+                    "contentMediaType": "application/octet-stream",
+                },
+            },
+        }
+        validator = validator_class(schema)
+
+        assert validator.validate({"file": b"raw"}) is None
+
+    def test_binary_does_not_mutate_schema_or_instance(self, validator_class):
+        schema = {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "maxLength": 8,
+        }
+        schema_before = deepcopy(schema)
+        instance = bytearray(b"raw")
+        instance_before = bytearray(instance)
+        validator = validator_class(schema)
+
+        validator.validate(bytes(instance))
+
+        assert schema == schema_before
+        assert instance == instance_before
+
 
 class TestOAS32ValidatorValidate(TestOAS31ValidatorValidate):
     """OAS 3.2 uses the OAS 3.2 published dialect resources."""
@@ -1199,7 +1484,20 @@ class TestOAS32ValidatorValidate(TestOAS31ValidatorValidate):
         assert oas32_format_checker is not oas31_format_checker
 
     def test_validator_shares_oas31_behavior(self):
-        assert OAS32Validator.VALIDATORS == OAS31Validator.VALIDATORS
+        # OAS 3.2 inherits the OAS 3.1 keyword surface. The binary-aware
+        # wrappers (type/maxLength/minLength/format) are re-bound to the OAS 3.2
+        # predicate, so they are distinct callables with identical behavior;
+        # every other keyword handler is inherited unchanged.
+        assert (
+            OAS32Validator.VALIDATORS.keys()
+            == OAS31Validator.VALIDATORS.keys()
+        )
+        binary_wrapped = {"type", "maxLength", "minLength", "format"}
+        assert all(
+            OAS32Validator.VALIDATORS[name] is handler
+            for name, handler in OAS31Validator.VALIDATORS.items()
+            if name not in binary_wrapped
+        )
 
     def test_validator_has_oas32_dialect_metaschema(self):
         assert OAS32Validator.META_SCHEMA["$id"] == OAS32_BASE_DIALECT_ID
@@ -1279,6 +1577,112 @@ class TestOAS32ValidatorValidate(TestOAS31ValidatorValidate):
             OAS32Validator.check_schema(schema)
 
         urlopen.assert_not_called()
+
+
+class TestOAS31StrictValidatorValidate:
+    """OAS31StrictValidator preserves JSON Schema string typing.
+
+    It accepts canonical typeless raw binary, but rejects ``bytes`` whenever a
+    schema asserts ``type: string`` -- even with a non-text ``contentMediaType``.
+    """
+
+    @pytest.fixture
+    def validator_class(self):
+        return OAS31StrictValidator
+
+    @pytest.fixture
+    def format_checker(self):
+        return oas31_format_checker
+
+    @pytest.mark.parametrize(
+        "schema",
+        [
+            {},
+            {"contentMediaType": "application/octet-stream"},
+            {"contentMediaType": "application/pdf"},
+        ],
+    )
+    def test_typeless_raw_binary_accepts_bytes(self, validator_class, schema):
+        validator = validator_class(schema)
+
+        assert validator.validate(b"\x00\x01\x02") is None
+
+    def test_type_string_content_media_type_rejects_bytes(
+        self, validator_class
+    ):
+        # The defining strict behavior: a type: string assertion rejects bytes,
+        # even with a non-text contentMediaType (no pragmatic tolerance).
+        schema = {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+        }
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"raw")
+
+    def test_type_string_format_binary_rejects_bytes(self, validator_class):
+        schema = {"type": "string", "format": "binary"}
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"raw")
+
+    def test_plain_string_rejects_bytes(self, validator_class):
+        validator = validator_class({"type": "string"})
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"raw")
+
+    def test_plain_string_accepts_str(self, validator_class):
+        validator = validator_class({"type": "string"})
+
+        assert validator.validate("text") is None
+
+    def test_typeless_octet_length_enforced(self, validator_class):
+        # Octet length still applies to canonical typeless raw binary.
+        schema = {"contentMediaType": "application/pdf", "maxLength": 1}
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"abc")
+        assert validator.validate(b"a") is None
+
+    def test_multi_type_with_marker_rejects_bytes(self, validator_class):
+        # type: [string, null] asserts type, so strict rejects bytes but still
+        # accepts null.
+        schema = {
+            "type": ["string", "null"],
+            "contentMediaType": "application/octet-stream",
+        }
+        validator = validator_class(schema)
+
+        assert validator.validate(None) is None
+        with pytest.raises(ValidationError):
+            validator.validate(b"raw")
+
+    def test_check_schema_accepts_typeless_binary(self, validator_class):
+        validator_class.check_schema(
+            {"contentMediaType": "application/octet-stream"}
+        )
+
+
+class TestOAS32StrictValidatorValidate(TestOAS31StrictValidatorValidate):
+    """OAS 3.2 strict mirrors OAS 3.1 strict on the OAS 3.2 dialect."""
+
+    @pytest.fixture
+    def validator_class(self):
+        return OAS32StrictValidator
+
+    @pytest.fixture
+    def format_checker(self):
+        return oas32_format_checker
+
+    def test_strict_validator_is_distinct_from_oas31_strict(self):
+        assert OAS32StrictValidator is not OAS31StrictValidator
+
+    def test_strict_validator_has_oas32_dialect_metaschema(self):
+        assert OAS32StrictValidator.META_SCHEMA["$id"] == OAS32_BASE_DIALECT_ID
 
 
 class TestOAS30StrictValidator:
@@ -1447,3 +1851,16 @@ class TestValidatorForDiscovery:
         validator_class = validator_for({"$schema": OAS32_BASE_DIALECT_ID})
 
         assert validator_class is OAS32Validator
+
+    def test_oas31_dialect_does_not_resolve_to_strict_validator(self):
+        # Strict validators are explicit opt-ins, not the dialect default.
+        validator_class = validator_for({"$schema": OAS31_BASE_DIALECT_ID})
+
+        assert validator_class is OAS31Validator
+        assert validator_class is not OAS31StrictValidator
+
+    def test_oas32_dialect_does_not_resolve_to_strict_validator(self):
+        validator_class = validator_for({"$schema": OAS32_BASE_DIALECT_ID})
+
+        assert validator_class is OAS32Validator
+        assert validator_class is not OAS32StrictValidator
