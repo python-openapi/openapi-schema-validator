@@ -206,24 +206,47 @@ OpenAPI 3.0 keeps historical ``format: binary`` / ``format: byte`` usage on
 **OAS30Validator (default - compatibility behavior)**
    - ``type: string`` accepts ``str``
    - ``type: string, format: binary`` accepts Python ``bytes`` and strings
+   - ``maxLength`` / ``minLength`` constrain raw ``bytes`` by octet count
    - useful when validating Python-native runtime data
 
 **OAS30StrictValidator**
    - ``type: string`` accepts ``str`` only
-   - ``type: string, format: binary`` uses strict format validation
+   - ``type: string, format: binary`` uses strict format validation and rejects
+     ``bytes``
    - use when you want strict, spec-oriented behavior for 3.0 schemas
 
 OpenAPI 3.1+
 ------------
 
-OpenAPI 3.1+ follows JSON Schema semantics for string typing in this library.
+Under JSON Schema 2020-12, OpenAPI 3.1 and 3.2 model raw binary with a
+**typeless** schema (the 3.0 ``format: binary`` / ``format: byte`` pair was
+dropped). This library accepts Python ``bytes`` for such raw-binary schemas.
 
-- ``type: string`` accepts ``str`` only (not ``bytes``)
-- ``format: binary`` and ``format: byte`` are not treated as built-in formats
-- for base64-in-JSON, model with ``contentEncoding: base64`` (optionally
-  ``contentMediaType``)
-- for raw binary payloads, model via media type (for example
-  ``application/octet-stream``) rather than schema string formats
+**OAS31Validator / OAS32Validator (default - runtime-friendly behavior)**
+   - canonical raw binary is a **typeless** schema, optionally annotated with a
+     non-text ``contentMediaType`` and no ``contentEncoding`` (for example
+     ``{}`` or ``{"contentMediaType": "application/octet-stream"}``); a ``bytes``
+     instance validates
+   - as a **pragmatic compatibility extension**, ``type: string`` together with a
+     non-text ``contentMediaType`` (and no ``contentEncoding``) also accepts
+     ``bytes``. This is runtime tolerance for specs migrated from 3.0, not a
+     claim of spec conformance
+   - plain ``type: string`` accepts ``str`` only (not ``bytes``)
+   - encoded text stays on the string path: model base64-in-JSON and similar with
+     ``contentEncoding``. *Any* real ``contentEncoding`` (``base64``,
+     ``base64url``, ``base16``, ``base32``, ``quoted-printable`` ...) keeps the
+     schema textual; only the no-op identity encodings (``identity`` / ``binary``
+     / ``7bit`` / ``8bit``) leave it raw
+   - ``maxLength`` / ``minLength`` constrain raw ``bytes`` by octet count
+
+**OAS31StrictValidator / OAS32StrictValidator**
+   - explicit opt-ins that preserve JSON Schema string typing
+   - canonical **typeless** raw binary still accepts ``bytes``
+   - a schema asserting ``type: string`` rejects ``bytes`` even with a non-text
+     ``contentMediaType`` (no pragmatic tolerance)
+
+``validator_for`` keeps resolving the 3.1 / 3.2 dialect ids to the default
+validators; the strict classes are never the dialect default.
 
 Regex Behavior
 ==============

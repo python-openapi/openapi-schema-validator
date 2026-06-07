@@ -9,7 +9,9 @@ from openapi_schema_validator.validators import OAS30ReadValidator
 from openapi_schema_validator.validators import OAS30StrictValidator
 from openapi_schema_validator.validators import OAS30Validator
 from openapi_schema_validator.validators import OAS30WriteValidator
+from openapi_schema_validator.validators import OAS31StrictValidator
 from openapi_schema_validator.validators import OAS31Validator
+from openapi_schema_validator.validators import OAS32StrictValidator
 from openapi_schema_validator.validators import OAS32Validator
 
 __author__ = "Artur Maciag"
@@ -27,8 +29,10 @@ __all__ = [
     "oas30_format_checker",
     "oas30_strict_format_checker",
     "OAS31Validator",
+    "OAS31StrictValidator",
     "oas31_format_checker",
     "OAS32Validator",
+    "OAS32StrictValidator",
     "oas32_format_checker",
     "OAS31_BASE_DIALECT_ID",
     "OAS32_BASE_DIALECT_ID",

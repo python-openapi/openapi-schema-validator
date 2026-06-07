@@ -265,25 +265,57 @@ OpenAPI 3.0 keeps historical ``format: binary`` / ``format: byte`` usage on
 
 - ``type: string`` accepts ``str``
 - ``type: string, format: binary`` accepts Python ``bytes`` and strings
+- ``maxLength`` / ``minLength`` constrain raw ``bytes`` by octet count
 - useful when validating Python-native runtime data
 
 **OAS30StrictValidator**
 
 - ``type: string`` accepts ``str`` only
-- ``type: string, format: binary`` uses strict format validation
+- ``type: string, format: binary`` uses strict format validation and rejects
+  ``bytes``
 - use when you want strict, spec-oriented behavior for 3.0 schemas
 
 OpenAPI 3.1+
 ~~~~~~~~~~~~
 
-OpenAPI 3.1+ follows JSON Schema semantics for string typing in this library.
+Under JSON Schema 2020-12, OpenAPI 3.1 and 3.2 model raw binary with a
+**typeless** schema; the 3.0 ``format: binary`` / ``format: byte`` pair was
+dropped. This library accepts Python ``bytes`` for raw-binary schemas.
 
-- ``type: string`` accepts ``str`` only (not ``bytes``)
-- ``format: binary`` and ``format: byte`` are not treated as built-in formats
-- for base64-in-JSON, model with ``contentEncoding: base64`` (optionally
-  ``contentMediaType``)
-- for raw binary payloads, model via media type (for example
-  ``application/octet-stream``) rather than schema string formats
+**OAS31Validator / OAS32Validator (default - runtime-friendly behavior)**
+
+- the canonical raw-binary form is a **typeless** schema, optionally annotated
+  with a non-text ``contentMediaType`` and no ``contentEncoding`` (for example
+  ``{}`` or ``{"contentMediaType": "application/octet-stream"}``); a ``bytes``
+  instance validates
+- as a **pragmatic compatibility extension**, ``type: string`` together with a
+  non-text ``contentMediaType`` (and no ``contentEncoding``) also accepts
+  ``bytes`` -- runtime tolerance for specs migrated from 3.0, not a claim of
+  spec conformance
+- plain ``type: string`` accepts ``str`` only (not ``bytes``)
+- encoded text stays on the string path: model base64-in-JSON and similar with
+  ``contentEncoding``. *Any* real ``contentEncoding`` (``base64``,
+  ``base64url``, ``base16``, ``base32``, ``quoted-printable`` ...) keeps the
+  schema textual; only the no-op identity encodings (``identity`` / ``binary``
+  / ``7bit`` / ``8bit``) leave it raw
+- ``maxLength`` / ``minLength`` constrain raw ``bytes`` by octet count
+
+**OAS31StrictValidator / OAS32StrictValidator**
+
+- explicit opt-ins that preserve JSON Schema string typing
+- canonical **typeless** raw binary still accepts ``bytes``
+- a schema asserting ``type: string`` rejects ``bytes`` even with a non-text
+  ``contentMediaType`` (no pragmatic tolerance)
+- ``validator_for`` keeps resolving the 3.1 / 3.2 dialect ids to the default
+  validators; the strict classes are never the dialect default
+
+.. note::
+
+   **Migration from 3.0:** in 3.1 / 3.2 ``format: binary`` is no longer a binary
+   marker (under 2020-12 ``format`` is an annotation). A ``bytes`` value
+   validated against a 3.1 / 3.2 ``{"type": "string", "format": "binary"}``
+   schema is now **rejected** -- model raw binary with ``contentMediaType``
+   (ideally a typeless schema) instead.
 
 Quick Reference
 ~~~~~~~~~~~~~~~
@@ -306,12 +338,45 @@ Quick Reference
      - Strict 3.0 validation mode
    * - OAS 3.1 + ``OAS31Validator``
      - Pass
-     - Fail
-     - Use ``contentEncoding``/``contentMediaType`` and media types
+     - Pass for raw binary
+     - Typeless, or ``type: string`` + non-text ``contentMediaType``
    * - OAS 3.2 + ``OAS32Validator``
      - Pass
-     - Fail
+     - Pass for raw binary
      - Same semantics as OAS 3.1
+   * - OAS 3.1/3.2 strict validators
+     - Pass
+     - Pass for typeless raw binary
+     - Rejects ``bytes`` whenever ``type: string`` is asserted
+
+Example usage:
+
+.. code-block:: python
+
+   from openapi_schema_validator import OAS31StrictValidator
+   from openapi_schema_validator import OAS31Validator
+
+   # Canonical typeless raw binary - accepts bytes
+   validator = OAS31Validator({"contentMediaType": "application/octet-stream"})
+   validator.validate(b"binary data")  # passes
+
+   # Pragmatic compatibility extension (default validators only)
+   validator = OAS31Validator(
+       {"type": "string", "contentMediaType": "application/octet-stream"}
+   )
+   validator.validate(b"binary data")  # passes
+
+   # Octet-length bounds apply to raw bytes
+   validator = OAS31Validator(
+       {"contentMediaType": "application/pdf", "maxLength": 1}
+   )
+   validator.validate(b"abc")  # raises ValidationError (3 octets > 1)
+
+   # Strict - preserves JSON Schema string typing
+   validator = OAS31StrictValidator(
+       {"type": "string", "contentMediaType": "application/octet-stream"}
+   )
+   validator.validate(b"binary data")  # raises ValidationError
 
 Regex Behavior
 --------------
