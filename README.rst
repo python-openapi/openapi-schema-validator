@@ -244,16 +244,9 @@ dropped). This library accepts Python ``bytes`` for such raw-binary schemas.
    - canonical **typeless** raw binary still accepts ``bytes``
    - a schema asserting ``type: string`` rejects ``bytes`` even with a non-text
      ``contentMediaType`` (no pragmatic tolerance)
-   - ``validator_for`` keeps resolving the 3.1 / 3.2 dialect ids to the default
-     validators; the strict classes are never the dialect default
 
-.. note::
-
-   **Migration from 3.0:** in 3.1 / 3.2 ``format: binary`` is no longer a binary
-   marker (under 2020-12 ``format`` is an annotation). A ``bytes`` value
-   validated against a 3.1 / 3.2 ``{"type": "string", "format": "binary"}``
-   schema is now **rejected** -- model raw binary with ``contentMediaType``
-   (ideally a typeless schema) instead.
+``validator_for`` keeps resolving the 3.1 / 3.2 dialect ids to the default
+validators; the strict classes are never the dialect default.
 
 Regex Behavior
 ==============

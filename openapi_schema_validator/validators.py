@@ -108,6 +108,26 @@ OAS30_VALIDATORS = cast(
 )
 
 
+def _binary_aware_oas30_keywords(predicate: Any) -> dict[str, Any]:
+    """Binary-aware wrappers over the OAS 3.0 keyword callables.
+
+    ``type`` accepts ``bytes`` for opaque binary schemas, ``maxLength`` / ``minLength``
+    enforce octet length, and ``format`` is skipped on opaque binary ``bytes``. The
+    originals are the OAS 3.0 callables so the strict variants do not inherit the
+    default predicate's acceptance.
+    """
+    return {
+        "type": build_binary_type(OAS30_VALIDATORS["type"], predicate),
+        "maxLength": build_binary_max_length(
+            OAS30_VALIDATORS["maxLength"], predicate
+        ),
+        "minLength": build_binary_min_length(
+            OAS30_VALIDATORS["minLength"], predicate
+        ),
+        "format": build_binary_format(OAS30_VALIDATORS["format"], predicate),
+    }
+
+
 def _binary_aware_draft202012_keywords(predicate: Any) -> dict[str, Any]:
     """Binary-aware wrappers over the native draft-2020-12 keyword callables.
 
@@ -133,83 +153,48 @@ def _binary_aware_draft202012_keywords(predicate: Any) -> dict[str, Any]:
     }
 
 
-def _build_oas30_validator() -> Any:
-    # Fold binary-awareness into the base OAS 3.0 validator so that the read /
-    # write / strict subclasses inherit the octet-length and format behavior.
-    validators = dict(OAS30_VALIDATORS)
-    validators["type"] = build_binary_type(
-        oas_keywords.type, is_oas30_binary_schema
-    )
-    validators["maxLength"] = build_binary_max_length(
-        _keywords.maxLength, is_oas30_binary_schema
-    )
-    validators["minLength"] = build_binary_min_length(
-        _keywords.minLength, is_oas30_binary_schema
-    )
-    validators["format"] = build_binary_format(
-        oas_keywords.format, is_oas30_binary_schema
-    )
-    return create(
-        meta_schema=OPENAPI_SPECIFICATIONS.contents(
-            "http://json-schema.org/draft-04/schema#",
+def extend_openapi_validator(
+    validator_class: Any,
+    validators: Mapping[str, Any] | None = None,
+    type_checker: Any | None = None,
+    format_checker: Any | None = None,
+) -> type[Validator]:
+    """Extend an OpenAPI-aware Validator with custom behavior while preserving
+    OpenAPI metaschema checking and FORMAT_CHECKER.
+
+    jsonschema extend() builds a fresh class via create() and drops the custom check_schema, so there
+    is no simpler hook to inject registry-aware schema checking while preserving class's FORMAT_CHECKER.
+    """
+    extended_validator = cast(
+        type[Validator],
+        extend(
+            validator_class,
+            validators=validators or {},
+            type_checker=type_checker,
+            format_checker=format_checker,
         ),
-        validators=cast(Any, validators),
-        type_checker=oas_types.oas30_type_checker,
-        format_checker=oas_format.oas30_format_checker,
-        # NOTE: version causes conflict with global jsonschema validator
-        # See https://github.com/python-openapi/openapi-schema-validator/pull/12
-        # version="oas30",
-        id_of=_oas30_id_of,
     )
+    extended_validator.check_schema = classmethod(check_openapi_schema)
+    return extended_validator
 
 
-def _build_oas31_validator() -> Any:
-    # Binary-awareness is folded in here, before register_openapi_dialect, so
-    # that validator_for resolves the dialect id to this binary-aware class.
-    validators = {
-        # adjusted to OAS
-        "pattern": oas_keywords.pattern,
-        "description": oas_keywords.not_implemented,
-        # fixed OAS fields
-        # discriminator is annotation-only in OAS 3.1+
-        "discriminator": oas_keywords.not_implemented,
-        "xml": oas_keywords.not_implemented,
-        "externalDocs": oas_keywords.not_implemented,
-        "example": oas_keywords.not_implemented,
-    }
-    validators.update(
-        _binary_aware_draft202012_keywords(is_oas31_binary_schema)
-    )
-    validator = extend(
-        Draft202012Validator,
-        validators,
-        type_checker=oas31_type_checker,
-        format_checker=oas_format.oas31_format_checker,
-    )
-    return register_openapi_dialect(
-        validator=validator,
-        dialect_id=OAS31_BASE_DIALECT_ID,
-        version_name="oas31",
-        metaschema=OAS31_BASE_DIALECT_METASCHEMA,
-    )
-
-
-def _build_oas32_validator() -> Any:
-    validator = extend(
-        OAS31Validator,
-        _binary_aware_draft202012_keywords(is_oas32_binary_schema),
-        format_checker=oas_format.oas32_format_checker,
-    )
-    return register_openapi_dialect(
-        validator=validator,
-        dialect_id=OAS32_BASE_DIALECT_ID,
-        version_name="oas32",
-        metaschema=OAS32_BASE_DIALECT_METASCHEMA,
-    )
-
-
-OAS30Validator = _build_oas30_validator()
-OAS30StrictValidator = extend(
+BaseOAS30Validator = create(
+    meta_schema=OPENAPI_SPECIFICATIONS.contents(
+        "http://json-schema.org/draft-04/schema#",
+    ),
+    validators=OAS30_VALIDATORS,
+    type_checker=oas_types.oas30_type_checker,
+    format_checker=oas_format.oas30_format_checker,
+    # NOTE: version causes conflict with global jsonschema validator
+    # See https://github.com/python-openapi/openapi-schema-validator/pull/12
+    # version="oas30",
+    id_of=_oas30_id_of,
+)
+OAS30Validator = extend_openapi_validator(
+    BaseOAS30Validator,
+    _binary_aware_oas30_keywords(is_oas30_binary_schema),
+)
+OAS30StrictValidator = extend_openapi_validator(
     OAS30Validator,
     validators={
         "type": oas_keywords.strict_type,
@@ -220,14 +205,14 @@ OAS30StrictValidator = extend(
     # See https://github.com/python-openapi/openapi-schema-validator/pull/12
     # version="oas30-strict",
 )
-OAS30ReadValidator = extend(
+OAS30ReadValidator = extend_openapi_validator(
     OAS30Validator,
     validators={
         "required": oas_keywords.read_required,
         "writeOnly": oas_keywords.read_writeOnly,
     },
 )
-OAS30WriteValidator = extend(
+OAS30WriteValidator = extend_openapi_validator(
     OAS30Validator,
     validators={
         "required": oas_keywords.write_required,
@@ -235,17 +220,43 @@ OAS30WriteValidator = extend(
     },
 )
 
-OAS31Validator = _build_oas31_validator()
-OAS32Validator = _build_oas32_validator()
+BaseOAS31Validator = extend_openapi_validator(
+    Draft202012Validator,
+    validators={
+        # adjusted to OAS
+        "pattern": oas_keywords.pattern,
+        "description": oas_keywords.not_implemented,
+        # fixed OAS fields
+        # discriminator is annotation-only in OAS 3.1+
+        "discriminator": oas_keywords.not_implemented,
+        "xml": oas_keywords.not_implemented,
+        "externalDocs": oas_keywords.not_implemented,
+        "example": oas_keywords.not_implemented,
+    },
+)
+OAS31Validator = extend_openapi_validator(
+    BaseOAS31Validator,
+    _binary_aware_draft202012_keywords(is_oas31_binary_schema),
+    format_checker=oas_format.oas31_format_checker,
+)
+register_openapi_dialect(
+    validator=OAS31Validator,
+    dialect_id=OAS31_BASE_DIALECT_ID,
+    version_name="oas31",
+    metaschema=OAS31_BASE_DIALECT_METASCHEMA,
+)
 
-# These validator classes are generated via jsonschema create/extend, so there
-# is no simpler hook to inject registry-aware schema checking while preserving
-# each class's FORMAT_CHECKER. Override check_schema on each class to keep
-# OpenAPI metaschema resolution local and to apply optional ecma-regex
-# behavior consistently across OAS 3.0/3.1/3.2.
-OAS30Validator.check_schema = classmethod(check_openapi_schema)
-OAS31Validator.check_schema = classmethod(check_openapi_schema)
-OAS32Validator.check_schema = classmethod(check_openapi_schema)
+OAS32Validator = extend_openapi_validator(
+    OAS31Validator,
+    _binary_aware_draft202012_keywords(is_oas32_binary_schema),
+    format_checker=oas_format.oas32_format_checker,
+)
+register_openapi_dialect(
+    validator=OAS32Validator,
+    dialect_id=OAS32_BASE_DIALECT_ID,
+    version_name="oas32",
+    metaschema=OAS32_BASE_DIALECT_METASCHEMA,
+)
 
 # Strict OAS 3.1 / 3.2 validators: explicit opt-ins that preserve JSON Schema
 # string typing. They accept canonical typeless raw binary but reject ``bytes``
@@ -254,19 +265,15 @@ OAS32Validator.check_schema = classmethod(check_openapi_schema)
 # the default binary wrappers, and intentionally NOT registered as the dialect
 # default, so validator_for keeps resolving the OAS 3.1 / 3.2 dialect ids to the
 # runtime-friendly OAS31Validator / OAS32Validator.
-OAS31StrictValidator = extend(
+OAS31StrictValidator = extend_openapi_validator(
     OAS31Validator,
     _binary_aware_draft202012_keywords(is_oas31_strict_binary_schema),
 )
-OAS32StrictValidator = extend(
+OAS32StrictValidator = extend_openapi_validator(
     OAS32Validator,
     _binary_aware_draft202012_keywords(is_oas32_strict_binary_schema),
     format_checker=oas_format.oas32_format_checker,
 )
-# extend() builds a fresh class via create() and drops the custom check_schema
-# classmethod, so re-attach it (mirrors build_enforce_properties_required_validator).
-OAS31StrictValidator.check_schema = classmethod(check_openapi_schema)
-OAS32StrictValidator.check_schema = classmethod(check_openapi_schema)
 
 
 @lru_cache(maxsize=None)
@@ -302,12 +309,7 @@ def build_enforce_properties_required_validator(
                     validator, missing_props, instance, schema
                 )
 
-    extended_validator = extend(
+    return extend_openapi_validator(
         validator_class,
         validators={"properties": enforce_properties},
     )
-    if hasattr(validator_class, "check_schema"):
-        extended_validator.check_schema = classmethod(
-            validator_class.check_schema.__func__
-        )
-    return cast(type[Validator], extended_validator)

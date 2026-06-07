@@ -299,6 +299,17 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
             validator.validate(b"abc")
         assert validator.validate(b"a") is None
 
+    def test_binary_octet_min_length_rejects_and_accepts(
+        self, validator_class
+    ):
+        # minLength constrains raw bytes by octet count for OAS 3.0 too.
+        schema = {"type": "string", "format": "binary", "minLength": 2}
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"a")
+        assert validator.validate(b"ab") is None
+
     def test_binary_format_byte_rejects_bytes(
         self, validator_class, format_checker
     ):
@@ -320,6 +331,72 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
         with pytest.raises(ValidationError):
             validator.validate(b"zzz")
         assert validator.validate(b"a") is None
+
+    def test_binary_format_skipped_for_bytes(self, validator_class):
+        # The format check is skipped for opaque binary bytes: even a strict
+        # binary format checker (which rejects raw bytes for str-based base64
+        # validation) does not run against the bytes payload.
+        schema = {"type": "string", "format": "binary"}
+        validator = validator_class(
+            schema, format_checker=oas30_strict_format_checker
+        )
+
+        assert validator.validate(b"\x00\x01\x02") is None
+
+    def test_binary_oneof_selects_binary_branch_for_bytes(
+        self, validator_class
+    ):
+        schema = {
+            "oneOf": [
+                {"type": "integer"},
+                {"type": "string", "format": "binary"},
+            ]
+        }
+        validator = validator_class(schema)
+
+        assert validator.validate(b"raw") is None
+
+    def test_binary_anyof_selects_binary_branch_for_bytes(
+        self, validator_class
+    ):
+        schema = {
+            "anyOf": [
+                {"type": "integer"},
+                {"type": "string", "format": "binary"},
+            ]
+        }
+        validator = validator_class(schema)
+
+        assert validator.validate(b"raw") is None
+
+    def test_binary_nested_object_property_accepts_bytes(
+        self, validator_class
+    ):
+        schema = {
+            "type": "object",
+            "properties": {
+                "file": {"type": "string", "format": "binary"},
+            },
+        }
+        validator = validator_class(schema)
+
+        assert validator.validate({"file": b"raw"}) is None
+
+    def test_binary_does_not_mutate_schema_or_instance(self, validator_class):
+        schema = {
+            "type": "string",
+            "format": "binary",
+            "maxLength": 8,
+        }
+        schema_before = deepcopy(schema)
+        instance = bytearray(b"raw")
+        instance_before = bytearray(instance)
+        validator = validator_class(schema)
+
+        validator.validate(bytes(instance))
+
+        assert schema == schema_before
+        assert instance == instance_before
 
     @pytest.mark.parametrize(
         "schema_type",
@@ -1648,6 +1725,60 @@ class TestOAS31StrictValidatorValidate:
             validator.validate(b"abc")
         assert validator.validate(b"a") is None
 
+    def test_typeless_octet_min_length_enforced(self, validator_class):
+        # minLength likewise applies to canonical typeless raw binary.
+        schema = {"contentMediaType": "application/pdf", "minLength": 2}
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"a")
+        assert validator.validate(b"ab") is None
+
+    def test_typeless_enum_bytes_stays_active(self, validator_class):
+        schema = {
+            "contentMediaType": "application/octet-stream",
+            "enum": [b"a", b"b"],
+        }
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"zzz")
+        assert validator.validate(b"a") is None
+
+    def test_typeless_const_bytes_stays_active(self, validator_class):
+        schema = {
+            "contentMediaType": "application/octet-stream",
+            "const": b"a",
+        }
+        validator = validator_class(schema)
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"b")
+        assert validator.validate(b"a") is None
+
+    def test_typeless_pattern_does_not_raise_or_reject(self, validator_class):
+        # Typeless raw binary accepts bytes; pattern's is_type guard
+        # short-circuits the bytes payload (no TypeError, no rejection).
+        schema = {
+            "contentMediaType": "application/octet-stream",
+            "pattern": "^a",
+        }
+        validator = validator_class(schema)
+
+        assert validator.validate(b"does-not-match-pattern") is None
+
+    def test_does_not_mutate_schema_or_instance(self, validator_class):
+        schema = {"contentMediaType": "application/pdf", "maxLength": 8}
+        schema_before = deepcopy(schema)
+        instance = bytearray(b"raw")
+        instance_before = bytearray(instance)
+        validator = validator_class(schema)
+
+        validator.validate(bytes(instance))
+
+        assert schema == schema_before
+        assert instance == instance_before
+
     def test_multi_type_with_marker_rejects_bytes(self, validator_class):
         # type: [string, null] asserts type, so strict rejects bytes but still
         # accepts null.
@@ -1733,6 +1864,52 @@ class TestOAS30StrictValidator:
         # Note: "test" is actually valid base64, so use "not base64" which is not
         with pytest.raises(ValidationError, match="is not a 'binary'"):
             validator.validate("not base64")
+
+    def test_strict_pattern_with_bytes_rejects_without_crashing(self):
+        # strict_type rejects bytes on the type axis; pattern's is_type guard
+        # short-circuits bytes before re.search, so this is a clean
+        # ValidationError -- not a TypeError from the never-broadened "string"
+        # type checker.
+        schema = {"type": "string", "pattern": "^a", "format": "binary"}
+        validator = OAS30StrictValidator(
+            schema, format_checker=oas30_format_checker
+        )
+
+        with pytest.raises(ValidationError):
+            validator.validate(b"abc")
+
+
+class TestCheckSchemaUsesBundledOpenAPIMetaschema:
+    """``check_schema`` resolves the OAS dialect metaschema from the bundled
+    registry, so schema checking works offline for every OpenAPI-dialect
+    validator -- default and strict.
+
+    This pins the observable contract of the OpenAPI-aware ``check_schema``: a
+    stock jsonschema ``check_schema`` cannot resolve the OAS 3.1 / 3.2 dialect
+    metaschema (its ``$ref`` targets are not bundled in jsonschema) and raises
+    ``Unresolvable``. So a validator that loses the OpenAPI-aware ``check_schema``
+    fails here -- without inspecting how the class is wired.
+    """
+
+    @pytest.mark.parametrize(
+        "validator_class",
+        [
+            OAS31Validator,
+            OAS32Validator,
+            OAS31StrictValidator,
+            OAS32StrictValidator,
+        ],
+    )
+    def test_check_schema_resolves_metaschema_offline(self, validator_class):
+        schema = {
+            "type": "object",
+            "properties": {"name": {"type": "string"}},
+        }
+
+        with patch("urllib.request.urlopen") as urlopen:
+            validator_class.check_schema(schema)
+
+        urlopen.assert_not_called()
 
 
 class TestValidatorForDiscovery:
