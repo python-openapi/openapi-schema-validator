@@ -35,7 +35,7 @@ jobs:
         run: poetry config virtualenvs.in-project true
 
       - name: Set up cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: cache
         with:
           path: .venv
@@ -84,7 +84,7 @@ jobs:
         run: poetry config virtualenvs.in-project true
 
       - name: Set up cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: cache
         with:
           path: .venv
@@ -125,7 +125,7 @@ jobs:
         run: poetry config virtualenvs.in-project true
 
       - name: Set up cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: cache
         with:
           path: .venv
