@@ -9,6 +9,8 @@ from jsonschema import _legacy_keywords
 from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError
 from jsonschema.protocols import Validator
+from jsonschema.validators import Draft4Validator
+from jsonschema.validators import Draft7Validator
 from jsonschema.validators import Draft202012Validator
 from jsonschema.validators import create
 from jsonschema.validators import extend
@@ -28,6 +30,24 @@ from openapi_schema_validator._specifications import (
 from openapi_schema_validator._types import oas31_type_checker
 
 _CHECK_SCHEMA_UNSET = object()
+_DRAFT4_META_SCHEMA = OPENAPI_SPECIFICATIONS.contents(
+    "http://json-schema.org/draft-04/schema#",
+)
+_OAS30_SCHEMA_CHECKER = extend(
+    Draft4Validator, {"if": Draft7Validator.VALIDATORS["if"]}
+)
+# Keep the metaschema private and anonymous so its recursive references use
+# this conditional without switching back to the registered Draft 4 validator.
+_OAS30_CHECK_SCHEMA = {
+    "definitions": _DRAFT4_META_SCHEMA["definitions"],
+    "type": _DRAFT4_META_SCHEMA["type"],
+    "if": {"required": ["$ref"]},
+    "then": {"properties": {"$ref": {"type": "string"}}},
+    "else": {
+        "properties": _DRAFT4_META_SCHEMA["properties"],
+        "dependencies": _DRAFT4_META_SCHEMA["dependencies"],
+    },
+}
 
 
 def check_openapi_schema(
@@ -46,12 +66,41 @@ def check_openapi_schema(
         registry=OPENAPI_SPECIFICATIONS,
     )
 
-    for error in validator_for_metaschema.iter_errors(schema):
+    _raise_first_schema_error(validator_for_metaschema, schema)
+
+
+def _check_oas30_schema(
+    cls: Any,
+    schema: Any,
+    format_checker: Any = _CHECK_SCHEMA_UNSET,
+) -> None:
+    if format_checker is _CHECK_SCHEMA_UNSET:
+        format_checker = cls.FORMAT_CHECKER
+
+    validator = _OAS30_SCHEMA_CHECKER(
+        _OAS30_CHECK_SCHEMA,
+        format_checker=format_checker,
+        registry=OPENAPI_SPECIFICATIONS,
+    )
+    _raise_first_schema_error(validator, schema)
+
+
+def _check_oas30_variant_schema(
+    cls: Any,
+    schema: Any,
+    format_checker: Any = Draft4Validator.FORMAT_CHECKER,
+) -> None:
+    # These variants previously inherited jsonschema's Draft 4 format checks.
+    _check_oas30_schema(cls, schema, format_checker)
+
+
+def _raise_first_schema_error(validator: Validator, schema: Any) -> None:
+    for error in validator.iter_errors(schema):
         raise SchemaError.create_from(error)
 
 
 def _oas30_id_of(schema: Any) -> str:
-    if isinstance(schema, dict):
+    if isinstance(schema, dict) and "$ref" not in schema:
         return schema.get("id", "")  # type: ignore[no-any-return]
     return ""
 
@@ -101,9 +150,7 @@ OAS30_VALIDATORS = cast(
 
 def _build_oas30_validator() -> Any:
     return create(
-        meta_schema=OPENAPI_SPECIFICATIONS.contents(
-            "http://json-schema.org/draft-04/schema#",
-        ),
+        meta_schema=_DRAFT4_META_SCHEMA,
         validators=OAS30_VALIDATORS,
         type_checker=oas_types.oas30_type_checker,
         format_checker=oas_format.oas30_format_checker,
@@ -181,15 +228,40 @@ OAS30WriteValidator = extend(
     },
 )
 
+_jsonschema_evolve = OAS30Validator.evolve
+
+
+def _evolve_oas30(validator: Any, **changes: Any) -> Any:
+    schema = changes.get("schema", validator.schema)
+    # jsonschema selects a validator from $schema before filtering keywords.
+    if (
+        isinstance(schema, Mapping)
+        and "$ref" in schema
+        and "$schema" in schema
+    ):
+        schema = dict(schema)
+        del schema["$schema"]
+        changes["schema"] = schema
+    return _jsonschema_evolve(validator, **changes)
+
+
+for _oas30_validator in (
+    OAS30Validator,
+    OAS30StrictValidator,
+    OAS30ReadValidator,
+    OAS30WriteValidator,
+):
+    _oas30_validator.evolve = _evolve_oas30
+
 OAS31Validator = _build_oas31_validator()
 OAS32Validator = _build_oas32_validator()
 
-# These validator classes are generated via jsonschema create/extend, so there
-# is no simpler hook to inject registry-aware schema checking while preserving
-# each class's FORMAT_CHECKER. Override check_schema on each class to keep
-# OpenAPI metaschema resolution local and to apply optional ecma-regex
-# behavior consistently across OAS 3.0/3.1/3.2.
-OAS30Validator.check_schema = classmethod(check_openapi_schema)
+# Override the generated methods to use the dialect-specific schema checks
+# and keep metaschema resolution local.
+OAS30Validator.check_schema = classmethod(_check_oas30_schema)
+OAS30StrictValidator.check_schema = classmethod(_check_oas30_variant_schema)
+OAS30ReadValidator.check_schema = classmethod(_check_oas30_variant_schema)
+OAS30WriteValidator.check_schema = classmethod(_check_oas30_variant_schema)
 OAS31Validator.check_schema = classmethod(check_openapi_schema)
 OAS32Validator.check_schema = classmethod(check_openapi_schema)
 
@@ -235,4 +307,6 @@ def build_enforce_properties_required_validator(
         extended_validator.check_schema = classmethod(
             validator_class.check_schema.__func__
         )
+    if validator_class.evolve is _evolve_oas30:
+        extended_validator.evolve = _evolve_oas30
     return cast(type[Validator], extended_validator)
