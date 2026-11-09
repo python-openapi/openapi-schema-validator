@@ -9,6 +9,8 @@ from jsonschema import _legacy_keywords
 from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError
 from jsonschema.protocols import Validator
+from jsonschema.validators import Draft4Validator
+from jsonschema.validators import Draft7Validator
 from jsonschema.validators import Draft202012Validator
 from jsonschema.validators import create
 from jsonschema.validators import extend
@@ -17,6 +19,7 @@ from jsonschema.validators import validator_for
 from openapi_schema_validator import _format as oas_format
 from openapi_schema_validator import _keywords as oas_keywords
 from openapi_schema_validator import _types as oas_types
+from openapi_schema_validator._dialects import OAS30_SCHEMA_ID
 from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_ID
 from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_METASCHEMA
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_ID
@@ -47,6 +50,89 @@ def check_openapi_schema(
     )
 
     for error in validator_for_metaschema.iter_errors(schema):
+        raise SchemaError.create_from(error)
+
+
+_OAS30_SCHEMA_OBJECT_DEFINITIONS = (
+    "Schema",
+    "Reference",
+    "Discriminator",
+    "XML",
+    "ExternalDocumentation",
+)
+_OAS30_SCHEMA_OR_REFERENCE = [
+    {"$ref": "#/definitions/Schema"},
+    {"$ref": "#/definitions/Reference"},
+]
+# Choose the alternative from ``$ref`` the way the specification does, so
+# errors point at the offending keyword instead of a generic oneOf failure.
+# Keys next to ``$ref`` are allowed by the Reference definition and ignored.
+_OAS30_SCHEMA_OR_REFERENCE_CHECK = {
+    "if": {"required": ["$ref"]},
+    "then": {"$ref": "#/definitions/Reference"},
+    "else": {"$ref": "#/definitions/Schema"},
+}
+
+
+def _dispatch_schema_or_reference(value: Any) -> Any:
+    if isinstance(value, list):
+        return [_dispatch_schema_or_reference(item) for item in value]
+    if not isinstance(value, Mapping):
+        return value
+    alternatives = value.get("oneOf")
+    if alternatives == _OAS30_SCHEMA_OR_REFERENCE:
+        rest = {k: v for k, v in value.items() if k != "oneOf"}
+        return {**rest, **_OAS30_SCHEMA_OR_REFERENCE_CHECK}
+    if alternatives == [*_OAS30_SCHEMA_OR_REFERENCE, {"type": "boolean"}]:
+        rest = {k: v for k, v in value.items() if k != "oneOf"}
+        return {
+            **rest,
+            "if": {"type": "object"},
+            "then": _OAS30_SCHEMA_OR_REFERENCE_CHECK,
+            "else": {"type": "boolean"},
+        }
+    return {
+        key: _dispatch_schema_or_reference(item) for key, item in value.items()
+    }
+
+
+def _build_oas30_check_schema() -> dict[str, Any]:
+    # The OpenAPI 3.0 Schema Object as published by the OpenAPI Initiative:
+    # only the fields the specification lists, plus ``x-`` extensions. The
+    # vendored document stays unmodified; this anonymous copy keeps its
+    # definitions and only rewrites the Schema/Reference alternatives.
+    definitions = OPENAPI_SPECIFICATIONS.contents(OAS30_SCHEMA_ID)[
+        "definitions"
+    ]
+    return {
+        "definitions": {
+            name: _dispatch_schema_or_reference(definitions[name])
+            for name in _OAS30_SCHEMA_OBJECT_DEFINITIONS
+        },
+        **_OAS30_SCHEMA_OR_REFERENCE_CHECK,
+    }
+
+
+_OAS30_CHECK_SCHEMA = _build_oas30_check_schema()
+_OAS30_SCHEMA_CHECKER = extend(
+    Draft4Validator, {"if": Draft7Validator.VALIDATORS["if"]}
+)
+
+
+def check_oas30_schema(
+    cls: Any,
+    schema: Any,
+    format_checker: Any = _CHECK_SCHEMA_UNSET,
+) -> None:
+    if format_checker is _CHECK_SCHEMA_UNSET:
+        format_checker = cls.FORMAT_CHECKER
+
+    validator = _OAS30_SCHEMA_CHECKER(
+        _OAS30_CHECK_SCHEMA,
+        format_checker=format_checker,
+    )
+
+    for error in validator.iter_errors(schema):
         raise SchemaError.create_from(error)
 
 
@@ -189,7 +275,10 @@ OAS32Validator = _build_oas32_validator()
 # each class's FORMAT_CHECKER. Override check_schema on each class to keep
 # OpenAPI metaschema resolution local and to apply optional ecma-regex
 # behavior consistently across OAS 3.0/3.1/3.2.
-OAS30Validator.check_schema = classmethod(check_openapi_schema)
+OAS30Validator.check_schema = classmethod(check_oas30_schema)
+OAS30StrictValidator.check_schema = classmethod(check_oas30_schema)
+OAS30ReadValidator.check_schema = classmethod(check_oas30_schema)
+OAS30WriteValidator.check_schema = classmethod(check_oas30_schema)
 OAS31Validator.check_schema = classmethod(check_openapi_schema)
 OAS32Validator.check_schema = classmethod(check_openapi_schema)
 

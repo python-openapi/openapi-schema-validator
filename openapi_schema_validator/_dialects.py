@@ -7,6 +7,7 @@ from openapi_schema_validator._specifications import (
 )
 
 __all__ = [
+    "OAS30_SCHEMA_ID",
     "OAS31_BASE_DIALECT_ID",
     "OAS31_BASE_DIALECT_METASCHEMA",
     "OAS32_BASE_DIALECT_ID",
@@ -14,6 +15,7 @@ __all__ = [
     "register_openapi_dialect",
 ]
 
+OAS30_SCHEMA_ID = "https://spec.openapis.org/oas/3.0/schema/2024-10-18"
 OAS31_BASE_DIALECT_ID = "https://spec.openapis.org/oas/3.1/dialect/base"
 OAS31_BASE_DIALECT_METASCHEMA = OPENAPI_SPECIFICATIONS.contents(
     OAS31_BASE_DIALECT_ID,
