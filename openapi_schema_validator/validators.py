@@ -255,10 +255,11 @@ _jsonschema_evolve = OAS30Validator.evolve
 def _evolve_oas30(validator: Any, **changes: Any) -> Any:
     schema = changes.get("schema", validator.schema)
     # jsonschema selects a validator from $schema before filtering keywords.
+    # Runs on every descend: check the common dict case without the ABC.
     if (
-        isinstance(schema, Mapping)
-        and "$ref" in schema
+        (type(schema) is dict or isinstance(schema, Mapping))
         and "$schema" in schema
+        and "$ref" in schema
     ):
         schema = dict(schema)
         del schema["$schema"]
