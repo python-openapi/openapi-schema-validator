@@ -24,6 +24,9 @@ from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_METASCHEMA
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_ID
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_METASCHEMA
 from openapi_schema_validator._dialects import register_openapi_dialect
+from openapi_schema_validator._references import (
+    iter_unchecked_reference_targets,
+)
 from openapi_schema_validator._specifications import (
     REGISTRY as OPENAPI_SPECIFICATIONS,
 )
@@ -73,6 +76,8 @@ def _check_oas30_schema(
     cls: Any,
     schema: Any,
     format_checker: Any = _CHECK_SCHEMA_UNSET,
+    *,
+    check_references: bool = True,
 ) -> None:
     if format_checker is _CHECK_SCHEMA_UNSET:
         format_checker = cls.FORMAT_CHECKER
@@ -83,15 +88,31 @@ def _check_oas30_schema(
         registry=OPENAPI_SPECIFICATIONS,
     )
     _raise_first_schema_error(validator, schema)
+    if not check_references or not isinstance(schema, Mapping):
+        return
+    # Reference siblings are ignored above, so check local reference
+    # targets the structural check did not reach.
+    for target in iter_unchecked_reference_targets(schema):
+        _raise_first_schema_error(validator, target)
 
 
 def _check_oas30_variant_schema(
     cls: Any,
     schema: Any,
     format_checker: Any = Draft4Validator.FORMAT_CHECKER,
+    *,
+    check_references: bool = True,
 ) -> None:
     # These variants previously inherited jsonschema's Draft 4 format checks.
-    _check_oas30_schema(cls, schema, format_checker)
+    _check_oas30_schema(
+        cls, schema, format_checker, check_references=check_references
+    )
+
+
+def supports_reference_check(cls: Any) -> bool:
+    """Whether ``cls.check_schema`` accepts ``check_references``."""
+    check = getattr(cls.check_schema, "__func__", None)
+    return check in (_check_oas30_schema, _check_oas30_variant_schema)
 
 
 def _raise_first_schema_error(validator: Validator, schema: Any) -> None:

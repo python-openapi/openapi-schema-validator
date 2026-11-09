@@ -161,6 +161,13 @@ In order to validate OpenAPI 3.0 schema, import and use ``OAS30Validator`` inste
 
    validate({"name": "John", "age": None}, schema, cls=OAS30Validator)
 
+In OpenAPI 3.0 an object with ``$ref`` is a Reference Object, and any other
+keys next to ``$ref`` are ignored, both when checking the schema and when
+validating instances. A ``$schema`` next to ``$ref`` does not switch the
+dialect either. Schema checks still follow local JSON pointer references
+(``#/...``) and check the schemas they point to, wherever those are stored in
+the document.
+
 Default dialect resolution
 --------------------------
 
