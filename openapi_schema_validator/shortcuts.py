@@ -11,11 +11,13 @@ from referencing import Registry
 from openapi_schema_validator._caches import ValidatorCache
 from openapi_schema_validator._dialects import OAS31_BASE_DIALECT_ID
 from openapi_schema_validator._dialects import OAS32_BASE_DIALECT_ID
+from openapi_schema_validator._references import declares_other_dialect
 from openapi_schema_validator.validators import OAS32Validator
 from openapi_schema_validator.validators import (
     build_enforce_properties_required_validator,
 )
 from openapi_schema_validator.validators import check_openapi_schema
+from openapi_schema_validator.validators import supports_reference_check
 
 _LOCAL_ONLY_REGISTRY = Registry()
 _VALIDATOR_CACHE = ValidatorCache()
@@ -24,6 +26,8 @@ _VALIDATOR_CACHE = ValidatorCache()
 def _check_schema(
     cls: type[Validator],
     schema: dict[str, Any],
+    *,
+    legacy_resolver: bool,
 ) -> None:
     meta_schema = getattr(cls, "META_SCHEMA", None)
     # jsonschema's default check_schema path does not accept a custom
@@ -34,6 +38,14 @@ def _check_schema(
         OAS32_BASE_DIALECT_ID,
     ):
         check_openapi_schema(cls, schema)
+    elif supports_reference_check(cls):
+        # Local references are resolved against ``schema`` only when it is
+        # the reference root: a legacy resolver can carry another document,
+        # and a root ``$schema`` hands validation to that dialect.
+        check_references = not (
+            legacy_resolver or declares_other_dialect(schema)
+        )
+        cls.check_schema(schema, check_references=check_references)
     else:
         cls.check_schema(schema)
 
@@ -92,6 +104,10 @@ def validate(
     if not allow_remote_references:
         validator_kwargs.setdefault("registry", _LOCAL_ONLY_REGISTRY)
 
+    legacy_resolver = validator_kwargs.get("resolver") is not None or bool(
+        args and args[0] is not None
+    )
+
     key = _VALIDATOR_CACHE.build_key(
         schema=schema_dict,
         cls=cls,
@@ -104,7 +120,7 @@ def validate(
 
     if cached is None:
         if check_schema:
-            _check_schema(cls, schema_dict)
+            _check_schema(cls, schema_dict, legacy_resolver=legacy_resolver)
 
         validator = cls(schema_dict, *args, **validator_kwargs)
         cached = _VALIDATOR_CACHE.set(
@@ -113,7 +129,7 @@ def validate(
             schema_checked=check_schema,
         )
     elif check_schema and not cached.schema_checked:
-        _check_schema(cls, schema_dict)
+        _check_schema(cls, schema_dict, legacy_resolver=legacy_resolver)
         _VALIDATOR_CACHE.mark_schema_checked(key)
     else:
         _VALIDATOR_CACHE.touch(key)

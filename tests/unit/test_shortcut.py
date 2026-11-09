@@ -14,6 +14,7 @@ from openapi_schema_validator._regex import has_ecma_regex
 from openapi_schema_validator.settings import reset_settings_cache
 from openapi_schema_validator.shortcuts import clear_validate_cache
 from openapi_schema_validator.validators import OAS30ReadValidator
+from openapi_schema_validator.validators import OAS30StrictValidator
 from openapi_schema_validator.validators import OAS30Validator
 from openapi_schema_validator.validators import OAS30WriteValidator
 from openapi_schema_validator.validators import OAS31Validator
@@ -433,3 +434,124 @@ def test_validate_oas30_ignores_ref_siblings_while_oas31_oas32_apply_them():
                 cls=validator_cls,
                 enforce_properties_required=True,
             )
+
+
+@pytest.mark.parametrize(
+    "cls",
+    [
+        OAS30Validator,
+        OAS30StrictValidator,
+        OAS30ReadValidator,
+        OAS30WriteValidator,
+    ],
+)
+def test_oas30_schema_check_ignores_ref_siblings(cls):
+    schema = {
+        "type": "object",
+        "properties": {
+            "$ref": {
+                "$ref": "#/definitions/Name",
+                "minLength": "ignored",
+                "exclusiveMinimum": True,
+            },
+        },
+        "definitions": {"Name": {"type": "string", "minLength": 2}},
+    }
+
+    cls.check_schema(schema)
+    validate({"$ref": "abc"}, schema, cls=cls)
+    with pytest.raises(ValidationError, match="is too short"):
+        validate({"$ref": "a"}, schema, cls=cls)
+
+
+def test_oas30_schema_check_preserves_root_ref_target():
+    schema = {
+        "$ref": "#/definitions/Name",
+        "minLength": "ignored",
+        "definitions": {"Name": {"type": "string", "minLength": 2}},
+    }
+
+    validate("abc", schema, cls=OAS30Validator)
+    with pytest.raises(ValidationError, match="is too short"):
+        validate("a", schema, cls=OAS30Validator)
+
+
+def test_oas30_schema_check_rejects_non_string_ref():
+    with pytest.raises(SchemaError, match="is not of type 'string'"):
+        OAS30Validator.check_schema({"$ref": None})
+
+
+@pytest.mark.parametrize(
+    "cls", [OAS30Validator, OAS31Validator, OAS32Validator]
+)
+def test_schema_check_rejects_malformed_constraints_in_applicable_schemas(cls):
+    schema = {
+        "properties": {"name": {"$ref": "#/definitions/Name"}},
+        "definitions": {"Name": {"type": "string", "minLength": "invalid"}},
+    }
+    with pytest.raises(SchemaError, match="is not of type 'integer'"):
+        cls.check_schema(schema)
+
+
+@pytest.mark.parametrize("cls", [OAS31Validator, OAS32Validator])
+def test_schema_check_rejects_malformed_ref_siblings_in_oas31_and_oas32(cls):
+    schema = {
+        "$ref": "#/$defs/Name",
+        "minLength": "invalid",
+        "$defs": {"Name": {"type": "string"}},
+    }
+    with pytest.raises(SchemaError, match="is not of type 'integer'"):
+        validate("abc", schema, cls=cls)
+
+
+@pytest.mark.skipif(
+    not has_ecma_regex(), reason="requires optional ecma-regex"
+)
+@pytest.mark.parametrize(
+    "cls", [OAS30StrictValidator, OAS30ReadValidator, OAS30WriteValidator]
+)
+def test_oas30_variant_schema_check_keeps_draft4_format_defaults(cls):
+    schema = {"pattern": r"(?P<name>a)"}
+    cls.check_schema(schema)
+    with pytest.raises(SchemaError, match="is not a 'regex'"):
+        cls.check_schema(schema, format_checker=cls.FORMAT_CHECKER)
+
+
+@pytest.mark.parametrize(
+    "dialect", [[], "https://json-schema.org/draft/2020-12/schema"]
+)
+@pytest.mark.parametrize("enforce", [False, True])
+def test_validate_oas30_ignores_ref_sibling_dialect(dialect, enforce):
+    schema = {
+        "$ref": "#/definitions/Name",
+        "$schema": dialect,
+        "minLength": 10,
+        "definitions": {"Name": {"type": "string", "nullable": True}},
+    }
+    validate(
+        None, schema, cls=OAS30Validator, enforce_properties_required=enforce
+    )
+
+
+def test_validate_oas30_ignores_nested_ref_sibling_dialect():
+    schema = {
+        "properties": {
+            "name": {
+                "$ref": "#/definitions/Name",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+            },
+        },
+        "definitions": {"Name": {"type": "string", "nullable": True}},
+    }
+    validate({"name": None}, schema, cls=OAS30Validator)
+
+
+def test_validate_oas30_ignores_ref_sibling_id_with_legacy_resolver():
+    schema = {
+        "$ref": "#/definitions/Name",
+        "id": [],
+        "definitions": {"Name": {"type": "string"}},
+    }
+    with pytest.deprecated_call():
+        resolver = OAS30Validator(schema).resolver
+    validate("abc", schema, cls=OAS30Validator, resolver=resolver)
