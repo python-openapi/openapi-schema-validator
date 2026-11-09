@@ -111,6 +111,7 @@ def _build_oas30_validator() -> Any:
         # See https://github.com/python-openapi/openapi-schema-validator/pull/12
         # version="oas30",
         id_of=_oas30_id_of,
+        applicable_validators=_legacy_keywords.ignore_ref_siblings,
     )
 
 

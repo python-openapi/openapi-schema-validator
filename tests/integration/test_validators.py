@@ -764,6 +764,65 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
                 validator.validate({"testfield": None})
                 assert False
 
+    def test_ref_ignores_sibling_keywords(self, validator_class):
+        schema = {
+            "$ref": "#/components/schemas/ItemTarget",
+            "required": ["name"],
+            "components": {
+                "schemas": {
+                    "PlainId": {
+                        "type": "integer",
+                    },
+                    "NullableName": {
+                        "type": "string",
+                        "nullable": True,
+                        "minLength": 2,
+                    },
+                    "ItemTarget": {
+                        "type": "object",
+                        "required": ["id"],
+                        "properties": {
+                            "id": {
+                                "$ref": "#/components/schemas/PlainId",
+                                "type": "integer",
+                                "nullable": True,
+                            },
+                            "name": {
+                                "$ref": "#/components/schemas/NullableName",
+                                "type": "string",
+                                "nullable": False,
+                                "minLength": 10,
+                            },
+                            "code": {
+                                "$ref": "#/components/schemas/NullableName",
+                                "type": "integer",
+                            },
+                        },
+                    },
+                },
+            },
+        }
+        validator = validator_class(
+            schema,
+            format_checker=oas30_format_checker,
+        )
+
+        assert validator.validate({"id": 1}) is None
+        assert (
+            validator.validate({"id": 1, "name": None, "code": "abc"}) is None
+        )
+
+        with pytest.raises(
+            ValidationError, match="'id' is a required property"
+        ):
+            validator.validate({"name": "valid_name"})
+
+        with pytest.raises(ValidationError, match="None for not nullable"):
+            validator.validate({"id": None})
+
+        with pytest.raises(ValidationError, match="is too short"):
+            validator.validate({"id": 1, "name": "a"})
+
 
 class TestOAS30ReadWriteValidatorValidate:
     def test_read_only(self):
@@ -885,6 +944,90 @@ class TestOAS30ReadWriteValidatorValidate:
             format_checker=oas30_format_checker,
         )
         assert validator.validate({"some_prop": "hello"}) is None
+
+    def test_ref_ignores_sibling_read_write_keywords(self):
+        schema = {
+            "type": "object",
+            "required": ["id", "secret", "token"],
+            "properties": {
+                "id": {
+                    "$ref": "#/components/schemas/PlainInt",
+                    "readOnly": True,
+                },
+                "secret": {
+                    "$ref": "#/components/schemas/PlainString",
+                    "writeOnly": True,
+                },
+                "token": {
+                    "$ref": "#/components/schemas/ReadOnlyString",
+                    "readOnly": False,
+                },
+            },
+            "components": {
+                "schemas": {
+                    "PlainInt": {"type": "integer"},
+                    "PlainString": {"type": "string"},
+                    "ReadOnlyString": {"type": "string", "readOnly": True},
+                },
+            },
+        }
+
+        write_validator = OAS30WriteValidator(
+            schema,
+            format_checker=oas30_format_checker,
+        )
+        read_validator = OAS30ReadValidator(
+            schema,
+            format_checker=oas30_format_checker,
+        )
+        default_validator = OAS30Validator(
+            schema,
+            format_checker=oas30_format_checker,
+        )
+
+        # Sibling readOnly: True on `id` and writeOnly: True on `secret`
+        # are ignored
+        assert (
+            read_validator.validate({"id": 1, "secret": "abc", "token": "tok"})
+            is None
+        )
+        assert (
+            default_validator.validate(
+                {"id": 1, "secret": "abc", "token": "tok"}
+            )
+            is None
+        )
+
+        # Target ReadOnlyString still enforces readOnly: True on write
+        with pytest.raises(
+            ValidationError,
+            match="Tried to write read-only property with tok",
+        ):
+            write_validator.validate(
+                {"id": 1, "secret": "abc", "token": "tok"}
+            )
+
+        # Sibling readOnly: True on `id` does not exempt `id` from
+        # write_required or default required
+        with pytest.raises(
+            ValidationError, match="'id' is a required property"
+        ):
+            write_validator.validate({"secret": "abc"})
+        with pytest.raises(
+            ValidationError, match="'id' is a required property"
+        ):
+            default_validator.validate({"secret": "abc", "token": "tok"})
+
+        # Sibling writeOnly: True on `secret` does not exempt `secret` from
+        # read_required or default required
+        with pytest.raises(
+            ValidationError, match="'secret' is a required property"
+        ):
+            read_validator.validate({"id": 1, "token": "tok"})
+        with pytest.raises(
+            ValidationError, match="'secret' is a required property"
+        ):
+            default_validator.validate({"id": 1, "token": "tok"})
 
 
 class TestOAS31ValidatorFormatChecker:
@@ -1046,6 +1189,40 @@ class TestOAS31ValidatorValidate(BaseTestOASValidatorValidate):
 
         error = "'id' is a required property"
         assert error in str(excinfo.value)
+
+    def test_schema_ref_applies_sibling_keywords(
+        self, validator_class, format_checker
+    ):
+        schema = {
+            "$ref": "#/$defs/Pet",
+            "required": ["name"],
+            "$defs": {
+                "Pet": {
+                    "type": "object",
+                    "required": ["id"],
+                    "properties": {
+                        "id": {"type": "integer", "format": "int64"},
+                        "name": {"type": "string"},
+                    },
+                }
+            },
+        }
+        validator = validator_class(
+            schema,
+            format_checker=format_checker,
+        )
+
+        assert validator.validate({"id": 1, "name": "John"}) is None
+
+        with pytest.raises(
+            ValidationError, match="'name' is a required property"
+        ):
+            validator.validate({"id": 1})
+
+        with pytest.raises(
+            ValidationError, match="'id' is a required property"
+        ):
+            validator.validate({"name": "John"})
 
     @pytest.mark.parametrize(
         "value",
@@ -1329,6 +1506,32 @@ class TestOAS30StrictValidator:
         # Note: "test" is actually valid base64, so use "not base64" which is not
         with pytest.raises(ValidationError, match="is not a 'binary'"):
             validator.validate("not base64")
+
+    def test_strict_validator_ref_ignores_sibling_keywords(self):
+        schema = {
+            "$ref": "#/components/schemas/NullableText",
+            "type": "string",
+            "nullable": False,
+            "minLength": 10,
+            "components": {
+                "schemas": {
+                    "NullableText": {
+                        "type": "string",
+                        "nullable": True,
+                        "minLength": 2,
+                    }
+                }
+            },
+        }
+        validator = OAS30StrictValidator(
+            schema, format_checker=oas30_strict_format_checker
+        )
+
+        assert validator.validate("abc") is None
+        assert validator.validate(None) is None
+
+        with pytest.raises(ValidationError, match="is too short"):
+            validator.validate("a")
 
 
 class TestValidatorForDiscovery:

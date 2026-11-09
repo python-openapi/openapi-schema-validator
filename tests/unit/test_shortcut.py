@@ -383,3 +383,53 @@ def test_enforce_properties_required(
         validate(
             instance, schema, cls=cls, enforce_properties_required=enforce
         )
+
+
+def test_validate_oas30_ignores_ref_siblings_while_oas31_oas32_apply_them():
+    schema = {
+        "$ref": "#/$defs/ItemTarget",
+        "required": ["name"],
+        "properties": {
+            "extra": {"type": "string"},
+        },
+        "$defs": {
+            "ItemTarget": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                    "id": {"type": "integer"},
+                    "name": {"type": "string"},
+                },
+            }
+        },
+    }
+
+    assert validate({"id": 1}, schema, cls=OAS30Validator) is None
+    assert (
+        validate(
+            {"id": 1, "name": "abc"},
+            schema,
+            cls=OAS30Validator,
+            enforce_properties_required=True,
+        )
+        is None
+    )
+
+    for validator_cls in (OAS31Validator, OAS32Validator):
+        with pytest.raises(
+            ValidationError, match="'name' is a required property"
+        ):
+            validate({"id": 1}, schema, cls=validator_cls)
+        assert (
+            validate({"id": 1, "name": "abc"}, schema, cls=validator_cls)
+            is None
+        )
+        with pytest.raises(
+            ValidationError, match="'extra' is a required property"
+        ):
+            validate(
+                {"id": 1, "name": "abc"},
+                schema,
+                cls=validator_cls,
+                enforce_properties_required=True,
+            )

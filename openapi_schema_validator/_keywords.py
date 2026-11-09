@@ -232,7 +232,7 @@ def required(
     for property in required:
         if property not in instance:
             prop_schema = schema.get("properties", {}).get(property)
-            if prop_schema:
+            if prop_schema and "$ref" not in prop_schema:
                 read_only = prop_schema.get("readOnly", False)
                 write_only = prop_schema.get("writeOnly", False)
                 if (
@@ -256,7 +256,7 @@ def read_required(
     for property in required:
         if property not in instance:
             prop_schema = schema.get("properties", {}).get(property)
-            if prop_schema:
+            if prop_schema and "$ref" not in prop_schema:
                 write_only = prop_schema.get("writeOnly", False)
                 if getattr(validator, "read", True) and write_only:
                     continue
@@ -274,7 +274,7 @@ def write_required(
     for property in required:
         if property not in instance:
             prop_schema = schema.get("properties", {}).get(property)
-            if prop_schema:
+            if prop_schema and "$ref" not in prop_schema:
                 read_only = prop_schema.get("readOnly", False)
                 if read_only:
                     continue
