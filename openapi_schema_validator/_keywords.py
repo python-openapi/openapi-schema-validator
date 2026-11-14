@@ -2,6 +2,7 @@ from typing import Any
 from typing import Iterator
 from typing import Mapping
 from typing import cast
+from urllib.parse import quote
 
 from jsonschema._keywords import allOf as _allOf
 from jsonschema._keywords import anyOf as _anyOf
@@ -43,10 +44,17 @@ def handle_discriminator(
         )
         return
 
-    # Use explicit mapping if available, otherwise try implicit value
-    ref = (
-        discriminator.get("mapping", {}).get(prop_value)
-        or f"#/components/schemas/{prop_value}"
+    # Use explicit mapping if available, otherwise try implicit value.
+    # The implicit value names a single component schema, so escape it as
+    # one JSON pointer token (RFC 6901) and percent-encode it for the URI
+    # fragment, otherwise "/" or "%2F" in the payload selects a nested
+    # subschema instead.
+    ref = discriminator.get("mapping", {}).get(prop_value) or (
+        "#/components/schemas/"
+        + quote(
+            str(prop_value).replace("~", "~0").replace("/", "~1"),
+            safe="",
+        )
     )
 
     if not isinstance(ref, str):

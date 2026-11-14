@@ -537,6 +537,48 @@ class TestOAS30ValidatorValidate(BaseTestOASValidatorValidate):
         assert isinstance(exc_info.value.__cause__, expected_cause)
 
     @pytest.mark.parametrize(
+        "discipline",
+        [
+            "MountainHiking/properties",
+            "MountainHiking%2Fproperties",
+        ],
+    )
+    def test_discriminator_implicit_value_is_single_schema_name(
+        self, discipline
+    ):
+        schema = {
+            "oneOf": [{"$ref": "#/components/schemas/MountainHiking"}],
+            "discriminator": {"propertyName": "discipline"},
+            "components": {
+                "schemas": {
+                    "MountainHiking": {
+                        "type": "object",
+                        "properties": {
+                            "discipline": {"type": "string"},
+                            "length": {"type": "integer"},
+                        },
+                        "required": ["discipline", "length"],
+                        "additionalProperties": False,
+                    },
+                },
+            },
+        }
+
+        validator = OAS30Validator(
+            schema,
+            format_checker=oas30_format_checker,
+        )
+
+        with pytest.raises(ValidationError, match="could not be resolved"):
+            validator.validate(
+                {
+                    "discipline": discipline,
+                    "length": "not-an-integer",
+                    "extra": True,
+                }
+            )
+
+    @pytest.mark.parametrize(
         "schema_type",
         [
             "oneOf",
