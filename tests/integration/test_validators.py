@@ -98,6 +98,25 @@ class BaseTestOASValidatorValidate:
 
         assert result is None
 
+    @pytest.mark.parametrize(
+        "format,value",
+        [
+            ("int32", 2147483648.0),
+            ("int32", -2147483649.0),
+            ("int32", 1e10),
+            ("int64", 9223372036854775808.0),
+            ("int64", 1e19),
+        ],
+    )
+    def test_integer_formats_out_of_range_float_invalid(
+        self, format, value, validator_class, format_checker
+    ):
+        schema = {"format": format}
+        validator = validator_class(schema, format_checker=format_checker)
+
+        with pytest.raises(ValidationError, match=f"is not a '{format}'"):
+            validator.validate(value)
+
     @pytest.mark.parametrize("format", ["float", "double"])
     @pytest.mark.parametrize("value", [3, 3.14, 1.0])
     def test_number_float_and_double_valid(

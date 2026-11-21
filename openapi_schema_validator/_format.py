@@ -12,7 +12,8 @@ def is_int32(instance: object) -> bool:
     # bool inherits from int, so ensure bools aren't reported as ints
     if isinstance(instance, bool):
         return True
-    if not isinstance(instance, int):
+    # floats are range-checked too: 1e10 is an integer in OAS 3.1+
+    if not isinstance(instance, (int, float)):
         return True
     return ~(1 << 31) < instance < 1 << 31
 
@@ -21,7 +22,8 @@ def is_int64(instance: object) -> bool:
     # bool inherits from int, so ensure bools aren't reported as ints
     if isinstance(instance, bool):
         return True
-    if not isinstance(instance, int):
+    # floats are range-checked too: 1e19 is an integer in OAS 3.1+
+    if not isinstance(instance, (int, float)):
         return True
     return ~(1 << 63) < instance < 1 << 63
 
